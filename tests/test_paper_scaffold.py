@@ -91,10 +91,46 @@ def main():
     # 2. placeholders are conspicuous macros (fail-closed), and unresolved facts use them
     check("ownerinput_macro_defined", "\\newcommand{\\ownerinput}" in MAIN)
     check("pending_macro_defined", "\\newcommand{\\pending}" in MAIN)
-    # Placeholders that must STILL exist post-G7.6 (genuinely unmeasured / owner-supplied).
-    for tok in ("final title", "genuine-A10G peak reserved VRAM", "final image tag and digest",
+    # Placeholders that must STILL exist (genuinely unmeasured / not yet owner-supplied).
+    # "final title" left this list in Stage G79-S when the owner approved the final title; the
+    # remaining entries are all quantities that do not exist yet and must never be invented.
+    for tok in ("genuine-A10G peak reserved VRAM", "final image tag and digest",
                 "hidden-test results", "official validation score"):
         check(f"placeholder_present::{tok[:22]}", tok in MAIN)
+
+    # 2b. Author identity, title and acknowledgement resolved by owner decision (Stage G79-S).
+    # These are now REQUIRED to be concrete, and their placeholders must be gone.
+    check("title_is_approved_final",
+          "\\title{GAT-26: Five-Fold Residual Encoder Ensembling for Generalizable Brain Tumor "
+          "Segmentation}" in MAIN)
+    check("titlerunning_present", "\\titlerunning{" in MAIN and "\\ownerinput" not in
+          MAIN.split("\\titlerunning{")[1].split("}")[0])
+    check("sole_author_named", "\\author{Nathan Chen}" in MAIN)
+    check("authorrunning_named", "\\authorrunning{N. Chen}" in MAIN)
+    check("affiliation_exact",
+          "Kang Chiao International School, Xiugang Campus, New Taipei City, Taiwan" in MAIN)
+    check("correspondence_email_exact", "\\email{naifenchen52@gmail.com}" in MAIN)
+    check("acknowledgement_exact",
+          "The author thanks Professor Pin-Yuan Chen for his clinical guidance, methodological "
+          "feedback,\nreview of the manuscript, and mentorship." in MAIN)
+    # Pin-Yuan Chen is acknowledged ONLY -- never an author, never an affiliation. These inspect
+    # TYPESET content: LaTeX comments are stripped first, because a `%` comment explaining the
+    # distinction is not itself a byline. (`forbid` is defined further down, so use `check`.)
+    typeset = re.sub(r"(?<!\\)%.*", "", MAIN)
+    author_block = typeset.split("\\maketitle")[0]
+    check("acknowledged_person_not_an_author", "Pin-Yuan" not in author_block)
+    check("no_author_placeholder_left",
+          re.search(r"\\ownerinput\{(final title|author|affiliation|acknowledgement)", MAIN, re.I)
+          is None)
+    # Nothing may be invented around the identity: no ORCID, degree, department, funder or grant.
+    # Scoped to the typeset author block -- that is where such a claim would actually be made.
+    check("no_invented_credentials",
+          re.search(r"\\orcid|\bORCID\b|\bPh\.?\s?D\b|\bM\.?\s?D\.\b|\bgrant\b|\bfunded by\b|"
+                    r"\bDepartment of\b", author_block, re.I) is None)
+    # Exactly one correspondence address, and it is the approved permanent one. Any other address
+    # in the author block -- notably the temporary school address -- is a hard failure.
+    emails = set(re.findall(r"[\w.+-]+@[\w.-]+\.\w+", author_block))
+    check("correspondence_email_is_sole_and_approved", emails == {"naifenchen52@gmail.com"})
 
     # 3. every populated numeric claim matches committed evidence (rounded as printed).
     #    These comparisons READ the private fold-0 aggregate summaries, which are internal evidence
@@ -182,13 +218,16 @@ def main():
            re.search(r"\\ownerinput\{(public source-code url|code-availability)", MAIN, re.I) is not None)
     forbid("no_stale_private_repo_claim", "currently private" in flat)
 
-    # (d) anonymity not asserted without explicit verification
-    forbid("no_anonymity_assertion",
-           "are **non-anonymous** (no anonymity requirement found)" in low
-           or "papers are \\textbf{non-anonymous}" in low)
-    check("anonymity_is_owner_blocker",
-          "anonymity" in low and ("owner-verification blocker" in low or "verification blocker" in low
-                                  or ("anonymity setting" in low and "blocker" in low)))
+    # (d) anonymity: RESOLVED in Stage G79-S. The organizers confirmed the review is SINGLE-BLIND,
+    # so author identity must NOT be anonymized and naming the author is correct. The earlier guards
+    # required this to remain an open owner-verification blocker and would now assert a falsehood.
+    # They are replaced by guards that the resolution is recorded WITH its basis -- a non-anonymous
+    # manuscript must never rest on "no rule was found".
+    check("anonymity_resolved_single_blind", "single-blind" in low)
+    check("anonymity_resolution_cites_basis",
+          "13911" in low or "discussion thread" in low)
+    forbid("no_anonymity_absence_of_rule_justification",
+           "no anonymity requirement found" in low or "absence of a rule is not confirmation" in low)
 
     # (e) pending final evidence must remain PENDING, not presented as completed
     # Post-G7/G7.5/G7.6: the five-fold CV and the trained folds are COMPLETE and must be reported

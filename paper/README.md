@@ -10,7 +10,7 @@ evidence**. Everything not yet measured/decided is a conspicuous fail-closed pla
 - `CITATION_LEDGER.md` — reference provenance + numeric-claim → committed-evidence map.
 - `SUBMISSION_CHECKLIST.md` — owner-facing submission administration.
 
-## Compile — **RUN AND PASSED** (Stage G78, 2026-07-28)
+## Compile — **RUN AND PASSED** (Stage G78; re-verified after G79-S identity resolution)
 
 The paper has now been **compiled against the official Springer LNCS class** in an isolated,
 git-ignored TeX environment under `/tmp` (nothing was installed globally on the controller).
@@ -23,7 +23,9 @@ git-ignored TeX environment under `/tmp` (nothing was installed globally on the 
 | Bibliography entries typeset | **12 / 12** |
 | Total typeset length | **10 pages** |
 | **Length excluding references** | **9 pages** — References heading begins on page 9 · **within the required 8–10** |
-| Overfull boxes | 2 minor (7.7 pt in body; 13.1 pt caused by the long `\ownerinput{acknowledgements}` placeholder, which resolves when the owner supplies the text) |
+| Overfull boxes | **1** minor (7.7 pt in body). The 13.1 pt box previously caused by the `\ownerinput{acknowledgements}` placeholder is **gone** now that the approved acknowledgement is typeset (G79-S). |
+| LaTeX errors | **0** |
+| Front matter (G79-S) | approved title, sole author **Nathan Chen**, exact affiliation, `naifenchen52@gmail.com`, running title and `N. Chen` running author — all verified in the rendered PDF |
 | Visual review | every page rendered and inspected — no clipping, no broken references, no malformed tables, no missing citations, no unfinished prose |
 
 `llncs.cls`, `splncs04.bst`, `main.pdf`, and all LaTeX build artifacts remain **git-ignored** and are
@@ -61,11 +63,18 @@ selection utility used DSC + HD95 as a proxy. See `docs/RULE_SNAPSHOT.md` §2026
 `\pending{}`: genuine-A10G peak reserved VRAM and seconds/case (A10G-2); final image tag and digest;
 official validation score and rank (GAT-26 is currently **unranked — no official validation
 submission**); hidden-test results.
-`\ownerinput{}`: final title; author list, affiliations, emails, OpenReview profiles; acknowledgements;
-team name; OpenReview and Synapse submission IDs; confirmation of the final organizer metric
-definition at camera-ready. **The public source-code URL is no longer pending** — Stage G79-P
-published the sanitized export under Apache-2.0 at <https://github.com/Neethan-hub/gat26-brats-2026>
-and `main.tex` cites it (verified rendered and hyperlinked in the compiled PDF).
+`\ownerinput{}`: OpenReview profile; team name; OpenReview and Synapse submission IDs;
+confirmation of the final organizer metric definition at camera-ready.
+
+**Resolved and no longer pending:**
+- *Public source-code URL* (G79-P) — published under Apache-2.0 at
+  <https://github.com/Neethan-hub/gat26-brats-2026>; `main.tex` cites it.
+- *Title, author identity and acknowledgement* (G79-S, owner decision) — final title
+  **"GAT-26: Five-Fold Residual Encoder Ensembling for Generalizable Brain Tumor Segmentation"**;
+  sole author **Nathan Chen**, Kang Chiao International School, Xiugang Campus, New Taipei City,
+  Taiwan; correspondence **naifenchen52@gmail.com**; approved acknowledgement of Professor
+  Pin-Yuan Chen, who is **acknowledged only — not an author and not an institutional affiliate**.
+  No ORCID, degree, department, funder, or grant was invented.
 
 ## Live rule basis (retrieved 2026-07-23T07:23:22Z; re-verified 2026-07-25T12:52Z and **2026-07-28T01:15–01:17Z**)
 8–10 pp excl. refs, Springer LNCS (wiki/639582, unchanged, mod 2026-07-12); OpenReview submission +
@@ -83,8 +92,10 @@ provision (639585): *"Organizers will be irrevocably permitted to make the submi
 publicly accessible on an Apache v.2.0 license, unless another license is otherwise indicated"* —
 so declining to indicate a licence is itself a licence decision. The licence choice is the owner's.
 
-**Anonymity: no rule was found, which is NOT confirmation — the OpenReview venue anonymity setting
-is an owner-verification blocker.**
+**Anonymity — RESOLVED (G79-S).** The organizers confirmed the review is **single-blind**
+(Synapse discussion thread `13911`, "Questions Regarding Paper Submission", project `syn74274097`),
+so author identity **must not** be anonymized and the manuscript names its author. This rests on the
+organizer reply, not on the absence of a rule.
 
 ## Submission blockers
 
@@ -101,12 +112,16 @@ is an owner-verification blocker.**
 - Public source-code URL — the sanitized export is **published and independently verified** under
   Apache-2.0 at <https://github.com/Neethan-hub/gat26-brats-2026>, and `main.tex` cites it.
 
+**Also cleared by Stage G79-S (2026-07-28):**
+- Title, sole author, affiliation, correspondence email and acknowledgement — resolved by owner
+  decision and typeset in `main.tex`.
+- Review anonymity — the organizers confirmed **single-blind**, so the author is named.
+
 **Still open (hard blockers):**
-- The remaining `\ownerinput{}` placeholders — title, authors/affiliations/emails, acknowledgements,
-  and the camera-ready NSD-tolerance confirmation.
+- The remaining `\ownerinput{}` placeholder — the camera-ready NSD-tolerance confirmation.
 - Every `\pending{}` placeholder — genuine-A10G VRAM/runtime (A10G-2), final image tag/digest,
   official validation score/rank, hidden-test results.
-- OpenReview venue anonymity setting (owner verification; absence of a rule is not confirmation).
+- OpenReview profile, team name, and the OpenReview/Synapse submission IDs (owner action).
 
 The final container image and genuine-A10G validation remain pending; the paper describes a release
 **scaffold and design target**, not a completed container.

@@ -62,16 +62,20 @@ Every box is **owner-only and interactive**. Claude does not submit, upload, or 
 - [ ] Submit the paper via **OpenReview** (`https://openreview.net/group?id=MICCAI.org/2026/Challenge`)
       and, where prompted (BrainLes CMT), provide the exact Synapse team name. **Confirm** the paper is
       submitted and the team name is correct — organizers only run Docker submissions linked to a paper.
-- [ ] **BLOCKER — verify the OpenReview venue anonymity setting** (single/double-blind vs.
-      non-anonymous) directly in the OpenReview venue before preparing the author block. No anonymity
-      rule was found on the wiki, but **absence of a rule is not confirmation**; do not assume
-      non-anonymous.
+- [x] **BLOCKER CLEARED (G79-S) — review is SINGLE-BLIND.** Confirmed by the organizers in Synapse
+      discussion thread `13911` ("Questions Regarding Paper Submission", project `syn74274097`).
+      Author identity must therefore **not** be anonymized, and the manuscript names its author.
 
 ## C. Every author (exact, per author)
-- [ ] Full legal name
-- [ ] Email (Synapse-affiliated where required)
-- [ ] Affiliation(s)
+**Sole author — resolved by owner decision (G79-S):**
+- [x] Full legal name — **Nathan Chen**
+- [x] Email — **naifenchen52@gmail.com** (permanent correspondence address; the temporary school
+      address is deliberately **not** used and must never be published)
+- [x] Affiliation — **Kang Chiao International School, Xiugang Campus, New Taipei City, Taiwan**
 - [ ] OpenReview profile (existing/created; name matches)
+
+**Not an author:** Professor Pin-Yuan Chen is **acknowledged only**, and is neither a co-author nor
+an institutional affiliate of the author.
 
 ## D. Docker / final submission
 - [ ] Final image built and **passing A10G-2 acceptance** (five genuinely distinct ResEnc-M fold_0–4
@@ -89,9 +93,10 @@ Every box is **owner-only and interactive**. Claude does not submit, upload, or 
 - [ ] Organizers provide the copyright form **at camera-ready**; sign and return it then.
 
 ## F. Placeholders that must be resolved (from `main.tex`)
-- [ ] Final title
-- [ ] Final author list, affiliations, emails, OpenReview profiles
-- [ ] Acknowledgements
+- [x] Final title — **GAT-26: Five-Fold Residual Encoder Ensembling for Generalizable Brain Tumor
+      Segmentation** (G79-S)
+- [x] Final author, affiliation, email — **Nathan Chen** (G79-S); OpenReview profile still outstanding
+- [x] Acknowledgements — approved sentence thanking Professor Pin-Yuan Chen (G79-S)
 - [x] Public code repository URL (for the paper's reproducibility statement) — **filled (G79-P)**:
       <https://github.com/Neethan-hub/gat26-brats-2026>
 - [ ] M folds 1–4 (produced by G7) — `[PENDING_G7/A10G]`

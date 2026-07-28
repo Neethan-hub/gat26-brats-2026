@@ -27,21 +27,21 @@
 
 \begin{document}
 
-% Working title. The owner supplies the final title; the descriptive subtitle below is the
-% system/task description and may be kept, shortened, or replaced.
-\title{\ownerinput{final title} --- GAT-26: A Generalization-Aware Tri-region 3D nnU-Net
-Ensemble for Cross-Tumor Brain Tumor Segmentation}
+% Final approved title (owner decision, Stage G79-S).
+\title{GAT-26: Five-Fold Residual Encoder Ensembling for Generalizable Brain Tumor Segmentation}
 % `runningheads' requires a short running title; without it LNCS emits
 % "Title too long for running head".
-\titlerunning{GAT-26: Tri-region 3D nnU-Net Ensemble for BraTS-GoAT 2026}
+\titlerunning{GAT-26: Five-Fold ResEnc Ensembling for Brain Tumor Segmentation}
 
-% The challenge runs a light peer review in which participants review 2–3 papers (wiki/639582,
-% re-verified 2026-07-25). No anonymization requirement was found on any challenge page, so the
-% manuscript is prepared NON-ANONYMOUSLY (authors named). The exact OpenReview venue setting remains
-% an OWNER-VERIFICATION item before submission.
-\author{\ownerinput{Author One} \and \ownerinput{Author Two}}
-\authorrunning{\ownerinput{Short author list}}
-\institute{\ownerinput{Affiliation(s) and contact emails}}
+% Author identity resolved by owner decision (Stage G79-S). The organizers confirmed the review is
+% SINGLE-BLIND (Synapse discussion thread 13911, "Questions Regarding Paper Submission", project
+% syn74274097), so the manuscript is prepared NON-ANONYMOUSLY and the author is named.
+% Sole author. Professor Pin-Yuan Chen is acknowledged only (see \ackname) and is neither an author
+% nor an institutional affiliate of the author.
+\author{Nathan Chen}
+\authorrunning{N. Chen}
+\institute{Kang Chiao International School, Xiugang Campus, New Taipei City, Taiwan\\
+\email{naifenchen52@gmail.com}}
 
 \maketitle
 
@@ -210,8 +210,9 @@ folder names, and output-name collisions \emph{before any output is written}. Th
 start unless exactly five distinct fold checkpoints are present.
 
 % Public source-code URL, filled in Stage G79-P after the sanitized export was published and
-% independently verified by unauthenticated clone. Only this field was filled; every other
-% \ownerinput{} / \pending{} placeholder remains open.
+% independently verified by unauthenticated clone. Author identity, title and acknowledgement were
+% subsequently resolved in Stage G79-S. Every remaining \ownerinput{} / \pending{} placeholder --
+% the camera-ready NSD-tolerance confirmation and the unmeasured result fields -- stays open.
 Code availability: the source code for this system is publicly available under the Apache License
 2.0 at \url{https://github.com/Neethan-hub/gat26-brats-2026}. The repository contains the inference
 runner and its container definition, the split/selection/training and evaluation tooling,
@@ -395,12 +396,15 @@ will be reported at camera-ready.
 
 \begin{credits}
 \subsubsection{\ackname}
-\ownerinput{acknowledgements}
+% Approved acknowledgement, quoted verbatim (owner decision, Stage G79-S). Professor Pin-Yuan Chen
+% is acknowledged only -- not an author and not an institutional affiliate of the author.
+The author thanks Professor Pin-Yuan Chen for his clinical guidance, methodological feedback,
+review of the manuscript, and mentorship.
 % Organizer-mandated acknowledgement sentence, quoted verbatim from the live Challenge Rules
 % (Synapse wiki/639585, re-verified 2026-07-28).
 Data used in this publication were obtained as part of the Challenge project through Synapse ID
 (syn74274097).
-\subsubsection{\discintname} The authors declare no competing interests relevant to this work.
+\subsubsection{\discintname} The author declares no competing interests relevant to this work.
 \end{credits}
 
 \bibliographystyle{splncs04}

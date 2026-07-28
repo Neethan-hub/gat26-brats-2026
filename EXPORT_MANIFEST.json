@@ -1,6 +1,6 @@
 {
  "n_files": 68,
- "total_bytes": 575097,
+ "total_bytes": 580089,
  "declared_license": "Apache-2.0",
  "files": [
   {
@@ -130,18 +130,18 @@
   },
   {
    "path": "paper/README.md",
-   "bytes": 7187,
-   "sha256": "6ac754ad0e76cbd2d825ad77d90bc6dd03acb55f7604b611c0bcd7be71620cfe"
+   "bytes": 8288,
+   "sha256": "434a6bb745e6bdf595e9c089acff1e85fea15104d954fb282bde453114835cd6"
   },
   {
    "path": "paper/SUBMISSION_CHECKLIST.md",
-   "bytes": 8204,
-   "sha256": "8e8e6fe4268d911c1ea3b570324c8a947ce0f47a4c6c95635b384d74f20f2348"
+   "bytes": 8820,
+   "sha256": "0f77c1886fc1740dc0febf7d8eb66f4b71267a7c9589932d40cd87ace61759e5"
   },
   {
    "path": "paper/main.tex",
-   "bytes": 27100,
-   "sha256": "e2d5666ba55e302d581909a523ddaadb90db063b711d47015ca6cd72c1a509b5"
+   "bytes": 27483,
+   "sha256": "819e66eb461209cedfcb3e472a07bd2f500752c55786f0d5af28052e52b90f73"
   },
   {
    "path": "paper/references.bib",
@@ -325,8 +325,8 @@
   },
   {
    "path": "tests/test_paper_scaffold.py",
-   "bytes": 13454,
-   "sha256": "bfb0d49693db022d16582eb1be1e72a01c5ff20e8bba3a285a01965dc453443f"
+   "bytes": 16346,
+   "sha256": "8694482c1ff86ffdc6776cb383965a49856ecc9076804d2a89837fe56627777c"
   },
   {
    "path": "tests/test_release_build_preflight.py",
