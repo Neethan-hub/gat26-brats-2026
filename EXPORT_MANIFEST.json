@@ -1,6 +1,6 @@
 {
  "n_files": 68,
- "total_bytes": 567865,
+ "total_bytes": 575097,
  "declared_license": "Apache-2.0",
  "files": [
   {
@@ -15,8 +15,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 6180,
-   "sha256": "875e81f6d7743e03bfc280497b4df283a3bc5bb50d8f3ca4d5ae780951aa1327"
+   "bytes": 7837,
+   "sha256": "0ba2f41827fa35ab78d76a7e703ea96f29272d0e60a30e6de68574f32cf6c800"
   },
   {
    "path": "configs/environment.lock.txt",
@@ -320,13 +320,13 @@
   },
   {
    "path": "tests/test_g77_official_metric.py",
-   "bytes": 18800,
-   "sha256": "d45bb9a1d927837cfb9b88e4487ab102623347b80d54a77fabd126546051125e"
+   "bytes": 21702,
+   "sha256": "c41d815cf4c68f961c0beb2870d5557f35bc49117ded0ef0c887c21644fd8672"
   },
   {
    "path": "tests/test_paper_scaffold.py",
-   "bytes": 10781,
-   "sha256": "f2be9e5cdc399c2dcbca000cc61c8c515ee42e82a5f631fd271df01f984e8035"
+   "bytes": 13454,
+   "sha256": "bfb0d49693db022d16582eb1be1e72a01c5ff20e8bba3a285a01965dc453443f"
   },
   {
    "path": "tests/test_release_build_preflight.py",

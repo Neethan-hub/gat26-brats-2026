@@ -81,6 +81,36 @@ every weight is baked at build time; the entrypoint never downloads anything.
 Weights and dataset/plans JSON are supplied through a **private build context** and are **not** in
 this repository. Building the image therefore requires checkpoints you have trained yourself.
 
+## Running the tests
+
+Every test file in `tests/` executes from a clean clone of this repository:
+
+```
+python3 tests/test_release_infer.py        # or run them all:
+for t in tests/test_*.py; do python3 "$t"; done
+```
+
+They need only the pinned Python dependencies — no GPU, no challenge data, no model checkpoints.
+
+**Two narrowly scoped subgroups are intentionally skipped here**, because they assert against
+internal evidence records that this project does not redistribute:
+
+| Test | Skipped subgroup | Why |
+|---|---|---|
+| `tests/test_paper_scaffold.py` | `SKIP_PUBLIC_EXPORT_PRIVATE_EVIDENCE` — the numeric-claim-vs-evidence comparisons | They read the private fold-0 aggregate evaluation summaries |
+| `tests/test_g77_official_metric.py` | `SKIP_PUBLIC_EXPORT_PRIVATE_GOVERNANCE` — the current-state and persistence-audit checks | They read the private internal governance record |
+
+Everything else in those two files still runs here: the LNCS structure, bibliography, placeholder,
+sanitization, publication-state, release-state, page-count and unsupported-claim guards; and the
+scientific, configuration, candidate-restriction, metric-definition, fold-isolation, bootstrap and
+historical-policy checks. Nothing is stubbed, hardcoded, or approximated in place of a skipped
+check — the subgroup is simply not run.
+
+The skip is deliberately hard to reach: it activates only when this tree's `EXPORT_MANIFEST.json`
+declares the sanitized Apache-2.0 export *and* the corresponding private files are genuinely
+absent. In the development repository those files are mandatory, and the complete versions of both
+subgroups run there on every commit.
+
 ## Dependencies
 
 Dependencies are **installed from their upstream sources at build time and are not vendored into

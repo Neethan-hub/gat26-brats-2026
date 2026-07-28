@@ -18,6 +18,44 @@ MAIN = (PAPER / "main.tex").read_text()
 BIB = (PAPER / "references.bib").read_text()
 FAILS = 0
 
+# --- private aggregate evidence -------------------------------------------------------------
+# These fold-0 summaries back every populated numeric claim in the paper. They are internal
+# evidence records and are deliberately NOT redistributed in the public source export.
+PRIVATE_EVIDENCE = (
+    "artifacts/g5_m_fold0_official_eval_summary.json",
+    "artifacts/g5_l_fold0_official_eval_summary.json",
+    "artifacts/g5_fold0_selection_decision.json",
+)
+SKIP_MESSAGE = "SKIP_PUBLIC_EXPORT_PRIVATE_EVIDENCE"
+
+
+def public_export_mode(required_private) -> bool:
+    """True ONLY inside a validated sanitized public export. Fail-closed by construction.
+
+    Every condition must hold:
+      * a well-formed root ``EXPORT_MANIFEST.json`` exists and declares the Apache-2.0 sanitized
+        export;
+      * that manifest actually describes THIS tree — it lists this test file and ``LICENSE``;
+      * every ``required_private`` path is genuinely absent.
+
+    Deleting files inside the development repository can NEVER activate this: the private
+    repository does not contain, and never commits, ``EXPORT_MANIFEST.json`` — the manifest is
+    produced only by ``scripts/make_code_export.py`` into an export directory. So missing evidence
+    stays a hard failure everywhere except a real export.
+    """
+    try:
+        man = json.loads((REPO / "EXPORT_MANIFEST.json").read_text())
+    except (OSError, ValueError):
+        return False
+    if man.get("declared_license") != "Apache-2.0":
+        return False
+    listed = {e.get("path") for e in man.get("files", []) if isinstance(e, dict)}
+    if not listed or "LICENSE" not in listed:
+        return False
+    if Path(__file__).resolve().relative_to(REPO).as_posix() not in listed:
+        return False
+    return all(not (REPO / p).exists() for p in required_private)
+
 
 def check(name, cond):
     global FAILS
@@ -58,25 +96,35 @@ def main():
                 "hidden-test results", "official validation score"):
         check(f"placeholder_present::{tok[:22]}", tok in MAIN)
 
-    # 3. every populated numeric claim matches committed evidence (rounded as printed)
-    m = json.loads((REPO / "artifacts" / "g5_m_fold0_official_eval_summary.json").read_text())
-    l = json.loads((REPO / "artifacts" / "g5_l_fold0_official_eval_summary.json").read_text())
-    mc, lc = m["components_mean"], l["components_mean"]
-    for label, val, fmt in [
-        ("M_et_dsc", mc["et_dsc"], r3), ("M_tc_dsc", mc["tc_dsc"], r3), ("M_wt_dsc", mc["wt_dsc"], r3),
-        ("M_et_hd95", mc["et_hd95"], r2), ("M_tc_hd95", mc["tc_hd95"], r2), ("M_wt_hd95", mc["wt_hd95"], r2),
-        ("L_et_dsc", lc["et_dsc"], r3), ("L_tc_dsc", lc["tc_dsc"], r3), ("L_wt_dsc", lc["wt_dsc"], r3),
-        ("L_et_hd95", lc["et_hd95"], r2), ("L_tc_hd95", lc["tc_hd95"], r2), ("L_wt_hd95", lc["wt_hd95"], r2),
-        ("M_dsc_p05", m["dsc_p05"], r3), ("L_dsc_p05", l["dsc_p05"], r3),
-        ("M_hd95_p95", m["hd95_p95"], r2), ("L_hd95_p95", l["hd95_p95"], r2),
-    ]:
-        check(f"numeric_matches_evidence::{label}", fmt(val) in MAIN)
-    check("val_count_271_matches", str(m["n"]) == "271" and "271" in MAIN)
-    sel = json.loads((REPO / "artifacts" / "g5_fold0_selection_decision.json").read_text())
-    check("selection_select_M", sel["decision"] == "select_M" and "selects ResEnc-M" in MAIN)
-    n_res = sel["bootstrap_resamples"]
-    res_forms = (str(n_res), f"{n_res:,}".replace(",", "{,}"), f"{n_res:,}")   # 10000 / 10{,}000 / 10,000
-    check("bootstrap_seed_in_paper", str(sel["seed"]) in MAIN and any(f in MAIN for f in res_forms))
+    # 3. every populated numeric claim matches committed evidence (rounded as printed).
+    #    These comparisons READ the private fold-0 aggregate summaries, which are internal evidence
+    #    and are not redistributed publicly. In the development repository they are MANDATORY: a
+    #    missing file is a hard failure. Only inside a validated sanitized public export are they
+    #    skipped, and nothing is hardcoded, approximated or fabricated in their place.
+    if public_export_mode(PRIVATE_EVIDENCE):
+        print(f"  {SKIP_MESSAGE} — numeric-evidence comparisons require the private fold-0 "
+              f"aggregate summaries, which are not redistributed. All structure, bibliography, "
+              f"placeholder, sanitization, publication-state, A10G-state, page-count and "
+              f"unsupported-claim guards still ran.")
+    else:
+        m = json.loads((REPO / "artifacts" / "g5_m_fold0_official_eval_summary.json").read_text())
+        l = json.loads((REPO / "artifacts" / "g5_l_fold0_official_eval_summary.json").read_text())
+        mc, lc = m["components_mean"], l["components_mean"]
+        for label, val, fmt in [
+            ("M_et_dsc", mc["et_dsc"], r3), ("M_tc_dsc", mc["tc_dsc"], r3), ("M_wt_dsc", mc["wt_dsc"], r3),
+            ("M_et_hd95", mc["et_hd95"], r2), ("M_tc_hd95", mc["tc_hd95"], r2), ("M_wt_hd95", mc["wt_hd95"], r2),
+            ("L_et_dsc", lc["et_dsc"], r3), ("L_tc_dsc", lc["tc_dsc"], r3), ("L_wt_dsc", lc["wt_dsc"], r3),
+            ("L_et_hd95", lc["et_hd95"], r2), ("L_tc_hd95", lc["tc_hd95"], r2), ("L_wt_hd95", lc["wt_hd95"], r2),
+            ("M_dsc_p05", m["dsc_p05"], r3), ("L_dsc_p05", l["dsc_p05"], r3),
+            ("M_hd95_p95", m["hd95_p95"], r2), ("L_hd95_p95", l["hd95_p95"], r2),
+        ]:
+            check(f"numeric_matches_evidence::{label}", fmt(val) in MAIN)
+        check("val_count_271_matches", str(m["n"]) == "271" and "271" in MAIN)
+        sel = json.loads((REPO / "artifacts" / "g5_fold0_selection_decision.json").read_text())
+        check("selection_select_M", sel["decision"] == "select_M" and "selects ResEnc-M" in MAIN)
+        n_res = sel["bootstrap_resamples"]
+        res_forms = (str(n_res), f"{n_res:,}".replace(",", "{,}"), f"{n_res:,}")  # 10000 / 10{,}000 / 10,000
+        check("bootstrap_seed_in_paper", str(sel["seed"]) in MAIN and any(f in MAIN for f in res_forms))
 
     # 4. required BibTeX entries present (organizer-mandated + method), keyed, no empty keys
     keys = re.findall(r"@\w+\{([^,]+),", BIB)

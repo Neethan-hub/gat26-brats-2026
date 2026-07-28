@@ -28,6 +28,40 @@ import g77_official_metric as G  # noqa: E402
 CFG_PATH = REPO / "configs" / "g77_official_metric_alignment.json"
 FAILS = 0
 
+# --- private governance state ----------------------------------------------------------------
+# RUN_STATE.json is the live internal operational record (resource identifiers, cost accounting,
+# blockers, persistence audit). It is deliberately NOT redistributed in the public source export.
+PRIVATE_GOVERNANCE = ("RUN_STATE.json",)
+SKIP_MESSAGE = "SKIP_PUBLIC_EXPORT_PRIVATE_GOVERNANCE"
+
+
+def public_export_mode(required_private) -> bool:
+    """True ONLY inside a validated sanitized public export. Fail-closed by construction.
+
+    Every condition must hold:
+      * a well-formed root ``EXPORT_MANIFEST.json`` exists and declares the Apache-2.0 sanitized
+        export;
+      * that manifest actually describes THIS tree — it lists this test file and ``LICENSE``;
+      * every ``required_private`` path is genuinely absent.
+
+    Deleting files inside the development repository can NEVER activate this: the private
+    repository does not contain, and never commits, ``EXPORT_MANIFEST.json`` — the manifest is
+    produced only by ``scripts/make_code_export.py`` into an export directory. So missing
+    governance stays a hard failure everywhere except a real export.
+    """
+    try:
+        man = json.loads((REPO / "EXPORT_MANIFEST.json").read_text())
+    except (OSError, ValueError):
+        return False
+    if man.get("declared_license") != "Apache-2.0":
+        return False
+    listed = {e.get("path") for e in man.get("files", []) if isinstance(e, dict)}
+    if not listed or "LICENSE" not in listed:
+        return False
+    if Path(__file__).resolve().relative_to(REPO).as_posix() not in listed:
+        return False
+    return all(not (REPO / p).exists() for p in required_private)
+
 
 def check(name, cond):
     global FAILS
@@ -240,6 +274,22 @@ def main():
     # the module may *mention* the historical policy in prose, but must never import it
     check("g77_does_not_import_historical_policy",
           re.search(r"^\s*(import|from)\s+g45_selection_policy", src, re.M) is None)
+
+    # ---- Sections 11-12 read the private governance record ---------------------------------
+    # Everything above this point — the scientific and configuration tests, candidate
+    # restrictions, metric-definition checks, fold-isolation checks, bootstrap checks and
+    # historical-policy checks — has already run and runs in every context.
+    # Sections 11 and 12 assert on RUN_STATE.json, which is internal operational state and is not
+    # redistributed publicly. In the development repository it is MANDATORY: a missing file is a
+    # hard failure. Only inside a validated sanitized public export are these sections skipped,
+    # and no substitute value is invented for them.
+    if public_export_mode(PRIVATE_GOVERNANCE):
+        print(f"  {SKIP_MESSAGE} — current-state consistency and persistence-audit checks require "
+              f"the private governance record, which is not redistributed. All scientific, "
+              f"configuration, candidate-restriction, metric-definition, fold-isolation, bootstrap "
+              f"and historical-policy checks still ran.")
+        print("RESULT:", "PASS" if not FAILS else f"FAIL {FAILS}")
+        return 1 if FAILS else 0
 
     # ---- 11. CURRENT-STATE CONSISTENCY: G7.7 complete XOR metric decision pending ----------
     state = json.loads((REPO / "RUN_STATE.json").read_text())
