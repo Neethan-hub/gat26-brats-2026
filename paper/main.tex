@@ -1,0 +1,401 @@
+% GAT-26 — BraTS 2026 Task 3 (BraTS-GoAT) short paper.
+% Springer LNCS format, 8–10 pages (excluding references), per the live-verified submission rules
+% (Synapse wiki/639582, re-verified 2026-07-25T12:52Z).
+%
+% BUILD: this uses the Springer LNCS class `llncs.cls`, which is copyrighted by Springer and is NOT
+% committed here. Download the official LNCS template (https://www.springer.com/gp/computer-science/lncs)
+% into this directory, then compile with the command in paper/README.md.
+%
+% CONTENT POLICY: only VERIFIED committed evidence is populated. Everything not yet measured/decided
+% is a conspicuous placeholder marked \ownerinput{...} (owner input required) or \pending{...}
+% (pending A10G-2 / official validation / hidden test). NEVER fabricate or extrapolate final results.
+%
+% REQUIRED SECTIONS (wiki/639582): Abstract (no citations), keywords, Introduction, Methods, Results,
+% Discussion, Acknowledgements (optional), References (must include the Challenge-Rules citations).
+
+\documentclass[runningheads]{llncs}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+
+% Conspicuous fail-closed placeholders (must be resolved before submission).
+\newcommand{\ownerinput}[1]{\textbf{\textcolor{red}{[OWNER\_INPUT\_REQUIRED: #1]}}}
+\newcommand{\pending}[1]{\textbf{\textcolor{red}{[PENDING: #1]}}}
+
+\begin{document}
+
+% Working title. The owner supplies the final title; the descriptive subtitle below is the
+% system/task description and may be kept, shortened, or replaced.
+\title{\ownerinput{final title} --- GAT-26: A Generalization-Aware Tri-region 3D nnU-Net
+Ensemble for Cross-Tumor Brain Tumor Segmentation}
+% `runningheads' requires a short running title; without it LNCS emits
+% "Title too long for running head".
+\titlerunning{GAT-26: Tri-region 3D nnU-Net Ensemble for BraTS-GoAT 2026}
+
+% The challenge runs a light peer review in which participants review 2–3 papers (wiki/639582,
+% re-verified 2026-07-25). No anonymization requirement was found on any challenge page, so the
+% manuscript is prepared NON-ANONYMOUSLY (authors named). The exact OpenReview venue setting remains
+% an OWNER-VERIFICATION item before submission.
+\author{\ownerinput{Author One} \and \ownerinput{Author Two}}
+\authorrunning{\ownerinput{Short author list}}
+\institute{\ownerinput{Affiliation(s) and contact emails}}
+
+\maketitle
+
+\begin{abstract}
+% Abstract: no citations (per wiki/639582 section rules).
+We describe GAT-26, our submission to the BraTS 2026 Generalizability Across Tumors (BraTS-GoAT)
+subchallenge (Task 3): pre-operative, cross-tumor 3D brain tumor segmentation of the enhancing tumor
+(ET), tumor core (TC), and whole tumor (WT) regions. GAT-26 is built on the official nnU-Net v2.8.1
+Residual-Encoder U-Net with region-based training, trained only on GoAT-provided data from a recorded
+random initialization with no external or pretrained weights. Architecture selection between the
+ResEnc-M and ResEnc-L presets was made by a pre-registered, result-blind policy on a leakage-safe
+fold-0 screen; the policy selected ResEnc-M. We then trained the complete five-fold cross-validation
+and reconciled a strictly out-of-fold (OOF) prediction set covering every one of the 1,351 training
+cases exactly once, scored in a single pass by the official evaluator with zero errors. Two further
+pre-registered, calibration-then-confirmation audits of the inference policy — one over checkpoint
+choice, mirroring test-time augmentation and enhancing-tumor component cleanup, and one over
+checkpoint-weight averaging (``model soups'') — both retained the frozen baseline policy, which we
+report as evidence that the released configuration is not the product of post-hoc tuning. The final
+system is a sequential five-checkpoint mean-probability ensemble with a fixed 0.5 threshold and a
+hierarchy-safe reconstruction, executed under enforced-determinism settings inside a zero-network
+clean-room container. The five trained models and the frozen inference policy exist and are fixed;
+the final container image, its genuine-A10G runtime and memory acceptance, official validation
+performance, and hidden-test performance are not yet available and are reported as pending.
+\keywords{Brain tumor segmentation \and Generalization \and nnU-Net \and Residual encoder \and
+Cross-validation \and BraTS.}
+\end{abstract}
+
+\section{Introduction}
+The Brain Tumor Segmentation (BraTS) benchmark has, over more than a decade, standardized the
+evaluation of automated glioma segmentation from multi-parametric
+MRI~\cite{menze2015brats,bakas2017advancing,baid2021brats}, and has since expanded into a family of
+cohort-specific subchallenges. These span intracranial meningioma~\cite{bratsmen2023},
+brain metastases~\cite{bratsmet2023}, pediatric tumors~\cite{bratsped2023} and an
+under-represented Sub-Saharan Africa patient population~\cite{bratsssa2023}, and are
+scored by containerized evaluation infrastructure in the spirit of federated
+benchmarking~\cite{karargyris2023medperf}.
+
+Cross-tumor generalization is the central difficulty of the BraTS-GoAT task: a single model must
+segment ET/TC/WT across these heterogeneous adult and pediatric tumor types and acquisition sources
+without per-cohort tuning. GAT-26 targets this with a deliberately conservative, reproducible pipeline: a
+strong region-based nnU-Net backbone, a leakage-safe group-level cross-validation design,
+pre-registered decision rules that cannot be edited after seeing results, and a release-frontier
+container constrained to the official Task-3 runtime budget.
+
+Our emphasis is methodological discipline rather than architectural novelty. Every decision that
+could be tuned — architecture preset, checkpoint choice, test-time augmentation, post-processing,
+and checkpoint averaging — was placed behind a frozen policy with a held-out confirmation stage, and
+in every case the policy retained the simpler baseline. We therefore report a cross-validated
+characterization of the system together with an explicit statement of what has \emph{not} been
+measured, rather than a competitiveness claim.
+
+\section{Methods}
+
+\subsection{Data and Task}
+We use only data supplied through the 2026 BraTS-GoAT subchallenge website, which draws on the
+BraTS data lineage and its expert-annotated public
+collections~\cite{menze2015brats,bakas2017advancing,bakas2017gbm,bakas2017lgg,baid2021brats}. The training release
+comprises \textbf{1{,}351} labeled cases (verified in our data audit: all complete and geometry-valid,
+integer labels only, zero label anomalies). Labels follow the BraTS convention and the evaluated
+regions are the standard nested triple:
+\begin{equation*}
+\begin{gathered}
+\{0{=}\text{background},\;1{=}\text{NCR},\;2{=}\text{ED},\;3{=}\text{ET}\},\\[2pt]
+\mathrm{ET}=[3],\qquad \mathrm{TC}=[1,3],\qquad \mathrm{WT}=[1,2,3].
+\end{gathered}
+\end{equation*}
+Validation and test ground-truth
+labels are withheld by the organizers; we therefore do not train on validation data and never use it
+for tuning. Per-case cohort labels (e.g. adult glioma, meningioma, metastasis, pediatric, Sub-Saharan
+Africa) were \emph{not} reliably derivable from the available file naming or metadata, and we did not
+guess them; consequently no per-cohort sizes or cohort identities are claimed, and cohort-stratified
+analysis is unavailable in this work.
+
+\subsection{Leakage-safe Grouping and Five-fold Split}
+To avoid optimistic leakage, we build a deterministic \emph{group-level} five-fold split (seed
+$21072026$). A duplicate/near-duplicate analysis found no confirmed same-subject pairs; the 1{,}351
+cases are treated as singleton groups, and we explicitly acknowledge that residual same-subject risk
+cannot be proven to be exactly zero. The split is reproducible: two independent runs produced
+byte-identical assignments. Fold sizes are $[271,270,270,270,270]$; every fold contains ET-absent and
+TC-absent cases, exercising the empty-region edge cases the evaluator must handle. The split was
+frozen before any training and was never modified.
+
+\subsection{Preprocessing}
+Preprocessing is the standard nnU-Net~\cite{isensee2021nnunet} v2.8.1 pipeline for the four input modalities (T1n, T1c, T2w,
+T2f) in a fixed channel order, using the dataset fingerprint and plans generated by nnU-Net planning.
+No external normalization statistics or external data are introduced.
+
+\subsection{ResEnc-M Architecture and Training}
+The backbone is the official nnU-Net~\cite{isensee2021nnunet} v2.8.1 \texttt{ResidualEncoderUNet}
+(ResEnc) preset~\cite{isensee2024nnunetrevisited} in the \texttt{3d\_fullres} configuration with
+region-based training (the network predicts the ET/TC/WT regions directly). \textbf{All trainable parameters begin from a recorded random initialization; no
+pretrained, foundation, or self-supervised weights are used}, and unexpected weight files are treated
+as a release-blocking error. Each fold is trained for 1000 epochs with the native region-based loss,
+from an independent random initialization, with no cross-fold resume and no warm starting.
+\textbf{All five folds (0--4) are complete}; fold~0 is the model produced by the architecture-selection
+screen and was never retrained.
+
+\subsection{Pre-registered Architecture Selection}
+Architecture selection between ResEnc-M and ResEnc-L was governed by a \textbf{pre-registered,
+result-blind policy fixed before any fold result was seen} (and unchanged thereafter). The internal
+award utility is the mean fractional rank over six equally-weighted components (ET/TC/WT $\times$
+DSC/HD95); DSC is higher-better and HD95 lower-better; ties resolve to the smaller, cheaper model
+(ResEnc-M). A paired subject-level bootstrap (seed $21072026$, $10{,}000$ resamples) and a set of
+pre-declared noninferiority margins guard the decision. ResEnc-L is preferred only if it shows a
+\emph{meaningful} fold-0 benefit (award-rank gain $\ge 1/6$, a bootstrap interval favoring L, and all
+noninferiority gates passing); otherwise the policy selects ResEnc-M. This screen selects the
+architecture only; it is \emph{not} a competitiveness claim. Section~\ref{sec:metric} records an
+important caveat about the relationship between this internal utility and the official ranking
+metrics.
+
+\subsection{Inference Ensemble and Hierarchy-safe Reconstruction}
+Final inference uses a \textbf{sequential} five-checkpoint mean-probability ensemble: one fold model is
+resident at a time and freed before the next, so peak memory is that of a single model. Region
+probabilities are thresholded at a fixed $0.5$ (no learned threshold, no learned ensemble weight, no
+test-time augmentation, no connected-component filtering, no presence gate) and reconstructed with a
+hierarchy-safe projection enforcing $\mathrm{WT}\supseteq\mathrm{TC}\supseteq\mathrm{ET}$. Outputs
+restore the exact source geometry (shape, spacing, origin, direction) and are integer-labeled
+$\{0,1,2,3\}$. Inference runs under enforced-determinism settings (fixed seeds, deterministic
+cuDNN/cuBLAS kernels). We measured reproducibility rather than assuming it: across two independent
+24-case runs, $18$ of $2.14\times10^{8}$ output voxels differed ($8.4\times10^{-8}$, affecting 9 of
+24 cases by 1--5 voxels each), while a repeated 4-case subset was bit-identical across three runs.
+The runner is therefore \emph{near}-deterministic but not bit-exact in general: PyTorch's
+deterministic-algorithm enforcement is applied in \texttt{warn\_only} mode, so the few operations
+lacking a deterministic CUDA kernel may still flip borderline voxels across the $0.5$ threshold. The
+magnitude is far below any effect on the reported metrics, and every output remains label-valid,
+hierarchy-consistent and geometry-exact.
+
+\subsection{Frozen Inference-policy Audits}
+\label{sec:audits}
+Two bounded audits tested whether the frozen inference policy could be improved, each using a
+\emph{calibration-then-confirmation} design on disjoint folds, the frozen official evaluator, the same
+six-component utility, and the same paired bootstrap, with the baseline winning every tie:
+
+\begin{itemize}
+  \item \textbf{Audit~A (checkpoint / TTA / post-processing).} Candidates: the best-validation
+        checkpoint; mirroring test-time augmentation over the axes recorded in the
+        checkpoint metadata; both combined; and enhancing-tumor component cleanup at three
+        pre-declared physical-volume thresholds. Calibration used folds 0--2 ($n=811$). \textbf{No candidate produced a robust
+        improvement}; test-time augmentation was point-positive but its bootstrap interval did not
+        exclude a tie, and component cleanup traded ET Dice against ET boundary distance for an exact
+        six-component tie. The baseline was retained and the locked confirmation folds were never
+        opened.
+  \item \textbf{Audit B (checkpoint soups).} Two pre-declared weight-averaging candidates per fold,
+        $S_1=0.75\,\theta_{\mathrm{final}}+0.25\,\theta_{\mathrm{best}}$ and
+        $S_2=0.50\,\theta_{\mathrm{final}}+0.50\,\theta_{\mathrm{best}}$, constructed with strict
+        structural guards (identical key sets and shapes, floating-point tensors only, non-floating
+        buffers required to be bitwise identical, no optimizer or scheduler state carried over) and
+        loaded strictly. Calibration on folds 0--2 ($n=811$). \textbf{Both candidates were worse than
+        the baseline on all six award components} (mean-fractional-rank gain $-1.000$ each), the paired
+        bootstrap favoured the baseline, and the 0.75/0.25 soup additionally failed the pre-declared
+        95th-percentile boundary-distance noninferiority gate. The baseline was retained and the
+        locked confirmation folds were never opened.
+\end{itemize}
+
+The purpose of reporting these audits is not the candidates themselves but the \emph{negative
+result}: the released configuration is the pre-registered baseline, not a post-hoc selection.
+
+\subsection{Containerization and Reproducibility}
+The submission target is a Linux/AMD64, zero-network clean-room container designed for the official
+Task-3 budget (NVIDIA A10G, 24\,GB VRAM, 16 vCPU, \texttt{--memory} 48\,GiB, \texttt{--shm-size}
+16\,GiB, CUDA $\le 13.0$, 12\,h total). Dependencies are fully pinned and baked at build time,
+\texttt{/input} is mounted read-only, and \texttt{/output} is a flat directory with exactly one
+\texttt{.nii.gz} per case whose name ends in the five-digit case identifier. Strict modality discovery
+and fail-closed input validation reject missing, duplicate, unknown, or unreadable modalities, invalid
+folder names, and output-name collisions \emph{before any output is written}. The runner refuses to
+start unless exactly five distinct fold checkpoints are present.
+
+Code availability: \ownerinput{public source-code URL --- a short paper must report a source-code
+link; the GAT-26 repository is currently PRIVATE and no public release has yet occurred}.
+
+\section{Results}
+
+\subsection{Architecture-selection Screen (fold 0)}
+\textbf{This subsection reports the fold-0 architecture-selection screen only.} On the frozen fold-0
+validation set (271 cases), the official evaluator (BraTS-evaluation 0.0.8, GoAT configuration)
+produced the region means in Table~\ref{tab:fold0}. Legitimate zero-true-positive $+\infty$ HD95
+values are converted to the organizer penalty of 373\,mm and retained in every mean and denominator
+(all six components use the full 271 cases).
+
+\begin{table}[t]
+\centering
+\caption{Fold-0 selection screen (271 validation cases; means). Architecture-selection evidence, not
+a competitiveness result. DSC higher-better; HD95 (mm) lower-better.}
+\label{tab:fold0}
+\begin{tabular}{lccc}
+\toprule
+Model & ET (DSC / HD95) & TC (DSC / HD95) & WT (DSC / HD95) \\
+\midrule
+ResEnc-M (selected) & 0.859 / 14.17 & \textbf{0.914 / 5.96} & \textbf{0.934 / 3.89} \\
+ResEnc-L            & \textbf{0.861 / 11.19} & 0.912 / 6.08 & 0.932 / 4.11 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Under the frozen policy, ResEnc-M wins four of the six components; the paired bootstrap yields a rank
+difference that does not favor ResEnc-L (95\% interval $[-0.667,\,+0.667]$), and ResEnc-L fails the
+pre-declared 5th-percentile DSC and 95th-percentile HD95 tail-noninferiority gates (DSC 5th pct
+$0.649$ vs $0.637$; HD95 95th pct $15.96$ vs $18.06$\,mm). The policy therefore \textbf{selects
+ResEnc-M}.
+
+\subsection{Five-fold Cross-validated Out-of-fold Performance}
+All five ResEnc-M folds were trained and audited to completion. We assembled a strictly out-of-fold
+prediction set: each case is predicted exactly once, by the fold model that did \emph{not} train on
+it. The union covers \textbf{1{,}351 cases, each exactly once}, with no missing case, no duplicate,
+and no fold overlap; each fold's realized predictions equal its frozen validation membership. The
+pooled set was scored in a single pass by the official evaluator: \textbf{$n=1{,}351$, zero errors},
+with all six component denominators equal to 1{,}351 (Table~\ref{tab:oof}).
+
+\begin{table}[t]
+\centering
+\caption{Five-fold cross-validated \textbf{out-of-fold} performance (1{,}351 cases, each predicted
+once by a model that did not train on it; official evaluator, $n=1{,}351$, 0 errors).
+\textbf{This is cross-validation evidence, not validation-leaderboard or hidden-test performance.}}
+\label{tab:oof}
+\begin{tabular}{lccc}
+\toprule
+Region & DSC & HD95 (mm) & denominator \\
+\midrule
+ET & 0.865 & 13.39 & 1351 \\
+TC & 0.915 & 6.75  & 1351 \\
+WT & 0.927 & 6.34  & 1351 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Tail behaviour, which matters more than the mean for a generalization task, is characterized by a
+5th-percentile DSC of $0.666$ and a 95th-percentile HD95 of $17.72$\,mm. Across the
+$1351\times3=4053$ region instances, 3{,}987 scored normally, 49 were zero-true-positive penalties,
+8 were disjoint penalties, and 9 were true negatives where the region was legitimately absent from
+both reference and prediction. One fold's evaluation initially failed on a tooling defect (an
+evaluator denominator was not passed explicitly); the defect was fixed, the preserved predictions
+were re-scored without retraining, and the original failure record was retained rather than
+overwritten.
+
+\subsection{Inference-policy Audits}
+Neither audit changed the released policy, and in both cases the locked confirmation folds were
+never opened. Audit~B is the sharper negative result and is summarized in Table~\ref{tab:soup}: on
+the 811 calibration cases, weight-averaging the final checkpoint toward the best-validation
+checkpoint moved \emph{every} award component in the wrong direction, monotonically in the amount
+mixed in. The only favourable movements were the hard-case 5th-percentile Dice ($0.667$ vs $0.664$
+for both soups) and, for the 0.50/0.50 soup, the missed-region rate --- neither an award component.
+
+\begin{table}[t]
+\centering
+\caption{Audit~B (checkpoint soups), calibration folds 0--2, $n=811$; official evaluator, 0 errors,
+all six denominators $=811$. \textbf{Inference-policy-selection evidence, not a performance
+estimate.} $\theta_f$ = final checkpoint, $\theta_b$ = best-validation checkpoint.}
+\label{tab:soup}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccccccc}
+\toprule
+& \multicolumn{2}{c}{ET} & \multicolumn{2}{c}{TC} & \multicolumn{2}{c}{WT} & rank \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Policy & DSC & HD95 & DSC & HD95 & DSC & HD95 & gain \\
+\midrule
+\textbf{C0} (released, $\theta_f$) & \textbf{0.8655} & \textbf{13.26} & \textbf{0.9174} & \textbf{5.73} & \textbf{0.9282} & \textbf{5.86} & --- \\
+$0.75\theta_f + 0.25\theta_b$ & 0.8641 & 13.72 & 0.9164 & 6.26 & 0.9266 & 6.49 & $-1.000$ \\
+$0.50\theta_f + 0.50\theta_b$ & 0.8646 & 13.42 & 0.9171 & 5.96 & 0.9271 & 5.94 & $-1.000$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{What Has Not Been Measured}
+\label{sec:notmeasured}
+We state these explicitly rather than leaving them to inference:
+\begin{itemize}
+  \item \textbf{Final five-model ensemble accuracy.} Every training case was used to train four of
+        the five constituent models, so the ensemble cannot be scored without optimistic bias on any
+        training case. The OOF numbers in Table~\ref{tab:oof} characterize \emph{single fold models on
+        unseen data}, which is the appropriate unbiased proxy, but they are \emph{not} the ensemble's
+        score.
+  \item \textbf{Official validation-leaderboard performance.} GAT-26 has \textbf{no official
+        validation submission and therefore no official rank}: \pending{official validation score and
+        rank, if the owner elects to submit}.
+  \item \textbf{Genuine-A10G runtime and memory.} All timing and memory figures we hold were measured
+        on a different GPU and are explicitly \emph{not} A10G parity:
+        \pending{genuine-A10G peak reserved VRAM and seconds per case}.
+  \item \textbf{Final container image identity.} \pending{final image tag and digest}.
+  \item \textbf{Hidden-test performance.}\\ \pending{hidden-test results, camera-ready}.
+\end{itemize}
+
+\section{Discussion}
+
+\subsection{An Explicit Hierarchy of Evidence}
+Challenge papers frequently blur distinct quantities. We separate them:
+\textbf{(i)} five-fold OOF performance (Table~\ref{tab:oof}) — unbiased for a single fold model on
+data it did not see, and the strongest evidence we possess; \textbf{(ii)} inference-policy audit
+results (Section~\ref{sec:audits}) — \emph{post-selection} comparisons on development folds, valid
+for choosing between policies but not as performance estimates; \textbf{(iii)} the deployed five-model
+ensemble — expected to be at least as good as its constituents, but \emph{unmeasurable} on training
+data; \textbf{(iv)} official validation performance — not obtained; \textbf{(v)} hidden-test
+performance — the only quantity that determines the ranking, and unavailable until the organizers
+score the container. Numbers from tier (i) must never be read as tier (iv) or (v).
+
+\subsection{Official Ranking Metrics}
+\label{sec:metric}
+The organizers state that the Task-3 leaderboard ranking aggregates the \textbf{Dice Similarity
+Coefficient} and the \textbf{Normalized Surface Distance (NSD)}, with ranking by summed metric ranks
+and pairwise permutation testing to group teams into statistically indistinguishable tiers. Our
+internal, pre-registered selection utility used DSC together with the 95th-percentile Hausdorff
+distance (HD95), a boundary-error metric that we fixed before training and did not change afterwards.
+The Dice half of our utility coincides with the official metric; the HD95 half is an internal
+boundary-quality proxy rather than an official ranking metric, and NSD was treated as a diagnostic.
+To avoid leaving this as an untested caveat, we re-ran the \emph{entire} pre-existing candidate set
+under the official DSC/NSD utility, using the organizers' own evaluation package and configuration,
+with the comparison protocol registered in advance of computing any NSD value. The conclusion is
+unchanged: no candidate robustly outperforms the released baseline, which is therefore retained and
+now validated against the metric the challenge actually ranks on. The correction is not cosmetic ---
+enhancing-tumor component cleanup, which the earlier proxy utility rejected because it degraded the
+boundary-distance term, improves \emph{both} enhancing-tumor components under the official metric ---
+but its advantage remains within sampling uncertainty, so the pre-registered rule retains the
+baseline. A fold-0 architecture diagnostic under the official metric likewise moved slightly toward
+the larger preset without reaching robustness, and the architecture was not changed.
+\ownerinput{confirm at camera-ready the exact NSD tolerance/configuration and final aggregation used
+by the organizers --- the released configuration does not pin a tolerance}
+
+\subsection{Limitations}
+Group-level splitting mitigates but cannot provably eliminate same-subject leakage. Cohort-stratified
+generalization — arguably the core question of a generalizability task — could not be analyzed
+because per-case cohort labels were not derivable from the released metadata, so we cannot report
+whether performance is uniform across tumor types. Our tail statistics indicate that a small minority
+of cases dominate the boundary-error mean, which is the expected failure mode for an unseen-cohort
+task. Finally, the negative results of both policy audits mean the system's inference configuration
+is deliberately plain; we did not pursue larger ensembles, cascades, or cohort-specific routing.
+
+\subsection{Ethics and Data Governance}
+GAT-26 trains only on GoAT-provided data from a recorded random initialization, with no external,
+prior-BraTS, private, or pretrained data or weights, consistent with the subchallenge rules.
+Validation and test labels are withheld and were never used for training or tuning. We did not
+perform pseudo-labeling, transductive adaptation, or leaderboard-driven tuning. Data used in this
+work were obtained through the BraTS Challenge project (Synapse ID syn74274097) and are subject to
+the challenge data-usage agreement.
+
+\section{Conclusion}
+GAT-26 pairs the official region-based nnU-Net ResEnc backbone with a pre-registered, leakage-safe
+protocol in which every tunable inference decision was placed behind a frozen, confirmation-gated
+policy. The complete five-fold cross-validation is finished and reconciled over all 1{,}351 training
+cases with zero evaluator errors, and both inference-policy audits retained the baseline, so the
+released configuration is pre-registered rather than post-hoc. The trained models and the frozen
+inference policy exist; the final container image, its genuine-A10G acceptance, official validation
+performance, and hidden-test results remain \pending{A10G-2, official validation, hidden test} and
+will be reported at camera-ready.
+
+\begin{credits}
+\subsubsection{\ackname}
+\ownerinput{acknowledgements}
+% Organizer-mandated acknowledgement sentence, quoted verbatim from the live Challenge Rules
+% (Synapse wiki/639585, re-verified 2026-07-28).
+Data used in this publication were obtained as part of the Challenge project through Synapse ID
+(syn74274097).
+\subsubsection{\discintname} The authors declare no competing interests relevant to this work.
+\end{credits}
+
+\bibliographystyle{splncs04}
+\bibliography{references}
+
+\end{document}

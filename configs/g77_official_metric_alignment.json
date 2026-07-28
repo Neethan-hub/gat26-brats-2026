@@ -1,0 +1,135 @@
+{
+  "policy_id": "gat26_g77_official_metric_alignment_v1",
+  "frozen": true,
+  "frozen_before_any_candidate_official_metric_result_was_computed_or_read": true,
+  "result_dependent_editing_forbidden": true,
+  "change_requires_new_owner_gate": true,
+  "supersedes_for_current_release_selection_only": "gat26_g45_selection_policy_v2 (DSC+HD95 award utility)",
+  "does_not_rewrite": "All historical DSC+HD95 evidence, decisions and artifacts (G5 select_M, G7.5 G75_RETAIN_BASELINE, G7.6 G76_RETAIN_C0) remain valid as recorded under the utility in force at the time. They are marked historical/superseded ONLY for current official-metric release selection.",
+
+  "reason": {
+    "trigger": "EXTERNAL_OFFICIAL_METRIC_CORRECTION",
+    "detail": "The official BraTS 2026 Task 3 ranking aggregates global DSC and global NSD. The project's recorded award utility used DSC + HD95. HD95 is not an official Task-3 ranking metric.",
+    "not_authorization_for": "open-ended tuning, new thresholds, architectures, post-processing, ensembles, losses, or training experiments",
+    "candidate_source_restriction": "ONLY candidates that already existed before the Stage G7.7 prompt"
+  },
+
+  "official_metric_definition": {
+    "evaluator_package": "BraTS-evaluation",
+    "evaluator_version": "0.0.8",
+    "evaluator_commit": "88e3e39cd5c4137b0831345c78d16bd393624c3a",
+    "evaluator_commit_is_tip_of_main_and_latest_release": true,
+    "config": "brats_evaluation/configs/config_GoAT.yaml",
+    "installed_files_byte_identical_to_official_repo_at_that_commit": ["configs/config_GoAT.yaml", "metrics_parser.py", "evaluation.py"],
+    "expected_input": "SEMANTIC",
+    "segmentation_class_groups": {"et": [3], "tc": [1, 3], "wt": [1, 2, 3]},
+    "global_metrics_computed": ["DSC", "NSD", "HD95"],
+    "official_ranking_components": [
+      {"field": "global_dsc_et", "source_key": "global_bin_dsc", "region": "ET", "metric": "DSC", "direction": "higher_is_better"},
+      {"field": "global_dsc_tc", "source_key": "global_bin_dsc", "region": "TC", "metric": "DSC", "direction": "higher_is_better"},
+      {"field": "global_dsc_wt", "source_key": "global_bin_dsc", "region": "WT", "metric": "DSC", "direction": "higher_is_better"},
+      {"field": "global_nsd_et", "source_key": "global_bin_nsd", "region": "ET", "metric": "NSD", "direction": "higher_is_better"},
+      {"field": "global_nsd_tc", "source_key": "global_bin_nsd", "region": "TC", "metric": "NSD", "direction": "higher_is_better"},
+      {"field": "global_nsd_wt", "source_key": "global_bin_nsd", "region": "WT", "metric": "NSD", "direction": "higher_is_better"}
+    ],
+    "all_six_components_higher_is_better": true,
+    "hd95_role": "SECONDARY_DIAGNOSTIC_ONLY - never used to select the release policy",
+    "zero_tp_edge_cases": {"DSC": "ZERO", "NSD": "ZERO", "HD95": "INF (parser maps +inf -> 373)"},
+    "no_instances_result": "NaN for DSC/NSD/HD95",
+    "subject_aggregation": "pandas DataFrame.mean(numeric_only=True) over per-subject rows, i.e. arithmetic mean with skipna=True; NaN entries are excluded from BOTH numerator and denominator, so per-component denominators may differ",
+    "failed_case_handling": "subjects whose evaluator record carries an 'error' key are SKIPPED entirely (never penalised to the worst value)",
+    "missing_case_handling": "subjects listed in 'missings' are filled with 0 for non-HD95 metrics (373 for HD95) - a missing PREDICTION is penalised, a failed METRIC is not",
+    "nsd_tolerance": {
+      "set_in_official_config": false,
+      "value_used": "panoptica default",
+      "installed_panoptica_version": "2.1.4",
+      "observed_default_threshold": 0.5,
+      "evidence": "panoptica/metrics/normalized_surface_dice.py emits: 'The threshold is set to 0.5, which is the default value'",
+      "residual_uncertainty": "BraTS-evaluation pins only panoptica>=2.1.0 with no upper bound, so a different panoptica version on the organizers' side could use a different default. This is recorded as an open question for the organizers and is NOT resolved by this stage."
+    }
+  },
+
+  "design": {
+    "baseline": "C0",
+    "baseline_wins_every_tie": true,
+    "calibration_folds": [0, 1, 2],
+    "calibration_n": 811,
+    "confirmation_folds": [3, 4],
+    "confirmation_n": 540,
+    "confirmation_locked_until_a_candidate_passes_calibration": true,
+    "confirmation_may_run_at_most_once": true,
+    "bootstrap": {
+      "method": "paired_subject_level_with_replacement",
+      "seed": 21072026,
+      "resamples": 10000,
+      "delta_definition": "delta = rank_candidate - rank_baseline; POSITIVE favours the baseline",
+      "deterministic": true
+    },
+    "award_utility": "mean fractional rank over the six official components, equally weighted",
+    "meaningful_benefit_min_rank_gain": 0.16666666666666666
+  },
+
+  "candidates": {
+    "additions_forbidden": true,
+    "list": ["C1", "C2", "C3", "C0_et10", "C0_et25", "C0_et50", "S1", "S2"],
+    "definitions": {
+      "C0": "baseline: checkpoint_final, no TTA, no ET cleanup (the currently frozen release policy)",
+      "C1": "checkpoint_best, no TTA",
+      "C2": "checkpoint_final with the previously defined mirroring TTA",
+      "C3": "checkpoint_best with the previously defined mirroring TTA",
+      "C0_et10": "C0 with the already-predeclared ET-cleanup at 10 mm^3",
+      "C0_et25": "C0 with the already-predeclared ET-cleanup at 25 mm^3",
+      "C0_et50": "C0 with the already-predeclared ET-cleanup at 50 mm^3",
+      "S1": "per-fold soup 0.75*checkpoint_final + 0.25*checkpoint_best",
+      "S2": "per-fold soup 0.50*checkpoint_final + 0.50*checkpoint_best"
+    },
+    "regeneration_rule": "Use preserved predictions wherever possible. Regenerate ONLY missing predictions for an already-authorised candidate and only within the stage ceilings. S1/S2 must NOT be regenerated if their cached predictions are absent - report the absence honestly instead.",
+    "no_new_thresholds_or_variants": true
+  },
+
+  "architecture_diagnostic": {
+    "scope": "fold 0 ONLY",
+    "models": ["ResEnc-M checkpoint_final", "ResEnc-L checkpoint_final"],
+    "purpose": "DIAGNOSTIC ONLY under the official metric",
+    "forbidden": ["training ResEnc-L folds 1-4", "changing the architecture in this stage", "spending additional GPU budget on L"],
+    "reversal_rule": "If the official-metric fold-0 diagnostic robustly reverses the architecture decision, STOP and return G77_ARCHITECTURE_REVIEW_REQUIRED; a new owner prompt is required."
+  },
+
+  "advancement_rules": {
+    "per_policy_evaluation_gates_all_required": [
+      "exact subject-set equality with the frozen fold membership",
+      "zero evaluator errors",
+      "full expected denominators (subject count) before NaN-skipping",
+      "independent aggregate recomputation agrees",
+      "no case-ID or per-case leakage into any committed artifact"
+    ],
+    "candidate_advances_iff": [
+      "mean fractional rank gain over C0 on the six OFFICIAL components >= 1/6",
+      "paired bootstrap 95% interval EXCLUDES a tie in the candidate's favour",
+      "no fail-closed evaluation failure and no output-contract failure"
+    ],
+    "if_multiple_advance": "advance ONLY the strongest by (1) official award rank gain, then (2) stronger bootstrap bound, then (3) the candidate closest to the frozen baseline. Do NOT open a new search.",
+    "confirmation_rule": "The single advancing candidate is evaluated against C0 on locked folds 3-4 exactly once. The release policy changes ONLY if confirmation independently passes the same gates. Otherwise retain C0.",
+    "fail_closed_default": "retain C0"
+  },
+
+  "valid_outcomes": [
+    "G77_RETAIN_C0_OFFICIAL_METRIC_ALIGNED",
+    "G77_SELECT_<EXISTING_CANDIDATE>_OFFICIAL_METRIC_ALIGNED",
+    "G77_ARCHITECTURE_REVIEW_REQUIRED",
+    "G77_BLOCKED_OFFICIAL_EVALUATOR_MISMATCH"
+  ],
+
+  "claims_forbidden": [
+    "hidden-test performance",
+    "official validation performance or leaderboard rank",
+    "A10G parity",
+    "any statement that these calibration/confirmation figures are unbiased estimates of deployed-ensemble performance"
+  ],
+  "evidence_labels": [
+    "g77_official_metric_selection_evidence",
+    "not_hidden_test",
+    "not_official_validation",
+    "post_selection_not_unbiased"
+  ]
+}
