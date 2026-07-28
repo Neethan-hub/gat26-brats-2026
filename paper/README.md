@@ -62,8 +62,10 @@ selection utility used DSC + HD95 as a proxy. See `docs/RULE_SNAPSHOT.md` §2026
 official validation score and rank (GAT-26 is currently **unranked — no official validation
 submission**); hidden-test results.
 `\ownerinput{}`: final title; author list, affiliations, emails, OpenReview profiles; acknowledgements;
-public source-code URL; team name; OpenReview and Synapse submission IDs; confirmation of the final
-organizer metric definition at camera-ready.
+team name; OpenReview and Synapse submission IDs; confirmation of the final organizer metric
+definition at camera-ready. **The public source-code URL is no longer pending** — Stage G79-P
+published the sanitized export under Apache-2.0 at <https://github.com/Neethan-hub/gat26-brats-2026>
+and `main.tex` cites it (verified rendered and hyperlinked in the compiled PDF).
 
 ## Live rule basis (retrieved 2026-07-23T07:23:22Z; re-verified 2026-07-25T12:52Z and **2026-07-28T01:15–01:17Z**)
 8–10 pp excl. refs, Springer LNCS (wiki/639582, unchanged, mod 2026-07-12); OpenReview submission +
@@ -73,8 +75,10 @@ camera-ready; final deadline 30 Jul 2026 23:59 UTC (wiki/639587, unchanged, mod 
 
 **Recorded 2026-07-28 — source-code link is MANDATORY IN THE PAPER.** The Timeline wiki (639587)
 states verbatim: *"Short paper must report a) source code (GitHub link), b) method description, and
-c) results on training and validation data."* This makes the `\ownerinput{public source-code URL}`
-placeholder a **hard submission blocker**, not an optional field. Note the separate Challenge-Rules
+c) results on training and validation data."* This made the public source-code URL a **hard submission
+blocker** rather than an optional field. **It is now SATISFIED (G79-P):** the sanitized export is
+published under Apache-2.0 at <https://github.com/Neethan-hub/gat26-brats-2026> and `main.tex` cites
+it. Note the separate Challenge-Rules
 provision (639585): *"Organizers will be irrevocably permitted to make the submitted container
 publicly accessible on an Apache v.2.0 license, unless another license is otherwise indicated"* —
 so declining to indicate a licence is itself a licence decision. The licence choice is the owner's.
@@ -93,9 +97,13 @@ is an owner-verification blocker.**
   `{BraTS Challenge Organizers}` are **gone**. Large consortium author lists are truncated with
   `and others` (rendered "et al." by `splncs04`), which is a deliberate, verified truncation.
 
+**Also cleared by Stage G79-P (2026-07-28):**
+- Public source-code URL — the sanitized export is **published and independently verified** under
+  Apache-2.0 at <https://github.com/Neethan-hub/gat26-brats-2026>, and `main.tex` cites it.
+
 **Still open (hard blockers):**
-- Every `\ownerinput{}` placeholder — title, authors/affiliations/emails, acknowledgements, the
-  public source-code URL, and the camera-ready NSD-tolerance confirmation.
+- The remaining `\ownerinput{}` placeholders — title, authors/affiliations/emails, acknowledgements,
+  and the camera-ready NSD-tolerance confirmation.
 - Every `\pending{}` placeholder — genuine-A10G VRAM/runtime (A10G-2), final image tag/digest,
   official validation score/rank, hidden-test results.
 - OpenReview venue anonymity setting (owner verification; absence of a rule is not confirmation).

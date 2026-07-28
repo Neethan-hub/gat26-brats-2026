@@ -120,12 +120,19 @@ def main():
     forbid("no_a10g_validation_passed_claim",
            bool(re.search(r"a10g[- ]?(1|2)?\s*(validation|test)\s*(passed|complete|succeeded|done)", low)))
 
-    # (c) no public-code-release assertion without verified owner input
-    forbid("no_public_release_claim",
-           "released publicly" in low or "publicly released" in low or "code is public" in low)
-    check("code_availability_owner_input",
-          "currently private" in flat
-          and re.search(r"\\ownerinput\{(public source-code url|code-availability)", MAIN, re.I) is not None)
+    # (c) code availability. Stage G79-P actually published the sanitized export and verified it by
+    # unauthenticated clone, so the pre-G79-P guards ("currently private" + an \ownerinput
+    # placeholder) would now assert a falsehood. They are replaced by guards on the NEW true state:
+    # the paper must cite the exact verified public URL, and must still not overclaim around it.
+    check("code_availability_public_url",
+          "https://github.com/Neethan-hub/gat26-brats-2026" in MAIN)
+    check("code_availability_states_apache",
+          re.search(r"apache license\s*\n?\s*2\.0", low) is not None)
+    check("code_availability_no_data_claim",
+          "no images, labels, model checkpoints, or predictions" in flat)
+    forbid("no_code_availability_placeholder_left",
+           re.search(r"\\ownerinput\{(public source-code url|code-availability)", MAIN, re.I) is not None)
+    forbid("no_stale_private_repo_claim", "currently private" in flat)
 
     # (d) anonymity not asserted without explicit verification
     forbid("no_anonymity_assertion",

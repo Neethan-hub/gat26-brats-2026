@@ -52,11 +52,13 @@ Every box is **owner-only and interactive**. Claude does not submit, upload, or 
       long `\ownerinput{acknowledgements}` placeholder, which resolves when the owner supplies text).
 - [x] **HARD BLOCKER (CLEARED, G78) — rendered length verified 8–10 pages excluding references:**
       **9 pages excluding references** (10 pages total; References heading begins on page 9).
-- [ ] **HARD BLOCKER — public source-code URL (GitHub).** Verified 2026-07-28 from the Timeline wiki
-      (639587), verbatim: *"Short paper must report a) source code (GitHub link), b) method
-      description, and c) results on training and validation data."* The GAT-26 repository is
-      **PRIVATE** and no public release has occurred, so `\ownerinput{public source-code URL}` is a
-      genuine blocker requiring an owner publication decision — not an optional field.
+- [x] **HARD BLOCKER CLEARED (G79-P, 2026-07-28) — public source-code URL (GitHub).** Timeline wiki
+      639587, verbatim: *"Short paper must report a) source code (GitHub link), b) method
+      description, and c) results on training and validation data."* The sanitized export is now
+      **published under Apache-2.0** at <https://github.com/Neethan-hub/gat26-brats-2026> (PUBLIC,
+      one root commit, no inherited private history, verified by unauthenticated clone), and
+      `main.tex` cites it — verified rendered and hyperlinked in the compiled PDF. The **private
+      development repository remains PRIVATE**.
 - [ ] Submit the paper via **OpenReview** (`https://openreview.net/group?id=MICCAI.org/2026/Challenge`)
       and, where prompted (BrainLes CMT), provide the exact Synapse team name. **Confirm** the paper is
       submitted and the team name is correct — organizers only run Docker submissions linked to a paper.
@@ -90,7 +92,8 @@ Every box is **owner-only and interactive**. Claude does not submit, upload, or 
 - [ ] Final title
 - [ ] Final author list, affiliations, emails, OpenReview profiles
 - [ ] Acknowledgements
-- [ ] Public code repository URL (for the paper's reproducibility statement)
+- [x] Public code repository URL (for the paper's reproducibility statement) — **filled (G79-P)**:
+      <https://github.com/Neethan-hub/gat26-brats-2026>
 - [ ] M folds 1–4 (produced by G7) — `[PENDING_G7/A10G]`
 - [ ] Five-fold cross-validated results — `[PENDING_G7/A10G]`
 - [ ] Final ensemble results — `[PENDING_G7/A10G]`

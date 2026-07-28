@@ -18,6 +18,7 @@
 \usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage[hidelinks]{hyperref}
+\usepackage{xurl}   % allow long URLs to break across lines (the LNCS text block is narrow)
 \usepackage{xcolor}
 
 % Conspicuous fail-closed placeholders (must be resolved before submission).
@@ -208,8 +209,15 @@ and fail-closed input validation reject missing, duplicate, unknown, or unreadab
 folder names, and output-name collisions \emph{before any output is written}. The runner refuses to
 start unless exactly five distinct fold checkpoints are present.
 
-Code availability: \ownerinput{public source-code URL --- a short paper must report a source-code
-link; the GAT-26 repository is currently PRIVATE and no public release has yet occurred}.
+% Public source-code URL, filled in Stage G79-P after the sanitized export was published and
+% independently verified by unauthenticated clone. Only this field was filled; every other
+% \ownerinput{} / \pending{} placeholder remains open.
+Code availability: the source code for this system is publicly available under the Apache License
+2.0 at \url{https://github.com/Neethan-hub/gat26-brats-2026}. The repository contains the inference
+runner and its container definition, the split/selection/training and evaluation tooling,
+configuration, tests, and this paper's source. It contains no images, labels, model checkpoints, or
+predictions; the challenge data must be obtained independently from the organizers under their own
+access terms.
 
 \section{Results}
 
