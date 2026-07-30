@@ -73,9 +73,15 @@ every weight is baked at build time; the entrypoint never downloads anything.
 - `/input` is mounted **read-only**, one folder per case.
 - `/output` is **flat** — exactly one `.nii.gz` per case, no sub-folders, with the output name ending
   in the challenge case identifier.
-- Input validation **fails closed** before any output is written: missing, duplicate, unknown, or
-  unreadable modalities; invalid or ambiguous case-folder names; and output-name collisions are all
-  rejected, and a rejected run produces **zero partial output**.
+- Output names are derived **dynamically from the input folder names** and end in the challenge case
+  identifier; no cohort prefix is hardcoded.
+- Input validation **fails closed** before any output is written: missing, duplicate, unknown or
+  unreadable modalities and invalid or ambiguous case-folder names are rejected, and a rejected run
+  produces **zero partial output**.
+- The container expects a **fresh writable `/output`**, which is what the official execution contract
+  supplies and what our qualification testing uses. Overwriting a pre-existing output file is **not**
+  a rejected condition: measured behaviour of the submitted runner is that it proceeds. No
+  output-collision guarantee is claimed.
 - The runner refuses to start unless exactly **five distinct** fold checkpoints are present.
 
 Weights and dataset/plans JSON are supplied through a **private build context** and are **not** in
@@ -125,10 +131,24 @@ permissive and compatible with distributing this project's code under Apache-2.0
 
 ## Status
 
-The trained models and the frozen inference policy exist. **Not** yet available, and reported as
-pending rather than estimated: the final container image identity, its runtime and memory acceptance
-on the official target GPU, official validation-leaderboard performance, and hidden-test performance.
-Cross-validation results must never be read as a leaderboard placement.
+- **Docker submission: made.** The frozen release container was submitted once to the Task-3 Docker
+  queue for team `Vericerno`. The image identity is recorded with the challenge submission itself and
+  is deliberately not published here.
+- **Official validation performance: known.** The frozen released ensemble was submitted once to the
+  Task-3 validation-prediction queue and scored DSC 0.772 / 0.824 / 0.879 and NSD 0.540 / 0.500 /
+  0.483 for ET / TC / WT. The platform exposed **no rank**, and none is inferred. HD95 is diagnostic
+  only; the organizers did not expose the surface tolerance behind the returned NSD values, so none is
+  attached to them. Full qualifications are in the paper.
+- **Hidden-test performance and final rank: unknown.** The organizers score containers after the
+  submission deadline. No hidden-test number exists, and none is reported or projected here.
+- **Official target GPU: not measured.** We hold no measurement of the container on an NVIDIA A10G.
+  The strongest runtime evidence is a full-cohort run of the exact release policy on a single NVIDIA
+  A40: 451/451 cases, exit code 0, zero inference errors, 2.48 GiB peak reserved VRAM, 3 h 35 m.
+- Internal cross-validation figures were produced with eightfold mirroring test-time augmentation
+  while the released container uses none, so internal and official figures are **not** comparable.
+  Cross-validation results must never be read as a leaderboard placement.
+- This repository does **not** reproduce training on its own: the challenge data must be obtained
+  separately from the organizers, and the trained weights are not redistributed here.
 
 ## Citation
 

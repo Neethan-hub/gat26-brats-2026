@@ -21,8 +21,8 @@ git-ignored TeX environment under `/tmp` (nothing was installed globally on the 
 | Engine | isolated Tectonic 0.15.0 under `/tmp` (full LaTeX + BibTeX passes to convergence) |
 | Undefined citations / references | **0** |
 | Bibliography entries typeset | **12 / 12** |
-| Total typeset length | **10 pages** |
-| **Length excluding references** | **9 pages** — References heading begins on page 9 · **within the required 8–10** |
+| Total typeset length | **12 pages** (G87 corrected build) |
+| **Length excluding references** | **10 pages** — References begins partway down page 10 · **within the required 8–10**; the nine-page target was not reached |
 | Overfull boxes | **1** minor (7.7 pt in body). The 13.1 pt box previously caused by the `\ownerinput{acknowledgements}` placeholder is **gone** now that the approved acknowledgement is typeset (G79-S). |
 | LaTeX errors | **0** |
 | Front matter (G79-S) | approved title, sole author **Nathan Chen**, exact affiliation, `naifenchen52@gmail.com`, running title and `N. Chen` running author — all verified in the rendered PDF |
@@ -102,7 +102,9 @@ organizer reply, not on the absence of a rule.
 **Cleared by Stage G78 (2026-07-28):**
 - Compilation with the official Springer LNCS class to a PDF — **done**.
 - Rendered page-by-page visual review — **done**.
-- Verified 8–10-page length excluding references — **done (9 pages excluding references)**.
+- Verified 8–10-page length excluding references — **done**. The G87 corrected build measures
+  **10 pages excluding references**, inside the required range; the nine-page production-headroom
+  target was not reached.
 - BibTeX metadata: every entry's title and leading author list re-verified against its **primary
   source** (arXiv landing pages / publisher DOIs, 2026-07-28); the organizational-author placeholders
   `{BraTS Challenge Organizers}` are **gone**. Large consortium author lists are truncated with
@@ -125,3 +127,40 @@ organizer reply, not on the absence of a rule.
 
 The final container image and genuine-A10G validation remain pending; the paper describes a release
 **scaffold and design target**, not a completed container.
+
+---
+
+## STATUS UPDATE (G86, 2026-07-30) — supersedes any "pending" wording above
+
+The statements above about official validation, rank, A10G measurement and final image
+identity are **stale**. Current facts:
+
+* **Official validation was obtained.** The frozen released ensemble was submitted once
+  to the Task-3 validation queue and scored. The six ranked values are reported in the
+  manuscript. No rank was exposed by the platform and none is inferred.
+* **The manuscript contains no placeholders.** Every `\ownerinput{}` / `\pending{}` use
+  was replaced with truthful prose; the two macro definitions remain but are unused.
+* **The held-out folds were opened once**, for the single confirmation of the
+  mirroring-TTA candidate, which failed confirmation. Any earlier claim that they were
+  never opened is superseded.
+* **Internal numbers and official numbers are not comparable.** All internal
+  cross-validation figures came from nnU-Net end-of-training validation predictions that
+  used eightfold mirroring TTA; the released container uses none. The manuscript
+  annotates this and warns against cross-path comparison.
+* **Final artifact:** `paper/GAT26_BraTS2026_Task3.pdf`, 10 content pages excluding
+  references, zero undefined references or citations.
+
+`SUBMISSION_CHECKLIST.md` carries the same stale wording and is superseded by this note.
+
+
+---
+
+## G87 correction round (2026-07-30)
+
+The manuscript was substantively corrected, not merely polished. The corrections and their
+evidence are listed in `artifacts/G87_PAPER_CORRECTION_CHECKLIST.md`; the headline items are the
+M8 evaluation scope (a single-model out-of-fold audit, not the deployed five-checkpoint ensemble),
+holdout terminology (a same-corpus policy-selection holdout, not an independent cohort), the
+descriptive rather than unbiased status of the out-of-fold estimate, removal of the
+output-collision rejection claim, and the removal of every manual layout adjustment. New
+regression guards in `tests/test_paper_scaffold.py` fail if any of these drift back.

@@ -31,10 +31,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # --- dependencies (pinned; installed at BUILD time only) ---
 # torch/cu128 wheels from the PyTorch index; the nnU-Net stack pinned from the committed lock.
 COPY requirements.lock.txt /opt/gat26/requirements.lock.txt
+# G86 amendment (defect fix, NOT a policy change). torchvision must be pinned from the
+# same cu128 index as torch. dynamic_network_architectures==0.4.4 requires timm<1.0.23,
+# and timm requires torchvision; with torchvision unpinned the second install resolved
+# it from PyPI and dragged torch up to 2.13.0+cu130, silently replacing the validated
+# 2.8.0+cu128 build. Pinning torchvision satisfies timm in advance so the lock install
+# cannot move torch -- which is exactly what this file already claimed to guarantee.
+# The trailing assertion makes any future drift a hard build failure.
 RUN python3 -m pip install --no-cache-dir --break-system-packages \
-        --index-url https://download.pytorch.org/whl/cu128 torch==2.8.0 \
+        --index-url https://download.pytorch.org/whl/cu128 torch==2.8.0 torchvision==0.23.0 \
  && python3 -m pip install --no-cache-dir --break-system-packages \
-        -r /opt/gat26/requirements.lock.txt
+        -r /opt/gat26/requirements.lock.txt \
+ && python3 -c "import torch, torchvision, importlib.metadata as md; \
+assert torch.__version__=='2.8.0+cu128', torch.__version__; \
+assert torchvision.__version__.startswith('0.23.0'), torchvision.__version__; \
+assert md.version('nnunetv2')=='2.8.1', md.version('nnunetv2'); \
+print('build-time pin check OK:', torch.__version__, torchvision.__version__)"
 
 # --- runner code (tracked) ---
 COPY scripts/release_infer.py           /opt/gat26/scripts/release_infer.py

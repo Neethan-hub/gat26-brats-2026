@@ -51,7 +51,9 @@ Every box is **owner-only and interactive**. Claude does not submit, upload, or 
       visibly unfinished prose. 2 minor overfull boxes remain (7.7 pt in body; 13.1 pt produced by the
       long `\ownerinput{acknowledgements}` placeholder, which resolves when the owner supplies text).
 - [x] **HARD BLOCKER (CLEARED, G78) — rendered length verified 8–10 pages excluding references:**
-      **9 pages excluding references** (10 pages total; References heading begins on page 9).
+      G78 draft: 9 pages excluding references (10 total). **G87 corrected build: 10 pages
+      excluding references (12 total; References begins partway down page 10)** — inside the
+      required 8–10. The nine-page production-headroom target was not reached.
 - [x] **HARD BLOCKER CLEARED (G79-P, 2026-07-28) — public source-code URL (GitHub).** Timeline wiki
       639587, verbatim: *"Short paper must report a) source code (GitHub link), b) method
       description, and c) results on training and validation data."* The sanitized export is now
@@ -111,3 +113,13 @@ an institutional affiliate of the author.
 - [ ] `FINAL_AUTHORIZATION.md` (per `RELEASE_CHECKLIST.md`) completed with the exact commit, image
       digest/tag, config/checkpoint/data/split provenance, team name, OpenReview ID, and Synapse
       submission ID, plus every PASS gate — before the human authorizes each exact push/submit.
+
+---
+
+## STATUS UPDATE (G86, 2026-07-30)
+
+Any line above marked pending for **official validation score/rank**, **A10G measurement**
+or **final image identity** is superseded. Official validation was obtained and is reported
+in the manuscript; no rank was exposed and none is inferred. The final PDF is
+`paper/GAT26_BraTS2026_Task3.pdf` (10 content pages excluding references). See the status
+update appended to `README.md` for the authoritative current state.

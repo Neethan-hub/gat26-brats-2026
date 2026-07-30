@@ -89,20 +89,33 @@ def main():
     check("no_bare_todo", "TODO" not in MAIN and "XXX" not in MAIN.replace("XXXX", ""))
 
     # 2. placeholders are conspicuous macros (fail-closed), and unresolved facts use them
-    check("ownerinput_macro_defined", "\\newcommand{\\ownerinput}" in MAIN)
-    check("pending_macro_defined", "\\newcommand{\\pending}" in MAIN)
-    # Placeholders that must STILL exist (genuinely unmeasured / not yet owner-supplied).
-    # "final title" left this list in Stage G79-S when the owner approved the final title; the
-    # remaining entries are all quantities that do not exist yet and must never be invented.
-    for tok in ("genuine-A10G peak reserved VRAM", "final image tag and digest",
-                "hidden-test results", "official validation score"):
-        check(f"placeholder_present::{tok[:22]}", tok in MAIN)
+    # G87: every placeholder was resolved and the now-unused macro definitions were removed, so
+    # requiring the definitions would be requiring dead code. What must hold is that no placeholder
+    # is USED anywhere in the manuscript.
+    # Stage G86 resolved the last four placeholders, so requiring them to persist would now
+    # assert a falsehood -- the same replacement pattern already applied to code availability (c),
+    # anonymity (d) and compilation (f) below. Each is replaced by a guard on its NEW true state:
+    #   * official validation score -- measured and reported, with no rank claimed (see (e));
+    #   * final image tag and digest -- the exact submitted image is recorded WITH the submission,
+    #     deliberately not printed in the manuscript, and the paper must say so;
+    #   * genuine-A10G peak reserved VRAM -- still NOT measured; the paper must say it holds no
+    #     measurement on the organizers' target GPU rather than quietly dropping the caveat;
+    #   * hidden-test results -- still do not exist; the paper must report and estimate none.
+    # The macros themselves stay defined (asserted above), so any future unresolved fact still has
+    # a fail-closed way to be marked.
+    check("no_placeholder_macro_used_in_body",
+          re.search(r"\\(pending|ownerinput)\{", re.sub(r"\\newcommand\{\\(pending|ownerinput)\}"
+                                                       r"\[1\]\{[^\n]*", "", MAIN)) is None)
 
     # 2b. Author identity, title and acknowledgement resolved by owner decision (Stage G79-S).
     # These are now REQUIRED to be concrete, and their placeholders must be gone.
+    # G87 retitled the paper: the previous title implied that five-fold ensembling was the
+    # contribution. The current title names what the work actually is.
     check("title_is_approved_final",
-          "\\title{GAT-26: Five-Fold Residual Encoder Ensembling for Generalizable Brain Tumor "
-          "Segmentation}" in MAIN)
+          "\\title{GAT-26: Release-Path Auditing and Confirmation-Gated Inference Selection for "
+          "Cross-Tumor\nBrain Tumor Segmentation}" in MAIN)
+    forbid_title = "Five-Fold Residual Encoder Ensembling" in MAIN
+    check("no_superseded_title", not forbid_title)
     check("titlerunning_present", "\\titlerunning{" in MAIN and "\\ownerinput" not in
           MAIN.split("\\titlerunning{")[1].split("}")[0])
     check("sole_author_named", "\\author{Nathan Chen}" in MAIN)
@@ -146,18 +159,29 @@ def main():
         m = json.loads((REPO / "artifacts" / "g5_m_fold0_official_eval_summary.json").read_text())
         l = json.loads((REPO / "artifacts" / "g5_l_fold0_official_eval_summary.json").read_text())
         mc, lc = m["components_mean"], l["components_mean"]
+        # G87 compressed the fold-0 screen to the six DSC values; the fold-0 HD95 values and the
+        # DSC/HD95 tail percentiles were cut from the manuscript. Values the paper still states must
+        # match the evidence exactly; values it no longer states must be genuinely ABSENT rather
+        # than replaced by a different number, which is what the second loop enforces.
         for label, val, fmt in [
             ("M_et_dsc", mc["et_dsc"], r3), ("M_tc_dsc", mc["tc_dsc"], r3), ("M_wt_dsc", mc["wt_dsc"], r3),
-            ("M_et_hd95", mc["et_hd95"], r2), ("M_tc_hd95", mc["tc_hd95"], r2), ("M_wt_hd95", mc["wt_hd95"], r2),
             ("L_et_dsc", lc["et_dsc"], r3), ("L_tc_dsc", lc["tc_dsc"], r3), ("L_wt_dsc", lc["wt_dsc"], r3),
-            ("L_et_hd95", lc["et_hd95"], r2), ("L_tc_hd95", lc["tc_hd95"], r2), ("L_wt_hd95", lc["wt_hd95"], r2),
-            ("M_dsc_p05", m["dsc_p05"], r3), ("L_dsc_p05", l["dsc_p05"], r3),
-            ("M_hd95_p95", m["hd95_p95"], r2), ("L_hd95_p95", l["hd95_p95"], r2),
         ]:
             check(f"numeric_matches_evidence::{label}", fmt(val) in MAIN)
+        # the fold-0 screen must not report an HD95 or tail-percentile number at all now
+        cut = {"M_et_hd95": r2(mc["et_hd95"]), "M_tc_hd95": r2(mc["tc_hd95"]),
+               "M_wt_hd95": r2(mc["wt_hd95"]), "L_et_hd95": r2(lc["et_hd95"]),
+               "L_tc_hd95": r2(lc["tc_hd95"]), "L_wt_hd95": r2(lc["wt_hd95"]),
+               "M_dsc_p05": r3(m["dsc_p05"]), "L_dsc_p05": r3(l["dsc_p05"]),
+               "M_hd95_p95": r2(m["hd95_p95"]), "L_hd95_p95": r2(l["hd95_p95"])}
+        screen = MAIN.split("On the frozen fold-0 validation set")[-1].split("\n\n")[0]
+        check("cut_fold0_values_not_misreported",
+              not [k for k, v in cut.items() if v in screen])
         check("val_count_271_matches", str(m["n"]) == "271" and "271" in MAIN)
         sel = json.loads((REPO / "artifacts" / "g5_fold0_selection_decision.json").read_text())
-        check("selection_select_M", sel["decision"] == "select_M" and "selects ResEnc-M" in MAIN)
+        check("selection_select_M",
+              sel["decision"] == "select_M"
+              and ("selects ResEnc-M" in MAIN or "selected ResEnc-M" in MAIN))
         n_res = sel["bootstrap_resamples"]
         res_forms = (str(n_res), f"{n_res:,}".replace(",", "{,}"), f"{n_res:,}")  # 10000 / 10{,}000 / 10,000
         check("bootstrap_seed_in_paper", str(sel["seed"]) in MAIN and any(f in MAIN for f in res_forms))
@@ -170,9 +194,24 @@ def main():
     check("bib_arxiv_2107", "2107.02314" in BIB)   # flagship id verbatim from the rules page
 
     # 5. NO protected material anywhere under paper/
-    joined = "\n".join(p.read_text() for p in PAPER.rglob("*") if p.is_file())
+    # Stage G86 compiled the manuscript in place, so paper/ now also holds build artifacts (the
+    # PDF, .aux, .bbl, .log). Those are byte streams, not UTF-8, and reading them as text raised
+    # UnicodeDecodeError and aborted this whole scan. Decode every file leniently instead: the
+    # scan must cover the compiled output too, since that is what actually gets submitted.
+    # Compressed PDF streams are of course not searchable this way -- the manuscript sources
+    # below are the authoritative text, and the PDF is additionally audited by extraction.
+    def _text(p: Path) -> str:
+        return p.read_bytes().decode("utf-8", errors="replace")
+
+    files = [p for p in PAPER.rglob("*") if p.is_file()]
+    joined = "\n".join(_text(p) for p in files)
+    # A compiled binary's byte soup can coincidentally contain 64 hex characters, which would be
+    # a false hash "leak". The hash guard therefore reads the text sources, where a real private
+    # digest would actually have to be written.
+    sources = "\n".join(_text(p) for p in files if p.suffix.lower() not in
+                        (".pdf", ".aux", ".bbl", ".blg", ".log", ".out", ".synctex", ".gz"))
     check("no_real_case_ids", re.search(r"BraTS-(GLI|MEN|MET|PED|SSA)-\d{5}", joined) is None)
-    check("no_64hex_hash", re.search(r"\b[a-f0-9]{64}\b", joined) is None)
+    check("no_64hex_hash", re.search(r"\b[a-f0-9]{64}\b", sources) is None)
     check("no_private_paths", "/workspace/data" not in joined and "/dev/shm" not in joined
           and "/workspace/runs" not in joined)
     check("no_credentials", not re.search(r"(BEGIN [A-Z ]*PRIVATE KEY|synapseConfig|JUPYTER_PASSWORD|ssh-rsa AAAA)", joined))
@@ -190,19 +229,30 @@ def main():
            "recorded privately" in low or "per-cohort labeled-subset sizes are recorded" in low)
     check("cohort_accuracy_stated",
           "reliably derivable" in flat and "did not guess" in flat
-          and "cohort-stratified analysis is unavailable" in flat)
+          and ("cohort-stratified analysis is unavailable" in flat
+               or "cohort-stratified analysis lies outside this work" in flat))
 
     # (b) no completed container / genuine-A10G validation claimed prematurely
     forbid("no_completed_container_claim",
            "packaged as a zero-network" in low
            or "the submission is a linux/amd64, zero-network clean-room container" in low)
     # The image must still be declared NOT built / NOT accepted (A10G-2 is the gate).
-    check("container_pending_stated",
-          ("has not yet been built" in flat)
-          or ("final container image" in flat and "not yet available" in flat)
-          or ("\\pending{final image tag and digest}" in MAIN))
+    # Stage G86 built, qualified, pushed and submitted the image, so "not yet built" would now be
+    # false. The replacement guards keep the two things that must not drift: the manuscript points
+    # to the submission record for the exact image identity instead of printing a digest it cannot
+    # keep in sync, and it still refuses to claim measurement on the organizers' target GPU.
+    check("container_identity_deferred_to_submission_record",
+          "recorded with the challenge submission" in flat)
+    # the manuscript must never print the image tag or digest
+    check("no_image_digest_in_manuscript",
+          re.search(r"sha256|gat26-c0:|docker\.synapse", MAIN, re.I) is None)
+    forbid("no_stale_container_unbuilt_claim", "has not yet been built" in flat)
     forbid("no_a10g_validation_passed_claim",
            bool(re.search(r"a10g[- ]?(1|2)?\s*(validation|test)\s*(passed|complete|succeeded|done)", low)))
+    check("no_a10g_measurement_claimed",
+          "we hold no measurement on the organizers' target gpu" in flat
+          or "we hold no measurement of the container on an nvidia a10g" in flat
+          or "did not measure the container on that" in flat)
 
     # (c) code availability. Stage G79-P actually published the sanitized export and verified it by
     # unauthenticated clone, so the pre-G79-P guards ("currently private" + an \ownerinput
@@ -213,7 +263,7 @@ def main():
     check("code_availability_states_apache",
           re.search(r"apache license\s*\n?\s*2\.0", low) is not None)
     check("code_availability_no_data_claim",
-          "no images, labels, model checkpoints, or predictions" in flat)
+          re.search(r"no images, labels,( model)? checkpoints,? or predictions", flat) is not None)
     forbid("no_code_availability_placeholder_left",
            re.search(r"\\ownerinput\{(public source-code url|code-availability)", MAIN, re.I) is not None)
     forbid("no_stale_private_repo_claim", "currently private" in flat)
@@ -236,16 +286,26 @@ def main():
           "\\pending{five-fold cv results}" not in MAIN.lower()
           and "1{,}351 cases, each exactly once" in MAIN)
     check("folds_1_4_not_claimed_pending", "\\pending{m folds 1--4}" not in MAIN.lower())
-    check("all_five_folds_complete_stated", "all five folds (0--4) are complete" in flat)
+    check("all_five_folds_complete_stated",
+          "all five folds (0--4) are complete" in flat or "all five are complete" in flat)
     check("oof_evaluator_zero_errors_stated", "$n=1{,}351$, zero errors" in MAIN or "zero errors" in flat)
+    # The released ensemble still cannot be scored on training data; only the wording moved.
     check("ensemble_unmeasurable_stated",
-          "cannot be scored without optimistic bias" in flat or "unmeasurable" in flat)
-    for item in ("final image tag and digest", "hidden-test results, camera-ready"):
-        check(f"still_pending::{item[:20]}", f"\\pending{{{item}}}" in MAIN)
-    check("still_pending::genuine_a10g",
-          "\\pending{genuine-a10g peak" in MAIN.lower())
-    check("no_official_validation_rank_claimed",
-          "no official validation submission and therefore no official rank" in flat)
+          "cannot be scored without optimistic bias" in flat or "unmeasurable" in flat
+          or ("is not the released ensemble's score" in flat
+              and "trained four of the five" in flat))
+    # Stage G86: an official validation score now EXISTS and is reported. The guard therefore
+    # flips from "no submission exists" to "a submission exists and confers no rank", which is the
+    # claim that could actually be overstated. Hidden-test results still do not exist.
+    check("official_validation_reported_without_rank",
+          "carries no rank" in flat or "no official rank" in flat)
+    check("hidden_test_still_absent",
+          ("no hidden-test measurement exists" in flat
+           or "does not exist at the time of writing" in flat)
+          and ("we report none and estimate none" in flat
+               or "we report and estimate none" in flat))
+    forbid("no_hidden_test_number_claimed",
+           bool(re.search(r"hidden[- ]test[^.\n]{0,60}(dice|dsc|nsd|score) of\s*\d", low)))
     check("official_metrics_dsc_nsd_stated",
           "dice similarity coefficient" in flat and "normalized surface distance" in flat)
     forbid("no_final_results_faked",
@@ -263,14 +323,84 @@ def main():
     check("compile_result_recorded",
           "llncs" in low and "llncs" in checklist
           and re.search(r"excluding references", low) is not None)
+    # The count is re-measured whenever the manuscript changes; G78 recorded 9, the G86 final
+    # build measures 10. Assert a recorded count that is actually inside the required range,
+    # rather than pinning the number of one historical build.
+    m_pages = re.findall(r"\b(\d{1,2}) pages? excluding references", low)
     check("page_count_recorded_in_range",
-          re.search(r"\b9 pages\b.*excluding references|excluding references.*\b9 pages\b", low)
-          is not None and "8–10" in low)
+          bool(m_pages) and all(8 <= int(v) <= 10 for v in m_pages) and "8–10" in low)
     check("compile_not_equated_with_submission_ready",
           "not the same as being submission-ready" in low)
     # A clean compile must never be reported as clearing the owner-input placeholders.
     forbid("no_placeholders_resolved_claim",
            bool(re.search(r"(all|every) (owner|placeholder)[^.\n]*(resolved|filled|complete)", low)))
+
+    # ------------------------------------------------------------------ G87 regression guards
+    # Each of these encodes a factual correction made in Stage G87. They fail if the manuscript
+    # ever drifts back to a claim the committed evidence does not support.
+
+    # (1) The M8 audit is a SINGLE-MODEL out-of-fold comparison; the deployed submission ensembles
+    #     all five checkpoints. Conflating them was the highest-severity defect in the G86 draft.
+    check("g87_m8_scope_stated",
+          "excluded-fold checkpoint" in flat and "all five" in flat
+          and "does not directly measure" in flat)
+    forbid("g87_no_m8_equals_release_ensemble_claim",
+           bool(re.search(r"identical to the (final |released |deployed )?(five-model |five-fold )?"
+                          r"ensemble except", low))
+           or "the exact released policy with only one changed switch" in low
+           or bool(re.search(r"mirroring[^.\n]{0,80}decisively closed", low)))
+
+    # (2) Folds 3--4 are a same-corpus policy-selection holdout, not an independent cohort.
+    check("g87_holdout_terminology",
+          "policy-selection holdout" in flat and "not an external independent cohort" in flat)
+    forbid("g87_no_independence_overclaim",
+           "independent confirmation" in flat or "untouched data" in flat
+           or "strictly held out throughout development" in flat
+           or bool(re.search(r"opened exactly once", low)))
+
+    # (3) The out-of-fold estimate is descriptive and post-selection, never "unbiased".
+    check("g87_oof_described_as_post_selection",
+          "descriptive" in flat and "post-selection" in flat)
+    # Flag only AFFIRMATIVE unbiasedness claims: "not an unbiased estimate" and "rather than
+    # unbiased" are the corrected wording and must not trip this guard.
+    affirmative_unbiased = [
+        m for m in re.finditer(r"\bunbiased\b", low)
+        if not re.search(r"(not|never|rather than|neither)\s+(an?\s+)?$", low[max(0, m.start() - 24):m.start()])
+    ]
+    forbid("g87_no_unbiased_oof_claim", bool(affirmative_unbiased))
+
+    # (4) The G85 protocol was confirmation-frozen but calibration-informed, never result-blind.
+    check("g87_protocol_honesty",
+          "calibration-informed" in flat and "not globally result-blind" in flat)
+
+    # (5) The submitted runner does NOT fail closed on an output collision (G86 measured
+    #     exit_code 0, failed_closed false), so no rejection may be claimed anywhere in paper/.
+    forbid("g87_no_output_collision_rejection_claim",
+           "output-name collision" in flat or "output collisions" in flat
+           or bool(re.search(r"reject[^.\n]{0,40}collision", low)))
+    check("g87_fresh_output_contract_stated",
+          "fresh writable" in flat or "fresh output director" in flat)
+
+    # (6) The official NSD values carry no participant-visible tolerance, so none may be attached.
+    check("g87_official_nsd_tolerance_not_claimed",
+          "did not expose the surface tolerance" in flat)
+    forbid("g87_no_tolerance_label_on_official_nsd",
+           bool(re.search(r"nsd \(ranked\)[^\n]{0,40}tau", low))
+           or bool(re.search(r"official[^.\n]{0,60}nsd[^.\n]{0,30}at (the )?(surface )?tolerance", low)))
+
+    # (7) The bootstrap summary is a resample fraction, not a posterior probability.
+    check("g87_bootstrap_fraction_wording",
+          "fraction of" in flat or "share of" in flat)
+    forbid("g87_no_posterior_probability_wording",
+           "paired-bootstrap probability" in flat or "bootstrap probability" in flat
+           or "p(\\delta u>0)" in low.replace(" ", ""))
+
+    # (8) The split is duplicate-audited, not proven leakage-free.
+    forbid("g87_no_leakage_safe_claim", "leakage-safe" in flat)
+
+    # (9) No adversarial or defensive framing.
+    forbid("g87_no_adversarial_framing",
+           "a team stopping at calibration" in low or "what a team stopping" in low)
 
     print("RESULT:", "PASS" if not FAILS else f"FAIL {FAILS}")
     return 1 if FAILS else 0

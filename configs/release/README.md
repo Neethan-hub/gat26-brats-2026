@@ -1,5 +1,13 @@
 # GAT-26 release container (Task 3 / BraTS-GoAT) — build & test
 
+> **Final status (2026-07-30).** The released container was built from this Dockerfile with the five
+> distinct final fold checkpoints and submitted once to the Task-3 Docker queue. The `torchvision`
+> pin and the build-time version assertions in the Dockerfile are load-bearing: without them the
+> lock install resolves `torchvision` from PyPI and upgrades `torch` off the CUDA-12.8 build the rest
+> of the evidence was produced on. The single-checkpoint proxy mode described below is historical and
+> was **not** used for the submission. The container expects a fresh writable `/output`; overwriting a
+> pre-existing output file is not a rejected condition.
+
 **Selected plan: ResEnc-M** (frozen G5 fold-0 selection). Clean-room, zero-network,
 A10G 24 GB target. This directory is committed source only — **no weights, no data**.
 
