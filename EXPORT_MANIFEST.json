@@ -1,6 +1,6 @@
 {
  "n_files": 101,
- "total_bytes": 930126,
+ "total_bytes": 930765,
  "declared_license": "Apache-2.0",
  "files": [
   {
@@ -160,8 +160,8 @@
   },
   {
    "path": "paper/main.tex",
-   "bytes": 33433,
-   "sha256": "5d6b56a856327c38ee9d0a0c86b4a44f716d2669927be43d50025f07767be619"
+   "bytes": 33319,
+   "sha256": "faa444acbc305550f640b273873aa23d74e085f097cd2e745a16f41525860a7b"
   },
   {
    "path": "paper/references.bib",
@@ -490,8 +490,8 @@
   },
   {
    "path": "tests/test_paper_scaffold.py",
-   "bytes": 30452,
-   "sha256": "4072af667e65a2d504a72154a537402915c3e9534faaa9e327dac4c294b60b22"
+   "bytes": 31205,
+   "sha256": "690b3085fb8aab0995551c622c0aa8d27d87eb74fb09dc3bcb1256ed900fdd3f"
   },
   {
    "path": "tests/test_release_build_preflight.py",

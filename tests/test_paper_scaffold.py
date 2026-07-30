@@ -484,9 +484,18 @@ def main():
         not ("we hold no measurement of the container on an nvidia a10g" in flat)
     check("g87r_a10g_claim_backed_by_evidence", (not claims_a10g) or a10g_passed)
 
-    # (8) The publication-integrity disclosure must be present.
-    check("g87r_publication_integrity_disclosure",
-          "no software system is an author" in flat)
+    # (8) Publication integrity. The owner removed the voluntary AI-tooling sentence from the
+    # Disclosure of Interests; the binding requirement is unchanged and still enforced -- no software
+    # system may appear as an author or contributor anywhere in the front matter or credits.
+    credits_block = MAIN.split("\\begin{credits}")[-1] if "\\begin{credits}" in MAIN else ""
+    software_names = r"(claude|chatgpt|gpt-\d|copilot|codex|gemini|llm|language model|ai assistant)"
+    check("g87r_no_software_listed_as_author",
+          re.search(software_names, author_block, re.I) is None
+          and re.search(r"\\author\{[^}]*" + software_names, MAIN, re.I) is None
+          and re.search(software_names + r"[^.\n]{0,40}(is|as)( an?)? (author|contributor)",
+                        credits_block, re.I) is None)
+    check("g87r_competing_interests_present",
+          "declares no competing interests" in flat)
 
     print("RESULT:", "PASS" if not FAILS else f"FAIL {FAILS}")
     return 1 if FAILS else 0
