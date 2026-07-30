@@ -18,6 +18,14 @@
 \usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage[hidelinks]{hyperref}
+% Non-sensitive document metadata only: title, author, keywords. No submission identifiers,
+% private hashes, resource identifiers or internal stage names.
+\hypersetup{
+  pdftitle={GAT-26: Release-Path Auditing and Confirmation-Gated Inference Selection for Cross-Tumor Brain Tumor Segmentation},
+  pdfauthor={Nathan Chen},
+  pdfkeywords={Brain tumor segmentation; Generalization; nnU-Net; Inference-policy selection; Reproducibility; BraTS},
+  pdfsubject={BraTS 2026 Task 3 (BraTS-GoAT) short paper}
+}
 \usepackage{xurl}   % allow long URLs to break across lines (the LNCS text block is narrow)
 
 \begin{document}
@@ -44,13 +52,13 @@ tumor from multiparametric MRI. GAT-26, for Generalization-Aware Tri-region 2026
 official nnU-Net residual-encoder U-Net with region-based training, trained only on subchallenge data
 from a recorded random initialization, with no external images or pretrained weights. Our contribution
 is procedural rather than architectural: the inference policy that actually ships is the object under
-test, each candidate change is frozen in a pushed commit before the data used to judge it are touched,
-and a candidate is adopted only if a calibration gain survives a policy-selection holdout.
-Three bounded audits, of checkpoint choice, weight averaging and mirroring augmentation, all retained
-the simpler baseline. The mirroring audit is the informative one: it improved all six ranked components
-on the calibration folds with every paired bootstrap resample positive, then retained about a quarter
-of that effect on the holdout, with an interval spanning zero, a sign-flipping fold and a lesion
-miss-rate regression beyond its margin. We also document a discrepancy that is easy to ship unnoticed:
+test, and candidate definitions and decision rules were commit-frozen before candidate-specific
+predictions and comparative metrics were computed. Evaluation was staged. Two audits, of checkpoint
+choice and weight averaging, stopped at calibration and retained the baseline. A mirroring candidate
+showed a calibration gain and so advanced to a same-corpus policy-selection holdout, where it was also
+rejected: it had improved all six ranked components on the calibration folds with every paired
+bootstrap resample positive, but retained about a quarter of that effect on the holdout, with an
+interval spanning zero, a sign-flipping fold and a lesion miss-rate regression beyond its margin. We also document a discrepancy that is easy to ship unnoticed:
 our internal cross-validation figures used eightfold mirroring augmentation while the released container
 uses none, so the two are not comparable. Official validation Dice was 0.772, 0.824 and 0.879.
 \keywords{Brain tumor segmentation \and Generalization \and nnU-Net \and Inference-policy
@@ -76,14 +84,15 @@ not pursue a new architecture. What interested us instead is that a challenge su
 model but a \emph{container}, and that the inference policy inside it---checkpoint selection,
 test-time augmentation, tiling overlap, thresholding, post-processing, ensembling---is routinely
 chosen on the same data used to report cross-validated performance, with no holdout and no
-pre-registration. Underspecification makes this fragile: pipelines that are equivalent on a
-development distribution can differ elsewhere~\cite{damour2022underspecification}, which is exactly
-the regime a generalization task probes.
+pre-registration. Underspecification makes this fragile: pipelines equivalent on a development
+distribution can differ elsewhere~\cite{damour2022underspecification}, exactly the regime a
+generalization task probes.
 
 Our contributions are: a conservative container-oriented cross-tumor system with an explicit release
 contract; \emph{release-path verification}, checking whether the inference path that produced our
 internal numbers is the path that ships, which here it was not; commit-frozen policy testing, in which
-candidate, utility, gates and margins are fixed in a pushed commit before the judging data are touched;
+candidate, utility, gates and margins are fixed in a pushed commit before candidate-specific
+predictions and comparative metrics are computed on the designated evaluation folds;
 a concrete case in which a calibration gain with every bootstrap resample positive retained only about
 a quarter of its size on a policy-selection holdout; and a transparent inventory of what we tried and
 rejected. We claim no state-of-the-art accuracy, architectural novelty, clinical readiness, broad
@@ -123,11 +132,10 @@ backbone is the ResEnc-M residual-encoder U-Net in the \texttt{3d\_fullres} conf
 region-based ET/TC/WT targets, patch size $[128,160,112]$, batch size 2, SGD with Nesterov momentum,
 weight decay $3\times10^{-5}$, initial learning rate $10^{-2}$ with polynomial decay as fixed in our
 committed training plan, 0.33 foreground oversampling and deep supervision, trained 1000 epochs per
-fold with the final checkpoint retained. Quantities not recoverable from our committed record, such
-as the per-fold validation loss curves, are omitted rather than inferred from library defaults. All
-trainable parameters begin from a recorded random initialization; no pretrained, foundation or
-self-supervised weights are used, and an unexpected weight file is a release-blocking error. Folds
-train independently, with no cross-fold resume; all five are complete.
+fold with the final checkpoint retained. Quantities not recoverable from our committed record, such as
+the per-fold validation loss curves, are omitted rather than inferred from defaults. All trainable
+parameters begin from a recorded random initialization; no pretrained, foundation or self-supervised
+weights are used. Folds train independently, with no cross-fold resume; all five are complete.
 
 \subsection{Architecture Selection}
 Selection between the ResEnc-M and ResEnc-L presets followed a policy fixed before any fold result was
@@ -151,9 +159,15 @@ label-valid, hierarchy-consistent and geometry-exact.
 
 \subsection{Decision Procedure for Policy Audits}
 \label{sec:procedure}
-Each audit compares one frozen candidate policy against the frozen release baseline under a
-calibration-then-holdout design over disjoint folds, using the organizers' evaluation package driven
-with explicit surface tolerances $\tau\in\{0.5,1.0\}$. The utility $U$ is the unweighted mean of the six
+Candidate evaluation is \emph{staged}. Every audit compares one frozen candidate policy against the
+frozen release baseline under calibration rules fixed in advance, using the organizers' evaluation
+package with explicit surface tolerances $\tau\in\{0.5,1.0\}$; a candidate failing its advancement
+criteria stops at calibration and is not carried further. Audits~A and~B stopped there. The mirroring
+candidate was first assessed under a frozen rule vetoing any increase in the lesion false-negative
+count, failed it, and that audit likewise retained the baseline on calibration evidence alone. Only a
+separate, explicitly calibration-informed protocol advanced that candidate to a policy-selection
+holdout on folds 3--4, with its exact candidate, gates and margins fixed in a pushed commit before any
+candidate-specific prediction or comparative metric was computed on them. The utility $U$ is the unweighted mean of the six
 ranked components (ET/TC/WT $\times$ DSC/NSD) and $\Delta U$ is candidate minus baseline. Cases are
 compared on \emph{common support}: a region-case contributes only if both policies yield a finite value,
 so a change in the number of scorable cases cannot by itself create a gain, and we report the
@@ -183,7 +197,7 @@ output is written, and the runner refuses to start without five distinct fold ch
 contract supplies a fresh writable \texttt{/output} and our testing uses fresh output directories; we
 make no claim that the runner refuses to overwrite a pre-existing output file. The source is public
 under the Apache License 2.0 at the immutable tag
-\url{https://github.com/Neethan-hub/gat26-brats-2026/tree/brats-2026-task3-final-source}. It contains
+\url{https://github.com/Neethan-hub/gat26-brats-2026/tree/brats-2026-task3-final-source-r1}. It contains
 no images, labels, checkpoints or predictions, and the trained weights are not redistributed, so the
 repository does not reproduce training on its own.
 
@@ -222,8 +236,8 @@ and failing. On the same 811 calibration subjects, with the same preserved evalu
 denominators, the augmented lineage reproduces the recorded internal values to a worst absolute error
 of $4.3\times10^{-7}$, whereas the release path is lower by roughly $0.002$ on each Dice component and
 $0.002$--$0.007$ on each NSD component. The gap is single-signed across all twelve
-component/tolerance combinations and reproduces fold by fold, the signature of test-time augmentation
-rather than nondeterminism, resampling drift or evaluator variation. No internal number here therefore
+component/tolerance combinations and reproduces fold by fold --- the signature of test-time
+augmentation, not of nondeterminism or evaluator variation. No internal number here therefore
 estimates what the released container produces; relative conclusions among candidates sharing the same
 augmented predictions are unaffected, but their absolute level is not the shipped level.
 
@@ -284,13 +298,15 @@ seventeen of eighteen pre-declared checks passed. The one failure was a strict v
 lesion false-negative \emph{count}, which rose by 13 ($+0.3\%$); that gate had been frozen before
 calibration, and under it the audit correctly retained the baseline.
 
-Inspecting that outcome showed the veto measured something it should not: a count of missed components
-whose opportunity count can move with the policy under test. We therefore wrote a separate, explicitly
-\emph{calibration-informed} protocol replacing the count veto with the reference-lesion miss-rate
-noninferiority test of Section~\ref{sec:procedure}. This protocol is confirmation-frozen, not globally
-result-blind: it was designed after seeing the calibration outcome, and we say so plainly; it does not
-retroactively repair or annul the earlier audit, which stands as recorded. What was frozen in a pushed
-commit before any comparison on folds 3--4 was the exact candidate, protocol, gates and margins.
+Inspecting that outcome exposed a limitation of the veto rather than an error in it. The number of
+reference lesion components is \emph{policy-invariant} --- a property of the reference segmentation,
+verified identical under both policies --- but an absolute missed-lesion count does not normalize the
+change by that fixed number of opportunities and carries no uncertainty interval, so it cannot express
+how large a regression is or how confidently it is established. We therefore preregistered a separate,
+explicitly \emph{calibration-informed} reference-lesion miss-rate noninferiority analysis
+(Section~\ref{sec:procedure}). It is confirmation-frozen but not globally result-blind: it was designed
+after seeing the calibration outcome, and we say so plainly. It does not repair or annul the earlier
+audit, which correctly applied its own frozen rule and stands as recorded.
 
 The holdout was then evaluated. The $\tau=1$ gain fell from $+0.002532$ to $+0.000726$, below the
 pre-declared $+0.0010$ requirement; the positive-resample fraction fell from $1.0000$ to $0.7342$ with
@@ -305,14 +321,12 @@ as supportive and post-selection.
 
 \subsection{Bounded Experiment Inventory}
 Our search was bounded, and we list it rather than implying exhaustiveness. A connected-component
-proposal was rejected when its apparent mean gain proved to come from changed ET support, with
-matched-support performance worse. A 40-epoch fine-tuning screen of three variants---a
-tumor-type-mixture schedule, a domain-generalization augmentation schedule and their combination---failed
-its frozen gates. A dense-overlap variant (tile step $0.5\rightarrow0.25$) was \emph{not} tested,
-because its baseline gate mixed an augmentation-derived historical lineage with the no-augmentation
-release baseline; rather than compare across inference paths we declined the comparison. We did not
-test larger ensembles, cascades, cohort routing, alternative thresholds or alternative reconstruction
-rules, and make no claim about them.
+proposal was rejected when its apparent mean gain proved to come from changed ET support. A 40-epoch
+fine-tuning screen of three variants---a tumor-type-mixture schedule, a domain-generalization
+augmentation schedule and their combination---failed its frozen gates. A dense-overlap variant (tile
+step $0.5\rightarrow0.25$) was \emph{not} tested, because its baseline gate mixed an
+augmentation-derived historical lineage with the no-augmentation release baseline. We did not test
+larger ensembles, cascades, cohort routing or alternative thresholds, and make no claim about them.
 
 \subsection{Official Validation Result}
 \label{sec:official}
@@ -354,21 +368,20 @@ bit-exact reproduction.
 These values are well below our internal cross-validation figures and we do not explain the gap away:
 part is the inference-path difference of Section~\ref{sec:twopaths}, part is that the official cohort
 is a withheld cross-tumor set rather than held-out folds of the training pool. Read plainly, the system
-generalizes across tumor types considerably less well than its within-corpus cross-validation suggests,
-which is the phenomenon the subchallenge exists to expose.
+generalizes across tumor types considerably less well than its within-corpus cross-validation suggests
+--- the phenomenon the subchallenge exists to expose.
 
 \subsection{Runtime Evidence}
 \label{sec:container}
-The strongest runtime evidence we hold is a full-cohort run of the exact release inference policy, the
-run whose predictions produced Table~\ref{tab:official}. It processed 451 of 451 official validation
-cases with exit code $0$ and zero inference errors, at a peak reserved VRAM of $2.48$\,GiB, a total
-wall time of 3\,h\,35\,m and a mean of $28.6$\,s per case, on a single NVIDIA A40. All 17 output and
-archive gates passed twice: over the prediction directory, and again over a fresh independent
-re-extraction. This is supporting full-cohort evidence, not parity with the organizers' target
-environment: we hold no measurement of the container on an NVIDIA A10G, and a runtime measured on one
-GPU does not transfer to another. It does establish that memory is far from binding---a $2.48$\,GiB
-peak against a 24\,GB budget---because the ensemble runs sequentially. The identity of the exact
-submitted image is recorded with the challenge submission itself rather than printed here.
+Our full-cohort evidence is a run of the exact release inference policy, the run whose predictions
+produced Table~\ref{tab:official}. It processed 451 of 451 official validation cases with exit code
+$0$ and zero inference errors, at a peak reserved VRAM of $2.48$\,GiB, a total wall time of
+3\,h\,35\,m and a mean of $28.6$\,s per case, on a single NVIDIA A40. All 17 output and archive gates
+passed twice: over the prediction directory, and again over a fresh independent re-extraction. A
+runtime measured on one GPU does not transfer to another, but this does establish that memory is far
+from binding---a $2.48$\,GiB peak against a 24\,GB budget---because the ensemble runs sequentially.
+We hold no measurement of the container on an NVIDIA A10G. The identity of the exact submitted image
+is recorded with the challenge submission itself rather than printed here.
 
 \section{Discussion}
 
@@ -376,12 +389,12 @@ submitted image is recorded with the challenge submission itself rather than pri
 Challenge papers often blur distinct quantities, so we separate ours. Out-of-fold cross-validation
 (Section~\ref{sec:oof}) is descriptive and post-selection, produced by the augmented internal path, and
 is not the released ensemble's score. Audit results are policy-selection comparisons on development
-folds, valid for choosing between policies but not performance estimates. The single official
-measurement came from the release path on a withheld cross-tumor cohort; it carries no rank and we do
-not convert it into an expected standing. Hidden-test performance alone determines the ranking, is
-computed by the organizers after the deadline, and does not exist at the time of writing; we report and
-estimate none. Cross-validation must not be read as an official or hidden-test result, and the internal
-and official figures are not comparable, differing in both cohort and inference path.
+folds, not performance estimates. The single official measurement came from the release path on a
+withheld cross-tumor cohort; it carries no rank and we do not convert it into an expected standing.
+Hidden-test performance alone determines the ranking, is computed by the organizers after the deadline,
+and does not exist at the time of writing; we report and estimate none. Cross-validation must not be
+read as an official or hidden-test result, and internal and official figures are not comparable,
+differing in both cohort and inference path.
 
 The mirroring result is likewise a methodological observation, not a method: M8 is not part of the
 release and is not offered as an improvement. Three limits bound it. It is a single-model out-of-fold
@@ -407,25 +420,25 @@ images~\cite{kofler2023panoptica}.
 Group-level splitting mitigates but cannot prove the absence of same-subject leakage.
 Cohort-stratified generalization, arguably the core question of this task, could not be analyzed
 because per-case cohort labels were not derivable. Our internal figures came from a different inference
-configuration than the released container, limiting their value as a description of the shipped system.
-The policy holdout is same-corpus and we have no external independent test cohort; one submitted
-validation prediction is absent from the organizers' per-case output for undisclosed reasons; a small
-minority of cases dominates the boundary-error mean; and we hold no hidden-test evidence and no
-measurement on the organizers' target GPU. On data governance, GAT-26 trains only on GoAT-provided data
+configuration than the released container. The policy holdout is same-corpus and we have no external
+independent test cohort; one submitted validation prediction is absent from the organizers' per-case
+output for undisclosed reasons; a small minority of cases dominates the boundary-error mean; and we
+hold no hidden-test evidence. On data governance, GAT-26 trains only on GoAT-provided data
 from a recorded random initialization, with no external, prior-BraTS, private or pretrained data or
 weights, as the subchallenge rules require; validation and test labels were never used, and we
 performed no pseudo-labeling, transductive adaptation or leaderboard-driven tuning.
 
 \section{Conclusion}
-GAT-26 is a five-fold region-based residual-encoder nnU-Net ensemble shipped under a protocol in which
-each tunable inference decision was frozen in a commit and gated on a policy-selection holdout; all
-three audits retained the simpler baseline. Two findings travel better than the architecture: a
-candidate that improved every ranked component on calibration, with every bootstrap resample positive,
-retained about a quarter of that gain on the holdout with an interval spanning zero and a safety
-regression beyond its margin; and our internal cross-validation numbers came from a different inference
-path than the container we ship, a discrepancy invisible unless the release path is audited directly.
-Official validation performance was well below our internal figures, which we report as a finding about
-cross-tumor transfer rather than explain away.
+GAT-26 is a five-fold region-based residual-encoder nnU-Net ensemble evaluated under commit-frozen
+selection rules. The checkpoint and weight-averaging audits stopped at calibration; the mirroring audit
+advanced to a same-corpus policy-selection holdout, where its apparent gain weakened and failed the
+frozen utility and safety gates. All three retained the simpler baseline. Two findings travel better
+than the architecture: a calibration improvement that looked unambiguous---every ranked component
+better, every bootstrap resample positive---retained about a quarter of its size on the holdout, with
+an interval spanning zero and a safety regression beyond its margin; and our internal cross-validation
+numbers came from a different inference path than the container we ship, a discrepancy invisible unless
+the release path is audited directly. Official validation performance was well below our internal
+figures, which we report as a finding about cross-tumor transfer.
 
 \begin{credits}
 \subsubsection{\ackname}
@@ -437,7 +450,9 @@ review of the manuscript, and mentorship.
 % (Synapse wiki/639585, re-verified 2026-07-30).
 Data used in this publication were obtained as part of the Challenge project through Synapse ID
 (syn74274097).
-\subsubsection{\discintname} The author declares no competing interests relevant to this work.
+\subsubsection{\discintname} The author declares no competing interests. Software tools, including
+automated coding assistants, were used during development; no software system is an author or
+contributor.
 \end{credits}
 
 \bibliographystyle{splncs04}

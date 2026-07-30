@@ -208,8 +208,13 @@ def main():
     # A compiled binary's byte soup can coincidentally contain 64 hex characters, which would be
     # a false hash "leak". The hash guard therefore reads the text sources, where a real private
     # digest would actually have to be written.
-    sources = "\n".join(_text(p) for p in files if p.suffix.lower() not in
-                        (".pdf", ".aux", ".bbl", ".blg", ".log", ".out", ".synctex", ".gz"))
+    # The OpenReview worksheet legitimately records the compiled PDF's own SHA-256 -- the owner has
+    # to verify it against the uploaded file -- and it is excluded from the public export, so it is
+    # not part of the manuscript-source hash guard.
+    sources = "\n".join(_text(p) for p in files
+                        if p.suffix.lower() not in (".pdf", ".aux", ".bbl", ".blg", ".log",
+                                                    ".out", ".synctex", ".gz")
+                        and p.name != "OPENREVIEW_SUBMISSION_VALUES.md")
     check("no_real_case_ids", re.search(r"BraTS-(GLI|MEN|MET|PED|SSA)-\d{5}", joined) is None)
     check("no_64hex_hash", re.search(r"\b[a-f0-9]{64}\b", sources) is None)
     check("no_private_paths", "/workspace/data" not in joined and "/dev/shm" not in joined
@@ -401,6 +406,75 @@ def main():
     # (9) No adversarial or defensive framing.
     forbid("g87_no_adversarial_framing",
            "a team stopping at calibration" in low or "what a team stopping" in low)
+
+    # ------------------------------------------------------------ G87-R regression guards
+    # Stage G87-R removed five claims the committed evidence does not support. These guards are
+    # written to separate a PROHIBITED AFFIRMATIVE CLAIM from an accurate negation or limitation:
+    # each looks for the affirmative pattern and then checks that it is not inside a negation.
+    def affirms(pattern, negators=(r"not\b", r"never\b", r"no\b", r"rather than", r"neither",
+                                  r"does not", r"did not", r"cannot", r"stopped at")):
+        """True only where `pattern` matches WITHOUT a nearby negator in front of it."""
+        out = []
+        for m in re.finditer(pattern, flat):
+            before = flat[max(0, m.start() - 70):m.start()]
+            if not any(re.search(n + r"[^.]{0,60}$", before) for n in negators):
+                out.append(m.group(0))
+        return out
+
+    # (1) Not every candidate had to survive a holdout; audits A and B stopped at calibration.
+    check("g87r_staged_evaluation_stated",
+          "stopped at calibration" in flat
+          and ("evaluation is" in flat and "staged" in flat))
+    forbid("g87r_no_universal_holdout_claim",
+           bool(affirms(r"(each|every) (audit|candidate)[^.]{0,80}(holdout|calibration-then-holdout)"))
+           or bool(affirms(r"a candidate is adopted only if[^.]{0,60}holdout"))
+           or bool(affirms(r"(each|every) tunable[^.]{0,80}holdout")))
+
+    # (2) Folds 3--4 are a same-corpus policy-selection holdout.
+    check("g87r_same_corpus_holdout_stated", "same-corpus policy-selection holdout" in flat)
+    forbid("g87r_no_external_cohort_claim",
+           bool(affirms(r"holdout[^.]{0,40}(is|was) (an )?(external|independent)")))
+
+    # (3) The reference-lesion opportunity count is POLICY-INVARIANT.
+    check("g87r_opportunity_count_invariant_stated",
+          "policy-invariant" in flat and "reference lesion components" in flat)
+    forbid("g87r_no_opportunity_count_moves_claim",
+           "opportunity count can move with the policy" in flat
+           or bool(affirms(r"(opportunity|reference)[^.]{0,60}count[^.]{0,40}(move|change|vary)"
+                           r"[^.]{0,40}(with the )?policy")))
+
+    # (4) G85 did not retroactively repair or annul G84.
+    check("g87r_earlier_audit_stands",
+          "correctly applied its own frozen rule" in flat or "stands as recorded" in flat)
+    forbid("g87r_no_retroactive_repair_claim",
+           bool(affirms(r"(repair|annul|erase|invalidat\w+|fix\w*)[^.]{0,40}(earlier|previous|g84)"))
+           or "retroactively repair" in flat and "does not" not in flat)
+
+    # (5) M8 did not measure mirroring on the deployed five-model ensemble.
+    forbid("g87r_no_ensemble_measurement_claim",
+           bool(affirms(r"(measures?|measured|establishes)[^.]{0,60}mirroring[^.]{0,60}"
+                        r"(five-(model|checkpoint)|deployed) ensemble")))
+
+    # (6) The Docker receipt is not evidence of organizer execution.
+    forbid("g87r_no_execution_from_receipt_claim",
+           bool(affirms(r"(receipt|submission)[^.]{0,60}(proves|confirms|demonstrates)"
+                        r"[^.]{0,40}(execution|the organizers ran|was run by the organizers)")))
+
+    # (7) No A10G success may be claimed without committed direct evidence for it.
+    a10g_evidence = (REPO / "artifacts" / "g87r_a10g_qualification.json")
+    a10g_passed = False
+    if a10g_evidence.exists():
+        try:
+            a10g_passed = bool(json.loads(a10g_evidence.read_text()).get("overall_pass"))
+        except ValueError:
+            a10g_passed = False
+    claims_a10g = bool(affirms(r"(on|using) (one |a single )?nvidia a10g")) and \
+        not ("we hold no measurement of the container on an nvidia a10g" in flat)
+    check("g87r_a10g_claim_backed_by_evidence", (not claims_a10g) or a10g_passed)
+
+    # (8) The publication-integrity disclosure must be present.
+    check("g87r_publication_integrity_disclosure",
+          "no software system is an author" in flat)
 
     print("RESULT:", "PASS" if not FAILS else f"FAIL {FAILS}")
     return 1 if FAILS else 0
