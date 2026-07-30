@@ -176,10 +176,11 @@ convention and non-finite entries are excluded rather than imputed. Uncertainty 
 \emph{subject-level} bootstrap---subjects are resampled, never region-cases---with seed $20260730$ and
 $10{,}000$ resamples, summarized by the fraction of resamples with $\Delta U>0$ and a percentile
 interval; that fraction is the share of resamples in which the candidate is ahead, not a posterior
-probability. Ties resolve to the baseline. Safety is assessed on 26-connected lesion components: a
-reference component counts as missed if no predicted component of the same region overlaps it, and the
-miss rate is the fraction of reference components missed, a quantity whose denominator depends only on
-the reference. Noninferiority margins were $0.0025$ on the point change, $0.0050$ on the one-sided 95\%
+probability. Ties resolve to the baseline. Safety is assessed on 26-connected lesion components in the spirit of instance-wise segmentation
+evaluation~\cite{kofler2023panoptica}, and metric choice materially affects such
+conclusions~\cite{reinke2024metricsreloaded}: a reference component counts as missed if no predicted
+component of the same region overlaps it, and the miss rate is the fraction of reference components
+missed, a quantity whose denominator depends only on the reference. Noninferiority margins were $0.0025$ on the point change, $0.0050$ on the one-sided 95\%
 upper bound and per region, and a 5\% cap on the relative increase in predicted false-positive
 components.
 
@@ -197,7 +198,7 @@ output is written, and the runner refuses to start without five distinct fold ch
 contract supplies a fresh writable \texttt{/output} and our testing uses fresh output directories; we
 make no claim that the runner refuses to overwrite a pre-existing output file. The source is public
 under the Apache License 2.0 at the immutable tag
-\url{https://github.com/Neethan-hub/gat26-brats-2026/tree/brats-2026-task3-final-source-r1}. It contains
+\url{https://github.com/Neethan-hub/gat26-brats-2026/tree/brats-2026-task3-final-source-r2}. It contains
 no images, labels, checkpoints or predictions, and the trained weights are not redistributed, so the
 repository does not reproduce training on its own.
 
@@ -229,7 +230,7 @@ constituent models; it also came from a different inference path than the contai
 Every internal figure above came from the official evaluator applied to nnU-Net's own end-of-training
 validation predictions. Those predictions record the settings that produced them, and the recorded
 settings include mirroring axes $(0,1,2)$: eightfold mirroring test-time augmentation. The released
-container builds its predictor with mirroring disabled and uses no test-time augmentation at all.
+container disables mirroring and uses no test-time augmentation at all.
 
 We found this by trying to reproduce an internal calibration baseline through the release code path
 and failing. On the same 811 calibration subjects, with the same preserved evaluator, tolerances and
@@ -243,19 +244,17 @@ augmented predictions are unaffected, but their absolute level is not the shippe
 
 \subsection{Checkpoint and Weight-averaging Audits}
 \label{sec:audits}
-\textbf{Audit~A} tested the best-validation checkpoint, mirroring augmentation over the axes recorded
-in the checkpoint metadata, both combined, and ET component cleanup at three pre-declared
-physical-volume thresholds, on calibration folds 0--2 ($n=811$). No candidate improved robustly: the
-augmentation candidate was point-positive but its bootstrap interval did not exclude a tie, and
-component cleanup traded ET Dice against ET boundary distance for an exact six-component tie.
-\textbf{Audit~B} tested two pre-declared per-fold weight averages of the final and best-validation
-checkpoints, $S_1=0.75\theta_f+0.25\theta_b$ and $S_2=0.50\theta_f+0.50\theta_b$, in the spirit of
-weight averaging along a training trajectory~\cite{wortsman2022modelsoups} and under strict structural
-guards. It is the sharpest negative: every one of the six award components moved the wrong way for
-both soups, monotonically in the amount of the best-validation checkpoint mixed in, the paired
-bootstrap favored the baseline, and $S_1$ also failed the pre-declared 95th-percentile
-boundary-distance gate. Both audits retained the baseline and left folds 3--4 untouched by any
-candidate comparison.
+\textbf{Audit~A} tested the best-validation checkpoint, mirroring over the axes recorded in the
+checkpoint metadata, both combined, and ET component cleanup at three pre-declared physical-volume
+thresholds, on calibration folds 0--2 ($n=811$). No candidate improved robustly: the augmentation
+candidate was point-positive but its bootstrap interval did not exclude a tie, and component cleanup
+traded ET Dice against ET boundary distance for an exact six-component tie. \textbf{Audit~B} tested
+two pre-declared per-fold weight averages of the final and best-validation checkpoints,
+$S_1=0.75\theta_f+0.25\theta_b$ and $S_2=0.50\theta_f+0.50\theta_b$, in the spirit of weight averaging
+along a training trajectory~\cite{wortsman2022modelsoups}. It is the sharpest negative: every one of
+the six award components moved the wrong way for both soups, monotonically in the amount mixed in, the
+paired bootstrap favored the baseline, and $S_1$ also failed the pre-declared 95th-percentile
+boundary-distance gate. Both audits retained the baseline and left folds 3--4 untouched.
 
 \subsection{Mirroring Augmentation: a Calibration Gain That Did Not Hold Up}
 \label{sec:auditc}
@@ -319,14 +318,13 @@ failure is a denominator artifact, and the released no-augmentation policy was r
 all-fold estimate sits between the two; it reuses the folds that produced the decision, so we treat it
 as supportive and post-selection.
 
-\subsection{Bounded Experiment Inventory}
-Our search was bounded, and we list it rather than implying exhaustiveness. A connected-component
-proposal was rejected when its apparent mean gain proved to come from changed ET support. A 40-epoch
-fine-tuning screen of three variants---a tumor-type-mixture schedule, a domain-generalization
-augmentation schedule and their combination---failed its frozen gates. A dense-overlap variant (tile
-step $0.5\rightarrow0.25$) was \emph{not} tested, because its baseline gate mixed an
-augmentation-derived historical lineage with the no-augmentation release baseline. We did not test
-larger ensembles, cascades, cohort routing or alternative thresholds, and make no claim about them.
+\paragraph{Bounded experiment inventory.} Our search was bounded, and we list it rather than implying
+exhaustiveness. A connected-component proposal was rejected when its apparent mean gain proved to come
+from changed ET support. A 40-epoch fine-tuning screen of three variants---a tumor-type-mixture
+schedule, a domain-generalization augmentation schedule and their combination---failed its frozen
+gates. A dense-overlap variant (tile step $0.5\rightarrow0.25$) was \emph{not} tested, because its
+baseline gate mixed an augmentation-derived historical lineage with the no-augmentation release
+baseline. We did not test larger ensembles, cascades, cohort routing or alternative thresholds.
 
 \subsection{Official Validation Result}
 \label{sec:official}
@@ -353,23 +351,23 @@ WT & 0.879421230596971 & 0.483422275392118 & 17.56 & 450 \\
 \end{tabular}
 \end{table}
 
-Four qualifications travel with this table. \emph{(i)} No official rank was exposed by the platform for
-this submission, so we record none and neither infer nor estimate one. \emph{(ii)} The submitted archive
+Four qualifications travel with this table. \emph{(i)} No official rank was exposed for this
+submission, so we record none and neither infer nor estimate one. \emph{(ii)} The submitted archive
 contained all 451 predictions, its member set equalling the frozen expected set both in the archive
 listing and after a fresh independent re-extraction, whereas the organizers' per-case file exposes 450
-scored rows. No error or status column is exposed to participants and the cause was not disclosed, so
-we record the discrepancy and attribute it to nothing. \emph{(iii)} After skipping non-finite per-case values the finite denominators
-are $440/449/450$, and the organizers' own mean summary row equals the posted values exactly.
-\emph{(iv)} We do not claim to reproduce the official scorer: its exact version, the units in which the
-surface tolerance is read and parts of the non-finite handling are not exposed to participants, so our
-internal harness is the organizers' package driven with explicit tolerances, a weaker claim than
-bit-exact reproduction.
+scored rows; no error or status column is exposed to participants and the cause was not disclosed, so
+we record the discrepancy and attribute it to nothing. \emph{(iii)} After skipping non-finite per-case
+values the finite denominators are $440/449/450$, and the organizers' own mean summary row equals the
+posted values exactly. \emph{(iv)} We do not claim to reproduce the official scorer: its exact version,
+the units of the surface tolerance and parts of the non-finite handling are not exposed, so our harness
+is the organizers' package driven with explicit tolerances --- a weaker claim than bit-exact
+reproduction.
 
 These values are well below our internal cross-validation figures and we do not explain the gap away:
 part is the inference-path difference of Section~\ref{sec:twopaths}, part is that the official cohort
 is a withheld cross-tumor set rather than held-out folds of the training pool. Read plainly, the system
-generalizes across tumor types considerably less well than its within-corpus cross-validation suggests
---- the phenomenon the subchallenge exists to expose.
+generalizes across tumor types considerably less well than its within-corpus cross-validation
+suggests.
 
 \subsection{Runtime Evidence}
 \label{sec:container}
@@ -380,8 +378,19 @@ $0$ and zero inference errors, at a peak reserved VRAM of $2.48$\,GiB, a total w
 passed twice: over the prediction directory, and again over a fresh independent re-extraction. A
 runtime measured on one GPU does not transfer to another, but this does establish that memory is far
 from binding---a $2.48$\,GiB peak against a 24\,GB budget---because the ensemble runs sequentially.
-We hold no measurement of the container on an NVIDIA A10G. The identity of the exact submitted image
-is recorded with the challenge submission itself rather than printed here.
+
+We additionally exercised the \emph{exact submitted image}, resolved and verified by its manifest
+digest, on one NVIDIA A10G with 24\,GB of VRAM. Because that platform exposes no container runtime to
+the job, the image's own root filesystem and its exact \textsc{entrypoint} were executed through a
+rootless userspace mechanism, so this establishes exact-image filesystem and entrypoint compatibility
+on A10G rather than full runtime parity. On two smoke cases and a twelve-case benchmark of
+\emph{synthetic} four-modality volumes spanning three folder-name prefixes, every run exited $0$ with
+all output, geometry, label-range and hierarchy gates passing, inputs unchanged, and a peak reserved
+VRAM of $2.49$\,GiB. Mean time was $31.7$\,s per case, projecting $4.0$\,h for 451 cases and
+$5.0$\,h with a 25\% margin, against the 12\,h limit. These are synthetic inputs: this is neither
+organizer execution nor hidden-test evidence, and we do not claim identical behaviour on real cases.
+The identity of the exact submitted image is recorded with the challenge submission itself rather than
+printed here.
 
 \section{Discussion}
 
@@ -412,10 +421,7 @@ original internal utility paired DSC with HD95, fixed before training. Once the 
 clarified we re-ran the entire pre-existing candidate set under a DSC/NSD utility using the
 organizers' package, with the comparison protocol registered before any NSD value was computed, and
 evaluated at both $\tau=0.5$ and $\tau=1.0$ rather than assuming one; the conclusion is unchanged at
-either tolerance. More generally, metric choice and reporting materially affect such
-conclusions~\cite{reinke2024metricsreloaded}, and our lesion-level analysis follows a
-connected-component framework in the spirit of panoptic quality for medical
-images~\cite{kofler2023panoptica}.
+either tolerance.
 
 Group-level splitting mitigates but cannot prove the absence of same-subject leakage.
 Cohort-stratified generalization, arguably the core question of this task, could not be analyzed
@@ -436,9 +442,9 @@ frozen utility and safety gates. All three retained the simpler baseline. Two fi
 than the architecture: a calibration improvement that looked unambiguous---every ranked component
 better, every bootstrap resample positive---retained about a quarter of its size on the holdout, with
 an interval spanning zero and a safety regression beyond its margin; and our internal cross-validation
-numbers came from a different inference path than the container we ship, a discrepancy invisible unless
-the release path is audited directly. Official validation performance was well below our internal
-figures, which we report as a finding about cross-tumor transfer.
+numbers came from a different inference path than the container we ship. Official validation
+performance was well below our internal figures, which we report as a finding about cross-tumor
+transfer.
 
 \begin{credits}
 \subsubsection{\ackname}
@@ -451,8 +457,7 @@ review of the manuscript, and mentorship.
 Data used in this publication were obtained as part of the Challenge project through Synapse ID
 (syn74274097).
 \subsubsection{\discintname} The author declares no competing interests. Software tools, including
-automated coding assistants, were used during development; no software system is an author or
-contributor.
+automated coding assistants, were used; no software system is an author or contributor.
 \end{credits}
 
 \bibliographystyle{splncs04}

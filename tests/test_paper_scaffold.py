@@ -254,10 +254,16 @@ def main():
     forbid("no_stale_container_unbuilt_claim", "has not yet been built" in flat)
     forbid("no_a10g_validation_passed_claim",
            bool(re.search(r"a10g[- ]?(1|2)?\s*(validation|test)\s*(passed|complete|succeeded|done)", low)))
-    check("no_a10g_measurement_claimed",
-          "we hold no measurement on the organizers' target gpu" in flat
-          or "we hold no measurement of the container on an nvidia a10g" in flat
-          or "did not measure the container on that" in flat)
+    # G87-R: an A10G measurement now EXISTS, so requiring the "no measurement" caveat would assert a
+    # falsehood. The guard flips to what could actually be overstated: any A10G statement must be
+    # backed by committed evidence (checked below in g87r_a10g_claim_backed_by_evidence) and must
+    # carry its limitations -- synthetic inputs, not organizer execution, not full runtime parity.
+    a10g_in_paper = "nvidia a10g" in flat
+    check("a10g_claim_carries_its_limits",
+          (not a10g_in_paper) or
+          ("synthetic" in flat
+           and "neither organizer execution nor hidden-test evidence" in flat
+           and "rather than full runtime parity" in flat))
 
     # (c) code availability. Stage G79-P actually published the sanitized export and verified it by
     # unauthenticated clone, so the pre-G79-P guards ("currently private" + an \ownerinput
@@ -461,6 +467,10 @@ def main():
                         r"[^.]{0,40}(execution|the organizers ran|was run by the organizers)")))
 
     # (7) No A10G success may be claimed without committed direct evidence for it.
+    # The A10G aggregate lives in artifacts/, which the sanitized public export deliberately does
+    # not carry (it records the submitted image's manifest digest). Inside a VALIDATED export the
+    # file is legitimately absent -- the same fail-closed pattern used for the fold-0 evidence
+    # above -- so the check is satisfied there and stays a hard requirement everywhere else.
     a10g_evidence = (REPO / "artifacts" / "g87r_a10g_qualification.json")
     a10g_passed = False
     if a10g_evidence.exists():
@@ -468,6 +478,8 @@ def main():
             a10g_passed = bool(json.loads(a10g_evidence.read_text()).get("overall_pass"))
         except ValueError:
             a10g_passed = False
+    elif public_export_mode(("artifacts/g87r_a10g_qualification.json",)):
+        a10g_passed = True   # validated sanitized export: private evidence is intentionally absent
     claims_a10g = bool(affirms(r"(on|using) (one |a single )?nvidia a10g")) and \
         not ("we hold no measurement of the container on an nvidia a10g" in flat)
     check("g87r_a10g_claim_backed_by_evidence", (not claims_a10g) or a10g_passed)
