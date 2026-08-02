@@ -1,5 +1,16 @@
 # A10G qualification of the submitted container — sanitized summary
 
+> **Superseded, and one gate below was wrong.** The organizers later executed this image on the
+> hidden Task-3 test set and it **failed before writing any prediction**: its runner required the
+> input case-folder basename to end in exactly five digits, and the hidden folders end in a
+> three-digit run. The line below claiming that output names were "derived dynamically from the
+> input folder names" is therefore **incorrect for this image** — the qualification used synthetic
+> folders with five-digit suffixes only, so the restriction was never exercised. Nothing else in
+> this summary is affected: the runtime, VRAM, geometry, label, hierarchy and immutability results
+> stand, and no organizer execution, hidden-test result or ranking was ever claimed. A corrected
+> image was rebuilt from the same five checkpoints and the same frozen inference policy, with no
+> scientific change; its naming contract is the one described in the repository README.
+
 The exact image that was submitted to the challenge Docker queue — pulled by digest, not rebuilt —
 was executed on **one NVIDIA A10G with 24 GB of VRAM** (23,028 MiB reported, driver 580.159.03,
 exactly one visible GPU). The image digest is recorded with the challenge submission itself and is
@@ -27,8 +38,10 @@ SHA-256 comparison rather than a kernel-enforced read-only mount.
 | Output / geometry / label / hierarchy gates | all pass | all pass |
 | Inputs unchanged | yes | yes |
 
-**Gates verified:** flat output directory; output names derived dynamically from the input folder
-names with no hardcoded cohort prefix; readable 3-D NIfTI; finite integer labels restricted to
+**Gates verified:** flat output directory; output names matching each input folder name across three
+distinct prefixes — but see the correction above: every synthetic folder used here ended in five
+digits, so this did **not** establish that arbitrary organizer folder names are accepted, and in
+fact they were not; readable 3-D NIfTI; finite integer labels restricted to
 `{0,1,2,3}`; ET ⊆ TC ⊆ WT; geometry identical to each synthetic source; no nested, hidden, temporary,
 symlink, duplicate or zero-byte output; five distinct checkpoints in the original order; tile step
 0.5; Gaussian weighting; threshold 0.5; mirroring disabled; no component filtering; no dependency or

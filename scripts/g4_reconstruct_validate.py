@@ -97,15 +97,36 @@ def validate_task3_basename(name: str) -> str:
     return m.group(1)
 
 
+def validate_container_output_basename(name: str, expected: str) -> str:
+    """Container contract: the produced file must be exactly the flat name that was planned from
+    the complete input-folder basename. No case ID is parsed and no folder prefix is assumed."""
+    if "/" in name or "\\" in name:
+        raise ValueError("output must be a flat basename, not a nested path")
+    if not name.endswith(".nii.gz"):
+        raise ValueError(f"output basename must end in .nii.gz, got {name!r}")
+    if not expected or name != expected:
+        raise ValueError(f"output basename {name!r} does not match the planned name {expected!r}")
+    return name
+
+
 def validate_output_file(path, ref_affine, ref_shape, ref_zooms, ref_axcodes,
-                         atol=1e-4) -> dict:
-    """Validate a saved .nii.gz on reload against the source reference geometry."""
+                         atol=1e-4, expected_name=None) -> dict:
+    """Validate a saved .nii.gz on reload against the source reference geometry.
+
+    `expected_name` selects the naming contract. The clean-room container passes the name it
+    planned from the input-folder basename, so the produced file is checked against that exact
+    name. Callers that omit it keep the legacy strict five-digit validation-upload contract."""
     import numpy as np
     import nibabel as nib
     res = {"ok": False, "readable": False, "name_ok": False, "geometry_ok": False,
            "mask_ok": False}
     try:
-        validate_task3_basename(str(path).split("/")[-1]); res["name_ok"] = True
+        basename = str(path).split("/")[-1]
+        if expected_name is None:
+            validate_task3_basename(basename)
+        else:
+            validate_container_output_basename(basename, str(expected_name))
+        res["name_ok"] = True
     except ValueError:
         return res
     try:

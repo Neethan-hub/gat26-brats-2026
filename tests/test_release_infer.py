@@ -55,34 +55,40 @@ def main():
           raises(lambda: X.discover_modalities(good + [f"{pre}-flair.nii.gz"])))
     check("empty_input_fails", raises(lambda: X.discover_modalities([])))
 
-    # 3. Task-3 naming — echoes a VALID folder; strict 5-digit case id; fail-closed otherwise.
-    #    All identifiers below are obviously synthetic.
-    check("valid_folder_parses", X.validate_case_folder_basename(pre) == (pre, "99999"))
+    # 3. Task-3 container naming — the output stem is the COMPLETE input-folder basename, treated
+    #    as an opaque identifier. No case ID is parsed, no trailing-digit count is required and no
+    #    folder prefix is assumed. Only unsafe or structurally invalid names fail closed.
+    #    All identifiers below are obviously synthetic. See tests/test_g88_container_naming.py for
+    #    the full organizer-shape matrix and the source guard.
+    check("basename_returned_unchanged", X.validate_case_folder_basename(pre) == pre)
     check("output_name_echoes_folder", X.release_output_name(pre) == f"{pre}.nii.gz")
-    check("output_name_ends_with_case_id", X.release_output_name(pre).endswith("99999.nii.gz"))
-    check("plain_5digit_folder_ok", X.validate_case_folder_basename("99999") == ("99999", "99999"))
-    # rejects
-    check("four_digit_fails", raises(lambda: X.release_output_name("BraTS-GoAT-9999")))
-    check("six_digit_fails", raises(lambda: X.release_output_name("BraTS-GoAT-999999")))
-    check("ten_digit_fails", raises(lambda: X.release_output_name("BraTS-GoAT-9999999999")))
-    check("timepoint_dash_suffix_fails", raises(lambda: X.release_output_name("BraTS-GoAT-99999-100")))
-    check("timepoint_underscore_suffix_fails", raises(lambda: X.release_output_name("BraTS-GoAT-99999_000")))
-    check("alpha_suffix_fails", raises(lambda: X.release_output_name("BraTS-GoAT-99999abc")))
-    check("trailing_ext_suffix_fails", raises(lambda: X.release_output_name("BraTS-GoAT-99999.seg")))
-    check("no_digits_fails", raises(lambda: X.release_output_name("BraTS-GoAT-XYZ")))
+    check("plain_digit_folder_ok", X.validate_case_folder_basename("99999") == "99999")
+    # accepted regardless of the trailing digit count, or of there being no digits at all
+    check("four_digit_ok", X.release_output_name("BraTS-GoAT-9999") == "BraTS-GoAT-9999.nii.gz")
+    check("six_digit_ok", X.release_output_name("BraTS-GoAT-999999") == "BraTS-GoAT-999999.nii.gz")
+    check("timepoint_dash_suffix_ok",
+          X.release_output_name("BraTS-GoAT-99999-100") == "BraTS-GoAT-99999-100.nii.gz")
+    check("timepoint_underscore_suffix_ok",
+          X.release_output_name("BraTS-GoAT-99999_000") == "BraTS-GoAT-99999_000.nii.gz")
+    check("alpha_suffix_ok",
+          X.release_output_name("BraTS-GoAT-99999abc") == "BraTS-GoAT-99999abc.nii.gz")
+    check("no_digits_ok", X.release_output_name("BraTS-GoAT-XYZ") == "BraTS-GoAT-XYZ.nii.gz")
+    # rejects — unsafe or structurally invalid only
     check("nested_output_name_fails", raises(lambda: X.release_output_name("a/99999")))
     check("backslash_output_name_fails", raises(lambda: X.release_output_name("a\\99999")))
     check("empty_output_name_fails", raises(lambda: X.release_output_name("  ")))
     check("dotdot_output_name_fails", raises(lambda: X.release_output_name("..")))
+    check("hidden_output_name_fails", raises(lambda: X.release_output_name(".hidden")))
+    check("nul_output_name_fails", raises(lambda: X.release_output_name("BraTS-GoAT-99999\x00")))
     # plan_outputs: valid distinct batch maps folder->flat name; duplicate/ambiguous fails closed
-    plan = X.plan_outputs(["/in/BraTS-GoAT-99997", "/in/BraTS-GoAT-99998"])
+    plan = X.plan_outputs(["/in/BraTS-GoAT-99997-100", "/in/BraTS-GoAT-99998"])
     check("plan_outputs_valid_batch",
-          plan == {"/in/BraTS-GoAT-99997": "BraTS-GoAT-99997.nii.gz",
+          plan == {"/in/BraTS-GoAT-99997-100": "BraTS-GoAT-99997-100.nii.gz",
                    "/in/BraTS-GoAT-99998": "BraTS-GoAT-99998.nii.gz"})
     check("plan_outputs_duplicate_fails",
           raises(lambda: X.plan_outputs(["/a/BraTS-GoAT-99997", "/b/BraTS-GoAT-99997"])))
-    check("plan_outputs_rejects_bad_member",
-          raises(lambda: X.plan_outputs(["/in/BraTS-GoAT-99997", "/in/BraTS-GoAT-9999"])))
+    check("plan_outputs_rejects_unsafe_member",
+          raises(lambda: X.plan_outputs(["/in/BraTS-GoAT-99997", "/in/.hidden"])))
 
     # 4. streaming ensemble mean (numpy) — equals plain average, memory-safe accumulation
     try:

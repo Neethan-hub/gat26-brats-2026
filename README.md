@@ -71,13 +71,20 @@ The submission container is Linux/AMD64 and runs with **zero network access**. E
 every weight is baked at build time; the entrypoint never downloads anything.
 
 - `/input` is mounted **read-only**, one folder per case.
-- `/output` is **flat** — exactly one `.nii.gz` per case, no sub-folders, with the output name ending
-  in the challenge case identifier.
-- Output names are derived **dynamically from the input folder names** and end in the challenge case
-  identifier; no cohort prefix is hardcoded.
+- `/output` is **flat** — exactly one `.nii.gz` per case, no sub-folders.
+- **Output filenames preserve the complete input case-folder basename**, byte-for-byte:
+  `<complete basename>` → `<complete basename>.nii.gz`. The basename is treated as an opaque
+  identifier — no case identifier is parsed out of it, no trailing-digit count is required, and no
+  cohort prefix is hardcoded. Under this rule the organizers' published placeholder input folder
+  `BraTS-MET-12345-100/` — an example in their instructions, not a real case — maps to the
+  example output `BraTS-MET-12345-100.nii.gz`; a folder with a three-digit, seven-digit or
+  non-numeric ending is handled the same way.
 - Input validation **fails closed** before any output is written: missing, duplicate, unknown or
-  unreadable modalities and invalid or ambiguous case-folder names are rejected, and a rejected run
-  produces **zero partial output**.
+  unreadable modalities are rejected, as are case-folder names that are genuinely unsafe or
+  structurally invalid (empty or whitespace-only, `.`, `..` or any hidden leading-dot entry, an
+  embedded path separator, NUL or another control character, a symlink whose target escapes the
+  input root, or two folders that would collide on one output name). A rejected run produces
+  **zero partial output**.
 - The container expects a **fresh writable `/output`**, which is what the official execution contract
   supplies and what our qualification testing uses. Overwriting a pre-existing output file is **not**
   a rejected condition: measured behaviour of the submitted runner is that it proceeds. No
@@ -131,9 +138,16 @@ permissive and compatible with distributing this project's code under Apache-2.0
 
 ## Status
 
-- **Docker submission: made.** The frozen release container was submitted once to the Task-3 Docker
-  queue for team `Vericerno`. The image identity is recorded with the challenge submission itself and
-  is deliberately not published here.
+- **Docker submission: made, and then corrected.** The frozen release container was submitted once
+  to the Task-3 Docker queue for team `Vericerno`. The image identity is recorded with the challenge
+  submission itself and is deliberately not published here. **The organizers' execution of that
+  image failed**: its runner required the input case-folder basename to end in exactly five digits,
+  and the hidden test folders end in a three-digit run, so it aborted on the naming check before
+  writing any prediction. It produced **no** prediction, metric or ranking evidence, and none is
+  claimed anywhere in this repository or the paper. The naming contract in this repository is the
+  corrected one described under **Container contract**: the output name is the complete input-folder
+  basename. A corrected image was rebuilt from the same five checkpoints and the same frozen
+  inference policy, with no scientific change.
 - **Official validation performance: known.** The frozen released ensemble was submitted once to the
   Task-3 validation-prediction queue and scored DSC 0.772 / 0.824 / 0.879 and NSD 0.540 / 0.500 /
   0.483 for ET / TC / WT. The platform exposed **no rank**, and none is inferred. HD95 is diagnostic

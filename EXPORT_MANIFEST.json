@@ -1,6 +1,6 @@
 {
- "n_files": 101,
- "total_bytes": 930765,
+ "n_files": 102,
+ "total_bytes": 947384,
  "declared_license": "Apache-2.0",
  "files": [
   {
@@ -15,8 +15,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 9561,
-   "sha256": "2d471f3d14abed63256b73f13edf43e044be98d3eef9dd92655da107377ae517"
+   "bytes": 10921,
+   "sha256": "bf835d8d45e3a3a892d95e44004f63769553e5016ba814d2af52251bea4910d7"
   },
   {
    "path": "configs/environment.lock.txt",
@@ -85,8 +85,8 @@
   },
   {
    "path": "configs/release/README.md",
-   "bytes": 4053,
-   "sha256": "2ed4dc5802fc6c0b85b32c77480b36269d64f046ad2ae60a5240fac8b7ab874c"
+   "bytes": 4583,
+   "sha256": "bf297081ae6033c4312d09a98ae882f07507361cfc3d921d48a768416f5f58c5"
   },
   {
    "path": "configs/release/dockerignore.template",
@@ -195,8 +195,8 @@
   },
   {
    "path": "A10G_QUALIFICATION.md",
-   "bytes": 3145,
-   "sha256": "c2bc6232450e9a19344d7c945524cea313d6a2bc3311f210a4a0fd3329742838"
+   "bytes": 4287,
+   "sha256": "e170f42334930b90f2d209e5cc14ce8bb1e1f206f6fbdd327d4b466d22525e8a"
   },
   {
    "path": "DATA_PROVENANCE.md",
@@ -250,8 +250,8 @@
   },
   {
    "path": "scripts/g4_reconstruct_validate.py",
-   "bytes": 5812,
-   "sha256": "516342789f0ed6fe6ba613a8a178d9ef44323d074a815994f8f05a4e90bd2fb5"
+   "bytes": 6933,
+   "sha256": "bc74276374c6d8c195dc9d52297d6d23afa50faf7b5c79f003378ef514ef6e8c"
   },
   {
    "path": "scripts/g4_smoke_dataset.py",
@@ -410,8 +410,8 @@
   },
   {
    "path": "scripts/release_infer.py",
-   "bytes": 18312,
-   "sha256": "d846eabc1cc041b4181e1be408cc1a4640f5652d334cb3c933db321937cbc757"
+   "bytes": 19528,
+   "sha256": "9430e4b55aa09ecba6a60a6f4b446e88241381062a5a58fb57b58cf411a6dfbe"
   },
   {
    "path": "tests/test_g45_group_split.py",
@@ -489,6 +489,11 @@
    "sha256": "2f30de63723aaf158b883de611d63a2e8c5f52e08c7c42f932aa0e7c4439871b"
   },
   {
+   "path": "tests/test_g88_container_naming.py",
+   "bytes": 10836,
+   "sha256": "b67cf92ea8d916df65b9dfb28a5c029722b49b60975c85920fba9c0ba3d2664c"
+  },
+  {
    "path": "tests/test_paper_scaffold.py",
    "bytes": 31205,
    "sha256": "690b3085fb8aab0995551c622c0aa8d27d87eb74fb09dc3bcb1256ed900fdd3f"
@@ -505,8 +510,8 @@
   },
   {
    "path": "tests/test_release_infer.py",
-   "bytes": 9432,
-   "sha256": "889ddb98f22fa0e0df1820c2431176483d6c5b66344577fa790bc771c9e421b6"
+   "bytes": 9846,
+   "sha256": "30221710c680be912a3e469298225f461debd75e7f3e5a31493cd379216afc96"
   }
  ]
 }

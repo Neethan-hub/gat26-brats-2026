@@ -59,8 +59,14 @@ material / credentials / validation archive / raw images / `.git` are in the con
   presence gate, no learned threshold/weight; primary `checkpoint_final`.
 - Strict modality discovery by suffix (order-independent); missing/duplicate/unknown → nonzero
   exit BEFORE any output.
-- One flat `.nii.gz` per case, name echoes the input case folder (ends in the case ID); exact
-  source geometry restored; integer labels {0,1,2,3}; ET⊆TC⊆WT.
+- One flat `.nii.gz` per case. The output name is derived **dynamically from the complete input
+  case-folder basename** — `<complete basename>` → `<complete basename>.nii.gz` — preserved
+  byte-for-byte. The basename is an opaque identifier: no case ID is parsed from it, no
+  trailing-digit count is required, and no `BraTS-GoAT` (or other) prefix is assumed. Only
+  genuinely unsafe or structurally invalid entries fail closed (empty or whitespace-only, `.`,
+  `..` or any hidden leading-dot entry, an embedded path separator, NUL or another control
+  character, and a symlink whose target escapes `/input`).
+- Exact source geometry restored; integer labels {0,1,2,3}; ET⊆TC⊆WT.
 - Deterministic; explicit nonzero exit on invalid input or incomplete output.
 
 **Limits (live-verified 2026-07-23, wiki/639582):** A10G 24 GB, 16 vCPU, 200 GB storage,

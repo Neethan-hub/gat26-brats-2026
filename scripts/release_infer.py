@@ -3,8 +3,9 @@
 
 Container entrypoint contract (frozen G5 selection = ResEnc-M):
   * iterate every case folder under a read-only /input; write exactly one flat .nii.gz per case
-    to /output (no sub-folders); the output name ECHOES the input case-folder basename so it always
-    ends in the case ID (official Task-3 form; timepoint not applicable to GoAT).
+    to /output (no sub-folders); the output name is derived dynamically from the COMPLETE input
+    case-folder basename, which is treated as an opaque identifier — no case ID is parsed out of
+    it, no trailing-digit count is required and no folder prefix is assumed.
   * ResEnc-M plan only; random-init-trained checkpoints only; NO external weights.
   * SEQUENTIAL five-checkpoint ensemble (mean of region probabilities) — one checkpoint resident at
     a time, freed before the next, so peak VRAM is a single model, not five.
@@ -71,34 +72,33 @@ def discover_modalities(filenames):
 
 
 import re as _re
-_CASE_ID_RE = _re.compile(r"(\d+)$")            # the trailing run of digits, if any
+# Characters that can never appear in a safe case-folder basename: path separators, NUL and any
+# other control character. Everything else is opaque — no case ID is parsed from the basename.
+_UNSAFE_BASENAME_RE = _re.compile(r"[\x00-\x1f\x7f/\\]")
 
 
-def validate_case_folder_basename(case_folder_basename: str):
-    """FAIL CLOSED unless the input case-folder basename ends in EXACTLY ONE five-digit Task-3 case
-    identifier with no trailing timepoint or extra suffix. Returns (basename, five_digit_case_id).
+def validate_case_folder_basename(case_folder_basename: str) -> str:
+    """Accept an organizer case-folder basename as an OPAQUE identifier; return it UNCHANGED.
 
-    Rejects: nested/empty/'.'/'..' names; a name that does not end in digits (extra alpha suffix);
-    a trailing digit run that is not exactly five (four-digit, six-digit, ten-digit, etc.); and a
-    trailing timepoint (e.g. '-100' / '_000') — whose own trailing run is 3 digits, not 5."""
-    name = str(case_folder_basename).strip()
-    if not name or "/" in name or "\\" in name or name in (".", ".."):
+    The official Task-3 container contract derives each output name from the complete input-folder
+    basename. It imposes no trailing-digit count and no folder prefix, so nothing is extracted,
+    truncated, normalised or reconstructed here and the basename is preserved byte-for-byte.
+
+    FAIL CLOSED only on names that are genuinely unsafe or structurally invalid: empty or
+    whitespace-only, '.', '..' or any other name beginning with a dot (a hidden entry, which would
+    also produce a hidden output), an embedded path separator, and NUL or any other control
+    character."""
+    name = str(case_folder_basename)
+    if (not name.strip() or name.startswith(".")
+            or _UNSAFE_BASENAME_RE.search(name) is not None):
         raise ReleaseInputError(f"invalid case folder basename: {case_folder_basename!r}")
-    m = _CASE_ID_RE.search(name)
-    if not m:
-        raise ReleaseInputError(f"case folder must end in a 5-digit case id: {name!r}")
-    run = m.group(1)
-    if len(run) != 5:
-        raise ReleaseInputError(
-            f"case folder must end in EXACTLY 5 digits (got {len(run)}-digit run): {name!r}")
-    return name, run
+    return name
 
 
 def release_output_name(case_folder_basename: str) -> str:
-    """Echo the (validated) input case-folder basename as a flat `<basename>.nii.gz` output name.
-    Ends in the 5-digit case ID as required by the Task-3 output rule (timepoint waived for GoAT)."""
-    name, _ = validate_case_folder_basename(case_folder_basename)
-    return f"{name}.nii.gz"
+    """Derive the flat output name from the COMPLETE input case-folder basename:
+    `<complete basename>` -> `<complete basename>.nii.gz`, prefix-agnostic and digit-agnostic."""
+    return f"{validate_case_folder_basename(case_folder_basename)}.nii.gz"
 
 
 def plan_outputs(case_folders):
@@ -117,8 +117,26 @@ def plan_outputs(case_folders):
 
 
 def list_case_folders(input_dir):
-    """Every immediate sub-folder of /input is one case (sorted, deterministic)."""
-    return sorted([p for p in Path(input_dir).iterdir() if p.is_dir()], key=lambda p: p.name)
+    """Every immediate sub-folder of /input is one case (sorted, deterministic).
+
+    Structural safety: the declared input root is resolved once and every candidate directory must
+    resolve to a path inside it, so a symlink that escapes /input FAILS CLOSED rather than being
+    followed. Non-directory entries are not cases and are skipped. Hidden (leading-dot) entries are
+    never organizer case folders; they are skipped with a notice rather than silently dropped."""
+    root = Path(os.path.realpath(str(input_dir)))
+    cases = []
+    for p in sorted(Path(input_dir).iterdir(), key=lambda q: q.name):
+        if not p.is_dir():
+            continue
+        if p.name.startswith("."):
+            print(f"NOTICE: skipping hidden entry under input root: {p.name!r}", file=sys.stderr)
+            continue
+        target = Path(os.path.realpath(str(p)))
+        if target != root and root not in target.parents:
+            raise ReleaseInputError(
+                f"case folder resolves outside the input root: {p.name!r}")
+        cases.append(p)
+    return cases
 
 
 def accumulate_mean(acc, prob):
@@ -305,7 +323,10 @@ def main() -> int:
 
     ckpts, ckpt_mode = discover_checkpoints(args.weights_dir, args.allow_duplicate_proxy)
     out_dir = Path(args.output); out_dir.mkdir(parents=True, exist_ok=True)
-    cases = list_case_folders(args.input)
+    try:
+        cases = list_case_folders(args.input)
+    except ReleaseInputError as e:
+        print(f"FATAL invalid case-folder naming: {e}", file=sys.stderr); return 5
     if not cases:
         print("FATAL: no case folders under /input", file=sys.stderr); return 4
 
@@ -335,7 +356,8 @@ def main() -> int:
         import nibabel as nib
         ref = nib.load(str(ordered[0]))
         v = RC.validate_output_file(out_path, ref.affine, ref.shape,
-                                    ref.header.get_zooms(), nib.aff2axcodes(ref.affine))
+                                    ref.header.get_zooms(), nib.aff2axcodes(ref.affine),
+                                    expected_name=name)
         if not v["ok"]:
             print(f"FATAL output validation failed for {folder.name}: {v}", file=sys.stderr); return 6
         summary["written"] += 1
