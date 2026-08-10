@@ -1,0 +1,91 @@
+{
+  "note": "Aggregate policy-audit evidence for the mirroring candidate M8 against the released baseline C0. Development = folds 0-2; the policy-selection holdout = folds 3-4. Comparisons are on common support: a region-case contributes only if both policies yield a finite value. Uncertainty is a paired subject-level bootstrap, seed 20260730, 10,000 resamples, percentile intervals.",
+  "utility": "U(P) is the unweighted mean of six fractional ranks over ET/TC/WT x DSC/NSD. HD95 never enters U. Ties resolve to the baseline.",
+  "subsets": {
+    "development_folds_0_2": {
+      "tau_1.0": {
+        "delta_U_common_support": 0.0025323244486669116,
+        "n_common_support": 806,
+        "bootstrap_positive_fraction": 1.0,
+        "bootstrap_ci95_percentile": [
+          0.0012838407331331966,
+          0.004547533089661013
+        ],
+        "per_fold_delta_U": {
+          "0": 0.0012354965539065343,
+          "1": 0.0038744453283073854,
+          "2": 0.002496709283897114
+        }
+      },
+      "tau_0.5": {
+        "delta_U_common_support": 0.0041677789721078495,
+        "n_common_support": 806,
+        "bootstrap_positive_fraction": null,
+        "bootstrap_ci95_percentile": null,
+        "per_fold_delta_U": null
+      }
+    },
+    "policy_selection_holdout_folds_3_4": {
+      "tau_1.0": {
+        "delta_U_common_support": 0.0007258872103750313,
+        "n_common_support": 538,
+        "bootstrap_positive_fraction": 0.7342,
+        "bootstrap_ci95_percentile": [
+          -0.0025311355101770593,
+          0.0026331937351914804
+        ],
+        "per_fold_delta_U": {
+          "3": 0.0023227843713687912,
+          "4": -0.0008829270936113742
+        }
+      },
+      "tau_0.5": {
+        "delta_U_common_support": 0.0024733934523016865,
+        "n_common_support": 538,
+        "bootstrap_positive_fraction": 0.9609,
+        "bootstrap_ci95_percentile": [
+          -0.0003126870289108712,
+          0.004167259838778498
+        ],
+        "per_fold_delta_U": {
+          "3": 0.0038816769586939026,
+          "4": 0.0010546003675034887
+        }
+      }
+    },
+    "pooled_all_folds": {
+      "tau_1.0": {
+        "delta_U_common_support": 0.0018092119232199222,
+        "n_common_support": 1344,
+        "bootstrap_positive_fraction": 0.9875,
+        "bootstrap_ci95_percentile": [
+          0.00025551907726655503,
+          0.0033605894686756206
+        ],
+        "per_fold_delta_U": {
+          "0": 0.0012354965539067564,
+          "1": 0.0038744453283073854,
+          "2": 0.002496709283896892,
+          "3": 0.0023227843713687912,
+          "4": -0.0008829270936112632
+        }
+      },
+      "tau_0.5": {
+        "delta_U_common_support": 0.003489520482780728,
+        "n_common_support": 1344,
+        "bootstrap_positive_fraction": 1.0,
+        "bootstrap_ci95_percentile": [
+          0.0021985749999708336,
+          0.004708743004057018
+        ],
+        "per_fold_delta_U": {
+          "0": 0.002973368655064479,
+          "1": 0.004721365218885887,
+          "2": 0.0048175165522019725,
+          "3": 0.0038816769586941247,
+          "4": 0.0010546003675033777
+        }
+      }
+    }
+  }
+}
