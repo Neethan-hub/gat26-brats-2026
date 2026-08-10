@@ -1,0 +1,103 @@
+{
+  "config_id": "gat26_g5_L_fold0_immutable",
+  "data_manifest_ref": "private worker run manifest; protected hashes not committed",
+  "dataset": "Dataset501_GAT26GOAT",
+  "environment": {
+    "cuda": "12.8",
+    "env_lock_sha256": "c805884903ae63b3c211e47fa6a622b6fa369abaa207a6da64919a650b531347",
+    "nnunetv2": "2.8.1",
+    "torch": "2.8.0+cu128",
+    "worker_env_lock_sha256": "c805884903ae63b3c211e47fa6a622b6fa369abaa207a6da64919a650b531347"
+  },
+  "evaluator": {
+    "config": "GoAT",
+    "lock_sha256": "1f0371ed55309c554cad446f68652ff50e7e3f633c9bf874b41ba967e405abd9",
+    "package": "BraTS-evaluation",
+    "version": "0.0.8"
+  },
+  "fingerprint": {
+    "full_hash_ref": "private worker run manifest",
+    "hash_prefix": "570aee37d268"
+  },
+  "immutable": true,
+  "inference": {
+    "connected_component_filtering": false,
+    "presence_gate": false,
+    "reconstruction": "hierarchy_safe_WT_TC_ET",
+    "threshold": 0.5,
+    "tta": false
+  },
+  "initialization": {
+    "fail_on_unexpected_weight_file": true,
+    "pretrained": false,
+    "random_init": true
+  },
+  "input_git_commit": "d8103ac5a420902786dc0b03545a835f845f17df",
+  "loss": {
+    "compound_losses_sha256": "f7d4516748b62c29bbf281c19ae1ba1f109219820c00ee4fc88ceee651ccb092",
+    "dice_class": "MemoryEfficientSoftDiceLoss",
+    "dice_sha256": "30d4cde284b2ba65990b785af7dc11642ecb5a8c7add735f3d3a1c11d6953b80",
+    "region_based_sigmoid_bce": true,
+    "type": "DC_and_BCE_loss"
+  },
+  "modality_order": [
+    "T1n",
+    "T1c",
+    "T2w",
+    "T2f"
+  ],
+  "output_dir_ref": "private: nnUNet_results/Dataset501_GAT26GOAT/nnUNetTrainer__nnUNetResEncUNetLPlans__3d_fullres/fold_0",
+  "plan": {
+    "arch": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+    "batch_size": 3,
+    "full_hash_ref": "private worker run manifest",
+    "hash_prefix": "79b1c95442a4",
+    "name": "nnUNetResEncUNetLPlans",
+    "patch_size": [
+      160,
+      192,
+      160
+    ]
+  },
+  "purpose": "G5 fold-0 candidate freeze (NOT authorization to train)",
+  "region_order": [
+    "WT",
+    "TC",
+    "ET"
+  ],
+  "regions_class_order": [
+    2,
+    1,
+    3
+  ],
+  "selection_policy_v2_sha256": "e06be39c28b74b4ddad2575598f5727da2ac5de904d4864ff0a305584c8db6a3",
+  "split": {
+    "fold": 0,
+    "full_hash_ref": "private worker run manifest",
+    "hash_prefix": "16014d7b8830",
+    "nfolds": 5,
+    "seed": 21072026
+  },
+  "trainer": {
+    "class": "nnUNetTrainer",
+    "source_sha256": "7096efb2040135eb60df3c8bf39cdbcc373e299671fcee365b3aff2f4da4dfbd"
+  },
+  "training": {
+    "amp": true,
+    "augmentation": "nnU-Net v2.8.1 default (batchgeneratorsv2 spatial+intensity+mirror; deep supervision)",
+    "checkpoint_every": 50,
+    "checkpoints": [
+      "checkpoint_final",
+      "checkpoint_best",
+      "checkpoint_latest"
+    ],
+    "grad_scaler": "dynamic",
+    "initial_lr": 0.01,
+    "lr_scheduler": "PolyLRScheduler(exponent=0.9)",
+    "num_epochs": 1000,
+    "num_iterations_per_epoch": 250,
+    "num_val_iterations_per_epoch": 50,
+    "optimizer": "SGD(momentum=0.99, nesterov=True)",
+    "weight_decay": 3e-05
+  }
+}

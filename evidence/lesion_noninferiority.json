@@ -1,0 +1,40 @@
+{
+  "note": "Reference-lesion miss-rate noninferiority on the policy-selection holdout. Margins are operational, chosen to be strict relative to observed between-fold variation; they are not externally validated clinical thresholds.",
+  "n_reference_components_baseline_candidate": [
+    5445,
+    5445
+  ],
+  "missed_reference_components_baseline_candidate": [
+    2726,
+    2764
+  ],
+  "predicted_false_positive_components_baseline_candidate": [
+    864,
+    781
+  ],
+  "miss_rate_baseline_candidate": [
+    0.5006427915518825,
+    0.5076216712580349
+  ],
+  "miss_rate_point_delta": 0.006978879706152408,
+  "miss_rate_one_sided_95_upper": 0.012407923998700558,
+  "per_region_miss_rate_delta": {
+    "ET": 0.006286484059272568,
+    "TC": 0.005847953216374269,
+    "WT": 0.008648648648648671
+  },
+  "margins": {
+    "point_max": 0.0025,
+    "upper_bound_max": 0.005,
+    "region_max": 0.005,
+    "fp_max_increase_fraction": 0.05
+  },
+  "checks": {
+    "n_ref_total_invariant": true,
+    "point_miss_rate_within_margin": false,
+    "upper_bound_within_margin": false,
+    "no_region_miss_rate_regression": false,
+    "fp_within_limit": true
+  },
+  "passes": false
+}

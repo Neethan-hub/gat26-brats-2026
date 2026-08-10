@@ -1,0 +1,5 @@
+# Copy to <build_context>/.dockerignore. Keeps the image lean and the context clean.
+**/__pycache__/
+**/*.pyc
+**/.git/
+**/*.log
