@@ -1,6 +1,6 @@
 {
- "n_files": 114,
- "total_bytes": 1049218,
+ "n_files": 115,
+ "total_bytes": 1068527,
  "declared_license": "Apache-2.0",
  "files": [
   {
@@ -185,8 +185,8 @@
   },
   {
    "path": "paper/main.tex",
-   "bytes": 32884,
-   "sha256": "b35ff49b5db02386adf755c1c54158a135df51b5d932ddb4ff17e20af9ca09cc"
+   "bytes": 32879,
+   "sha256": "6bb5b1f5bf44ddb5b2cf1af05b1f77dcefe74d3a8a3c26442890f21eeacd442f"
   },
   {
    "path": "paper/references.bib",
@@ -195,8 +195,8 @@
   },
   {
    "path": "paper/supplement.tex",
-   "bytes": 25557,
-   "sha256": "e358d5976153fae94717fcd2a44d5cfeca6a1b56506782e8be8bd3048a3afb09"
+   "bytes": 27833,
+   "sha256": "01a58a9cc29d3745f6ca537f1fb57c976b6862be603786194fd58ac2348cc369"
   },
   {
    "path": "preflight/PACKAGE_MANIFEST.sha256",
@@ -230,8 +230,8 @@
   },
   {
    "path": "CAMERA_READY_REVISION.md",
-   "bytes": 12341,
-   "sha256": "e3c54d76d5853df9fce2bd1c4baf8aee89706a8e2a294731dc8fb530c34ff79d"
+   "bytes": 16531,
+   "sha256": "66d543ffd9f6723c42db6122ba4d47ab6fd412e3c70a4eabead7cf676386248e"
   },
   {
    "path": "DATA_PROVENANCE.md",
@@ -445,8 +445,8 @@
   },
   {
    "path": "scripts/g92_build_supplement.py",
-   "bytes": 22401,
-   "sha256": "069f93aa7e4a33f1d02867fe80f3035659324430ec44580e2355a49870a8cfcf"
+   "bytes": 24771,
+   "sha256": "2f1f2d7f7c7f01b305dea7098c03b2328fc404e30e954927b4337132f49114fc"
   },
   {
    "path": "scripts/release_build_preflight.py",
@@ -552,6 +552,11 @@
    "path": "tests/test_g92_utility_identity.py",
    "bytes": 10423,
    "sha256": "c0dc3c66e63a1e8ae6b74783410973ce30f1d7e7f72db79f0c12ea5fcb8ae937"
+  },
+  {
+   "path": "tests/test_g94_rank_statistic.py",
+   "bytes": 10478,
+   "sha256": "4eb71c89ec0e35d520532a8df8b4fe97a938ace6527c6bdf2818b34d1e93e828"
   },
   {
    "path": "tests/test_paper_scaffold.py",

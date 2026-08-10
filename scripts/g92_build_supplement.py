@@ -19,6 +19,7 @@ PRETTY = {"ET_DSC": "ET DSC", "TC_DSC": "TC DSC", "WT_DSC": "WT DSC",
           "ET_NSD": "ET NSD", "TC_NSD": "TC NSD", "WT_NSD": "WT NSD"}
 
 HEADER = r"""\documentclass[runningheads]{llncs}
+\usepackage{array}
 \usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage{longtable}
@@ -31,7 +32,7 @@ HEADER = r"""\documentclass[runningheads]{llncs}
 }
 \renewcommand{\thetable}{S\arabic{table}}
 \begin{document}
-\title{Supplementary Material\\GAT-26: Release-Path Auditing and Confirmation-Gated
+\title{Supplementary Material\texorpdfstring{\\}{ --- }GAT-26: Release-Path Auditing and Confirmation-Gated
 Inference Selection for Cross-Tumor Brain Tumor Segmentation}
 \titlerunning{Supplementary material --- GAT-26}
 \author{Nathan Chen}
@@ -51,9 +52,15 @@ The paper uses two scalar summaries that must not be conflated, and neither is t
 ranking procedure.
 
 \medskip\noindent\textbf{Architecture screen, $R$ (fractional rank).} The fold-0 ResEnc-M versus
-ResEnc-L screen ranks the two candidates component by component and averages the ranks. It is a
-\emph{rank} statistic: it discards the size of each difference and retains only its direction, with
-ties resolved to the smaller model. It was applied once, to fold~0, under DSC/HD95.
+ResEnc-L screen ranks the two candidates component by component and averages those ranks, so $R$ is
+a mean fractional rank over the six components and \emph{lower $R$ is better}. It is a \emph{rank}
+statistic: it discards the size of each difference and retains only its direction. Two different tie
+conventions apply here and must not be confused. \emph{Within} $R$, an exact component-level metric
+tie assigns both models the average of the tied positions, so a tied component contributes the same
+amount to each model's rank and can favour neither. \emph{Separately}, the frozen selection rule
+resolves a tied or unmet advancement criterion in favour of ResEnc-M, the cheaper baseline plan;
+that rule governs the decision, not the rank arithmetic. The screen was applied once, to fold~0,
+under DSC/HD95.
 
 \medskip\noindent\textbf{Audit C utility, $U_\tau$ (raw metric mean).} Let $S_\tau$ be the subjects
 for which all six DSC/NSD components are finite under \emph{both} policies, and
@@ -235,28 +242,49 @@ Check (legacy machine field name) & Outcome \\
 Components are 26-connected. A reference component counts as missed if no predicted component of the
 same region overlaps it; the denominator therefore depends only on the reference and is
 policy-invariant, which the audit verified.
+
+The counters below are matched components, not voxels, and they live in two different spaces. The
+first two are counted over \emph{predicted} components, the third over \emph{reference} components.
+The committed record labels the prediction-space overlap counter diagnostic only, and this supplement
+keeps that label: it is reported for transparency and never used to override an official metric or a
+safety gate. Prediction-space overlaps and reference-space misses are \emph{not} complementary under
+component matching --- one predicted component may overlap several reference components and one
+reference component may be covered by several predicted components --- so their sum need not equal
+the reference-component total, and here it does not. The safety gate is computed as
+$\mathrm{FN}_{\mathrm{ref}}/N_{\mathrm{ref}}$, the missed fraction of reference components; it is not
+the legacy recall derived from the prediction-space overlap counter.
 """)
     L.append(r"""
 \begin{table}[htbp]\centering
-\caption{Lesion counts and rates. Development counts are from the development subset; the
-non-inferiority analysis and its margins apply to the policy-selection holdout.}
+\caption{Component-level counts and rates under 26-connectivity. Development counts are from the
+development subset; the non-inferiority analysis and its margins apply to the policy-selection
+holdout. The first row of each block is a prediction-space diagnostic counter and is not a
+reference-space true-positive count.}
 \begin{tabular}{@{}lrr@{}}
 \toprule
 Quantity & Baseline C0 & Candidate M8 \\
 \midrule""")
     rows = [
-        ("Development: true positives",  g84l["baseline"]["TP"],  g84l["candidate"]["TP"]),
-        ("Development: false positives", g84l["baseline"]["FP"],  g84l["candidate"]["FP"]),
-        ("Development: false negatives", g84l["baseline"]["FN"],  g84l["candidate"]["FN"]),
-        ("Holdout: true positives",      di["baseline"]["tp_pred_diagnostic"],
-                                          di["candidate"]["tp_pred_diagnostic"]),
-        ("Holdout: false positives",     di["baseline"]["fp_pred"], di["candidate"]["fp_pred"]),
-        ("Holdout: false negatives",     di["baseline"]["fn_ref"],  di["candidate"]["fn_ref"]),
-        ("Holdout: reference components", ln["n_ref_total"][0], ln["n_ref_total"][1]),
+        (r"\multicolumn{3}{@{}l}{\emph{Development subset}}\\", None, None),
+        (r"\quad Predicted components overlapping a reference",
+         g84l["baseline"]["TP"], g84l["candidate"]["TP"]),
+        (r"\quad Predicted components with no reference overlap",
+         g84l["baseline"]["FP"], g84l["candidate"]["FP"]),
+        (r"\quad Reference components with no predicted overlap",
+         g84l["baseline"]["FN"], g84l["candidate"]["FN"]),
+        (r"\multicolumn{3}{@{}l}{\emph{Policy-selection holdout}}\\", None, None),
+        (r"\quad Predicted components overlapping a reference",
+         di["baseline"]["tp_pred_diagnostic"], di["candidate"]["tp_pred_diagnostic"]),
+        (r"\quad Predicted components with no reference overlap",
+         di["baseline"]["fp_pred"], di["candidate"]["fp_pred"]),
+        (r"\quad Reference components with no predicted overlap",
+         di["baseline"]["fn_ref"], di["candidate"]["fn_ref"]),
+        (r"\quad Reference components in total", ln["n_ref_total"][0], ln["n_ref_total"][1]),
     ]
     for name, b0, c0 in rows:
-        L.append(f"{name} & ${b0}$ & ${c0}$ \\\\")
-    L.append(f"Holdout: miss rate & ${ln['miss_rate'][0]:.6f}$ & ${ln['miss_rate'][1]:.6f}$ \\\\")
+        L.append(name if b0 is None else f"{name} & ${b0}$ & ${c0}$ \\\\")
+    L.append(r"\quad Missed fraction of reference components"
+             f" & ${ln['miss_rate'][0]:.6f}$ & ${ln['miss_rate'][1]:.6f}$ \\\\")
     L.append(r"\bottomrule" + "\n" + r"\end{tabular}" + "\n" + r"\end{table}")
 
     L.append(
@@ -323,9 +351,11 @@ ResEnc-L            & \textbf{0.8602} & 0.9117 & 0.9322 & \textbf{0.6679} & \tex
 \end{table}
 
 ResEnc-L is better at the point estimate on four of six DSC/NSD components, so the ordering
-\emph{reverses} relative to the DSC/HD95 screen. The rank gain is $R=+0.333$ with a 95\% interval of
+\emph{reverses} relative to the DSC/HD95 screen. On the rank statistic itself, with
+$\Delta R = R(\mathrm{L})-R(\mathrm{M})$ so that negative values favour ResEnc-L, the observed value
+is $\Delta R = R(\mathrm{L})-R(\mathrm{M}) = -0.333$ with a 95\% percentile interval of
 $[-1.000,+0.667]$, which includes zero: no rank advantage is established, and the declared robustness
-requirement was not met.
+requirement was not met. Under the frozen tie rule an unmet advancement criterion retains ResEnc-M.
 
 \medskip\noindent\textbf{Chronology, for the record.} The fold-0 screen completed on 2026-07-23 and
 the organizers' clarification that the final ranking uses DSC/NSD at $\tau=1$ and excludes HD95 was
@@ -350,7 +380,7 @@ execution; the outcome column says which is which.
 \begin{table}[!ht]\centering
 \caption{Bounded experiment inventory, including executed candidates and proposals screened out
 before execution. Nothing here was adopted; the released policy is unchanged.}
-\begin{tabular}{@{}p{0.42\textwidth}p{0.5\textwidth}@{}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.40\textwidth}>{\raggedright\arraybackslash}p{0.56\textwidth}@{}}
 \toprule
 Item & Outcome \\
 \midrule

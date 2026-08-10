@@ -146,11 +146,13 @@ release policy* node, and only that node reaches official validation. The figure
 that the baseline is always retained; the caption states separately that in this study all three
 audits ended in the reject branch.
 
-The architecture rank statistic is now defined completely and with one consistent sign convention:
-`R` is the mean fractional award rank over the six screened components, lower is better, exact ties
-take the average of the tied positions, and the reported difference is ΔR = R(L) − R(M) with a paired
+The architecture rank statistic is defined completely in the main paper: `R` is the mean fractional
+award rank over the six screened components, lower is better, exact component-level ties take the
+average of the tied positions, and the reported difference is ΔR = R(L) − R(M) with a paired
 subject-level bootstrap (seed 21072026, 10,000 resamples, 95 % percentile interval). The earlier text
-labelled a *difference* as `R` and paired it with the interval of the opposite-signed quantity.
+labelled a *difference* as `R` and paired it with the interval of the opposite-signed quantity. This
+correction reached the **main paper only**; the supplement still carried the old wording, which G94
+below repairs. G93 described the fix as consistent throughout, and that description was wrong.
 
 "Six ranked components" is replaced by "six DSC/NSD components" wherever the audit utility is meant,
 so only the genuinely rank-based architecture statistic is described with the word *rank*. Every
@@ -167,3 +169,54 @@ and the limits of attribution plainly. The obsolete initial-submission checklist
 from the public source, and the paper build documentation no longer claims cross-version byte
 identity or sole Springer copyright over `splncs04.bst`, which is LPPL-licensed upstream work by
 Patrick W. Daly adapted by Maurizio Patrignani.
+
+## G94 — statistical-consistency and packaging correction
+
+**The architecture sign error is now fixed in the supplement, at its generating source.** The
+supplement is produced by a script from the committed artifacts; the script — not just its output —
+was corrected, and the committed `supplement.tex` is exactly what a fresh run of that script emits.
+The supplement previously read "the rank gain is R = +0.333 with a 95 % interval [−1.000, +0.667]",
+which named a *difference* `R` and then attached to it the interval of the opposite-signed quantity.
+It now reads ΔR = R(L) − R(M) = −0.333, 95 % percentile interval [−1.000, +0.667], which includes
+zero. The generating implementation is authoritative for this: it computes the bootstrap difference
+as `rank_L − rank_M`, so negative values favour ResEnc-L. The committed record also carries the
+opposite-signed companion field `rank_gain_L_over_M = +0.333`; the two describe the same result and
+only one convention is now used in the published text.
+
+**Two different tie conventions are separated.** The supplement said ties were "resolved to the
+smaller model", which conflated two unrelated rules. *Within* `R`, an exact component-level metric
+tie assigns both models the average of the tied positions, so a tied component contributes equally to
+each and can favour neither. *Separately*, the frozen selection rule resolves a tied or unmet
+advancement criterion in favour of ResEnc-M, the cheaper baseline plan. The first is rank
+arithmetic; the second is a decision rule. Both are stated, and they are no longer merged into one
+sentence.
+
+**Lesion counters are labelled by the space they are counted in.** The lesion table previously
+called a prediction-space counter "true positives", although the committed record labels it
+diagnostic only. No value changed. The rows now read: predicted components overlapping a reference
+component (a diagnostic counter), predicted components with no reference overlap, reference
+components with no predicted overlap, and the reference-component total. The supplement states that
+prediction-space overlaps and reference-space misses are not complementary under component matching,
+so their sum need not equal the reference-component total — and in these data it does not: on the
+holdout the two counters sum to 5,424 (baseline) and 5,404 (candidate) against 5,445 reference
+components. The safety gate is FN_ref / N_ref, the missed fraction of reference components, not the
+legacy recall derived from the prediction-space counter.
+
+**Build claims now match the logs.** The G93 build documentation claimed zero underfull boxes; the
+supplement in fact produced six underfull `\hbox` warnings in the experiment-inventory table, and the
+G93 report additionally misdescribed them as vboxes. They were removed by reflowing that table —
+ragged-right column text and a wider text column — with no change to margins, font sizes, page size
+or vertical spacing, and no negative spacing. The supplement's remaining hyperref PDF-string warning
+came from the line break in its title, not from mathematics in a section heading; it is resolved with
+`\texorpdfstring`, leaving the printed title unchanged. The current logs show zero overfull boxes,
+zero underfull boxes and zero hyperref warnings for both documents.
+
+**PDF active-content claims are stated precisely.** Earlier reports said the PDFs contain "no
+actions". That is not true of any hyperref output and was never true here. Both PDFs contain ordinary
+internal GoTo link actions and external URI link actions. They contain no JavaScript, no Launch,
+SubmitForm, Named or Rendition actions, no embedded files and no attachments. Structural validity
+under `qpdf --check` is reported separately from that inventory: passing the structural check says
+nothing about which actions a file contains.
+
+**Code URL.** The paper now cites the immutable tag `brats-goat-2026-camera-ready-21-r4`. Tags r1, r2
+and r3 are unchanged and remain resolvable.
