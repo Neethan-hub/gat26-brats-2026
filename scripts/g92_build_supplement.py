@@ -30,6 +30,16 @@ HEADER = r"""\documentclass[runningheads]{llncs}
   pdfauthor={Nathan Chen},
   pdfsubject={Supplementary material for the GAT-26 camera-ready paper}
 }
+% Float placement parameters. These govern where LaTeX may put a float; they change no
+% margin, font size, page size or spacing. Loosening them keeps each table on or near the page
+% that discusses it instead of accumulating a backlog that lands on half-empty float pages.
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.75}
 \renewcommand{\thetable}{S\arabic{table}}
 \begin{document}
 \title{Supplementary Material\texorpdfstring{\\}{ --- }GAT-26: Release-Path Auditing and Confirmation-Gated
@@ -61,6 +71,16 @@ amount to each model's rank and can favour neither. \emph{Separately}, the froze
 resolves a tied or unmet advancement criterion in favour of ResEnc-M, the cheaper baseline plan;
 that rule governs the decision, not the rank arithmetic. The screen was applied once, to fold~0,
 under DSC/HD95.
+
+\medskip\noindent\textbf{The advancement rule in full.} ResEnc-L could advance from fold~0 to
+fold-1 confirmation only if $R(\mathrm{M})-R(\mathrm{L})\ge 1/6$ --- one component of six, the
+constant \texttt{MEANINGFUL\_RANK\_GAIN} of the committed policy --- the paired-bootstrap 95\%
+percentile interval for $\Delta R=R(\mathrm{L})-R(\mathrm{M})$ lay entirely below zero, and every
+frozen noninferiority gate was supplied and passed, a gate with no input supplied counting as a
+failure. Note the two directions: the rank gain $R(\mathrm{M})-R(\mathrm{L})$ is positive when
+ResEnc-L is ahead, whereas $\Delta R$ is negative when ResEnc-L is ahead. Passing on fold~0 did not
+select or prefer ResEnc-L; it only triggered fold-1 confirmation, and expansion required the same
+rule to hold on fold~1. In every other case ResEnc-M was retained.
 
 \medskip\noindent\textbf{Audit C utility, $U_\tau$ (raw metric mean).} Let $S_\tau$ be the subjects
 for which all six DSC/NSD components are finite under \emph{both} policies, and
@@ -260,9 +280,9 @@ the legacy recall derived from the prediction-space overlap counter.
 development subset; the non-inferiority analysis and its margins apply to the policy-selection
 holdout. The first row of each block is a prediction-space diagnostic counter and is not a
 reference-space true-positive count.}
-\begin{tabular}{@{}lrr@{}}
+\begin{tabular}{@{}lr@{\hspace{1.8em}}r@{}}
 \toprule
-Quantity & Baseline C0 & Candidate M8 \\
+Quantity & \shortstack[r]{Baseline\\C0} & \shortstack[r]{Candidate\\M8} \\
 \midrule""")
     rows = [
         (r"\multicolumn{3}{@{}l}{\emph{Development subset}}\\", None, None),

@@ -220,3 +220,50 @@ nothing about which actions a file contains.
 
 **Code URL.** The paper now cites the immutable tag `brats-goat-2026-camera-ready-21-r4`. Tags r1, r2
 and r3 are unchanged and remain resolvable.
+
+## G95 — completing the architecture-selection rule
+
+**The advancement rule is now stated in full, and it is the rule the code implements.** The earlier
+text said only that ResEnc-L "is preferred if the interval excludes zero and every declared
+noninferiority gate passes". That was incomplete in four ways, all of which mattered. ResEnc-L could
+advance from fold 0 to fold-1 confirmation only if R(M) − R(L) ≥ 1/6 — one component of six, the
+constant `MEANINGFUL_RANK_GAIN` in the committed policy — the paired-bootstrap 95 % percentile
+interval for ΔR = R(L) − R(M) lay entirely below zero, and every frozen noninferiority gate was
+supplied and passed, a gate with no input supplied counting as a failure rather than a pass.
+Expansion required the same rule to hold on fold 1; otherwise ResEnc-M was retained.
+
+Two points the earlier wording obscured. The rank gain is written R(M) − R(L) and the reported
+bootstrap difference is ΔR = R(L) − R(M), so the same result carries opposite signs in the two
+quantities. And passing fold 0 never selected or "preferred" ResEnc-L: fold 0 could only trigger
+fold-1 confirmation, and nothing but a confirming fold 1 could expand it.
+
+The new regression tests check the published prose against the executable policy rather than against
+a fixed sentence: the threshold string is derived from `MEANINGFUL_RANK_GAIN` at test time, and the
+decision behaviour is exercised directly — a fold-0 pass returns only `confirm_L_on_fold1`, two
+confirming folds are required before expansion, and removing any one auxiliary gate input returns
+`select_M`.
+
+**Supplementary Table S11.** Its two numeric column headers were set on one line and read as running
+together. They are now compact stacked headers, Baseline over C0 and Candidate over M8, with a wider
+gap between the two numeric columns. No value, caption or statement changed. The fix was made in the
+generator, and the generated file remains byte-for-byte what a fresh run of that generator emits.
+
+**Float placement.** The supplement now sets standard LaTeX float-placement parameters
+(`topnumber`, `totalnumber`, `topfraction`, `bottomfraction`, `textfraction`, `floatpagefraction`).
+These govern only where a float may be placed. No margin, font size, page size or spacing changed,
+and no negative spacing was introduced. The effect is that each table sits on or beside the page
+that discusses it instead of accumulating into half-empty float pages, and the build reports zero
+overfull and zero underfull boxes.
+
+**Licence-form signing guidance.** Earlier instructions asserted that Springer does not accept
+digital or electronic signatures. The supplied organizer material does not say that: it requires the
+corresponding author to sign the last page and is silent on modality. The instructions now state the
+requirement accurately and recommend wet ink as the conservative path unless the organizers confirm
+that an electronic signature is acceptable. The claim that non-Word converters necessarily
+repaginate the form is likewise withdrawn; pagination can be converter-dependent, and confirming the
+six-page layout in Word remains the owner's check.
+
+**Publication snapshot.** The public source is additionally published as
+`brats-goat-2026-camera-ready-21-r5`, a parentless snapshot commit whose tree is byte-identical to
+public `main`. The paper cites r5. Tags r1 through r4 are unchanged and remain resolvable; the
+commit metadata recorded in them is historical and has not been rewritten.
