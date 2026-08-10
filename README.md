@@ -46,10 +46,14 @@ the organizers under their own access terms** — see [`DATA_PROVENANCE.md`](DAT
   tile step `0.5`, Gaussian weighting, **no** test-time augmentation, **no** connected-component
   filtering, **no** enhancing-tumor cleanup, and a hierarchy-safe reconstruction enforcing
   `WT ⊇ TC ⊇ ET`. Outputs restore the exact source geometry and are integer-labeled `{0,1,2,3}`.
-- **Discipline.** Every tunable inference decision was placed behind a **pre-registered**,
-  confirmation-gated policy fixed before results were seen. Two independent bounded audits
-  (checkpoint / TTA / post-processing, and checkpoint-weight averaging) both **retained the
-  baseline**, so the released configuration is pre-registered rather than post-hoc.
+- **Discipline.** The inference decisions we audited — checkpoint choice, mirroring test-time
+  augmentation, weight averaging and connected-component post-processing — were each placed behind a
+  candidate, utility and gate set **commit-frozen before the specified comparison** was computed.
+  This is not a claim that *every* tunable in the pipeline was audited: the audited set is bounded
+  and listed in the paper, and thresholds, tile overlap and ensemble weighting were fixed by default
+  rather than selected. Three audits ran; all three **retained the baseline**. A same-corpus policy
+  holdout limits direct post-result tuning of a given comparison, but it is not nested validation and
+  not an external cohort.
 
 ## Repository layout
 
@@ -62,7 +66,8 @@ the organizers under their own access terms** — see [`DATA_PROVENANCE.md`](DAT
 | `configs/` | Experiment and selection-policy configuration |
 | `tests/` | Test suite for the above |
 | `preflight/` | Static architecture/release contract suite |
-| `paper/` | LaTeX source for the short paper (the compiled PDF is not committed) |
+| `paper/` | LaTeX source for the camera-ready paper (the compiled PDF is not committed) |
+| `evidence/` | Sanitized aggregate policy-audit evidence and the exact official validation scores |
 | `docs/` | Method and rule documentation |
 
 ## Container contract
@@ -138,16 +143,21 @@ permissive and compatible with distributing this project's code under Apache-2.0
 
 ## Status
 
-- **Docker submission: made, and then corrected.** The frozen release container was submitted once
-  to the Task-3 Docker queue for team `Vericerno`. The image identity is recorded with the challenge
-  submission itself and is deliberately not published here. **The organizers' execution of that
+- **Docker submission: made, corrected, and resubmitted.** A frozen release container was submitted
+  once to the Task-3 Docker queue. Image identities are recorded with the challenge submissions
+  themselves and are deliberately not published here. **The organizers' execution of that first
   image failed**: its runner required the input case-folder basename to end in exactly five digits,
   and the hidden test folders end in a three-digit run, so it aborted on the naming check before
-  writing any prediction. It produced **no** prediction, metric or ranking evidence, and none is
-  claimed anywhere in this repository or the paper. The naming contract in this repository is the
-  corrected one described under **Container contract**: the output name is the complete input-folder
-  basename. A corrected image was rebuilt from the same five checkpoints and the same frozen
-  inference policy, with no scientific change.
+  writing any prediction. It produced **no** prediction, metric or ranking evidence. A corrected
+  image was then rebuilt from the same five checkpoints and the same frozen inference policy — with
+  no scientific change, only the naming repair — and **that corrected image was submitted**. Its
+  naming contract is the one described under **Container contract**: the output name is the complete
+  input-folder basename.
+- **Outcome of the corrected submission: unknown.** The queue recorded the corrected image as
+  received. Receipt is not execution: we have **no** evidence that the organizers executed it
+  successfully, **no** hidden-test performance, and **no** rank. Nothing in this repository or the
+  paper claims otherwise, and no such claim should be inferred from the submission having been
+  accepted into the queue.
 - **Official validation performance: known.** The frozen released ensemble was submitted once to the
   Task-3 validation-prediction queue and scored DSC 0.772 / 0.824 / 0.879 and NSD 0.540 / 0.500 /
   0.483 for ET / TC / WT. The platform exposed **no rank**, and none is inferred. HD95 is diagnostic
@@ -155,9 +165,15 @@ permissive and compatible with distributing this project's code under Apache-2.0
   attached to them. Full qualifications are in the paper.
 - **Hidden-test performance and final rank: unknown.** The organizers score containers after the
   submission deadline. No hidden-test number exists, and none is reported or projected here.
-- **Official target GPU: not measured.** We hold no measurement of the container on an NVIDIA A10G.
-  The strongest runtime evidence is a full-cohort run of the exact release policy on a single NVIDIA
-  A40: 451/451 cases, exit code 0, zero inference errors, 2.48 GiB peak reserved VRAM, 3 h 35 m.
+- **Official target GPU: the corrected image was never measured on it.** We hold **no** A10G
+  measurement of the corrected, resubmitted image.
+  [`A10G_QUALIFICATION_SUPERSEDED_IMAGE.md`](A10G_QUALIFICATION_SUPERSEDED_IMAGE.md) records an A10G
+  exercise of the **earlier, superseded pre-correction image only**, on synthetic fixtures whose
+  folder names were fixed-width — so it never exercised the variable-length folder-name condition
+  that caused the organizer failure and that the correction addresses. It must not be read as
+  qualifying the corrected image. The strongest runtime evidence for the release policy is a
+  full-cohort run on a single NVIDIA A40: 451/451 cases, exit code 0, zero inference errors,
+  2.48 GiB peak reserved VRAM, 3 h 35 m.
 - Internal cross-validation figures were produced with eightfold mirroring test-time augmentation
   while the released container uses none, so internal and official figures are **not** comparable.
   Cross-validation results must never be read as a leaderboard placement.

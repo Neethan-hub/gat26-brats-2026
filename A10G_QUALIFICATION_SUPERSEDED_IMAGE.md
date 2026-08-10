@@ -1,20 +1,27 @@
-# A10G qualification of the submitted container — sanitized summary
+# HISTORICAL RECORD — A10G exercise of a SUPERSEDED, PRE-CORRECTION image
 
-> **Superseded, and one gate below was wrong.** The organizers later executed this image on the
-> hidden Task-3 test set and it **failed before writing any prediction**: its runner required the
-> input case-folder basename to end in exactly five digits, and the hidden folders end in a
-> three-digit run. The line below claiming that output names were "derived dynamically from the
-> input folder names" is therefore **incorrect for this image** — the qualification used synthetic
-> folders with five-digit suffixes only, so the restriction was never exercised. Nothing else in
-> this summary is affected: the runtime, VRAM, geometry, label, hierarchy and immutability results
-> stand, and no organizer execution, hidden-test result or ranking was ever claimed. A corrected
-> image was rebuilt from the same five checkpoints and the same frozen inference policy, with no
-> scientific change; its naming contract is the one described in the repository README.
+> ## This document does not apply to the image we finally submitted.
+>
+> It describes an **earlier container image that has since been superseded and withdrawn**. That
+> image was executed by the organizers on the hidden Task-3 test set and **failed before writing any
+> prediction**: its runner required the input case-folder basename to end in exactly five digits, and
+> the hidden folders end in a three-digit run.
+>
+> **The corrected image that was finally submitted has never been measured on an A10G.** Nothing in
+> this document qualifies it, and no reader should treat the results below as evidence about it. The
+> synthetic fixtures used here had fixed-width, five-digit folder names, so they never exercised the
+> variable-length folder-name condition that caused the organizer failure and that the correction
+> addresses — the very condition that mattered.
+>
+> This file is retained for provenance, not as a current claim. The live naming contract is in the
+> repository [`README.md`](README.md); the aggregate evidence that survives is in
+> [`evidence/`](evidence/). No organizer execution, hidden-test result or ranking was ever claimed
+> for either image.
 
-The exact image that was submitted to the challenge Docker queue — pulled by digest, not rebuilt —
-was executed on **one NVIDIA A10G with 24 GB of VRAM** (23,028 MiB reported, driver 580.159.03,
-exactly one visible GPU). The image digest is recorded with the challenge submission itself and is
-not published here.
+The measurements below concern **the superseded pre-correction image only**. That image — pulled by
+digest, not rebuilt — was executed on **one NVIDIA A10G with 24 GB of VRAM** (23,028 MiB reported,
+driver 580.159.03, exactly one visible GPU). Image digests are recorded with the challenge
+submissions themselves and are not published here.
 
 **Mechanism.** The platform exposed no OCI runtime to the job, so the image's own root filesystem and
 its exact `ENTRYPOINT` were executed through a rootless userspace mechanism. This establishes
@@ -61,3 +68,7 @@ claimed for it — the official contract supplies a fresh writable `/output`.
 
 **Not claimed:** organizer execution, hidden-test evidence, full OCI-runtime parity, identical
 behaviour on real challenge cases, or non-finite input rejection.
+
+**Not claimed, restated for the avoidance of doubt:** none of the above is evidence about the
+corrected image that was finally submitted. That image carries **no** A10G measurement, **no**
+organizer execution log, **no** hidden-test result and **no** rank.

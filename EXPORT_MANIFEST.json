@@ -1,6 +1,6 @@
 {
  "n_files": 102,
- "total_bytes": 947384,
+ "total_bytes": 949219,
  "declared_license": "Apache-2.0",
  "files": [
   {
@@ -15,8 +15,8 @@
   },
   {
    "path": "README.md",
-   "bytes": 10921,
-   "sha256": "bf835d8d45e3a3a892d95e44004f63769553e5016ba814d2af52251bea4910d7"
+   "bytes": 12254,
+   "sha256": "95c46c5daaf9f5bb088613b9dd9644594a8b79f0e8f855fda85a6a3cdd299a7b"
   },
   {
    "path": "configs/environment.lock.txt",
@@ -194,9 +194,9 @@
    "sha256": "5249238ead9b031f2ad27f715b81fe8695a64a01cbbf0ddc5330de6cbc2097e0"
   },
   {
-   "path": "A10G_QUALIFICATION.md",
-   "bytes": 4287,
-   "sha256": "e170f42334930b90f2d209e5cc14ce8bb1e1f206f6fbdd327d4b466d22525e8a"
+   "path": "A10G_QUALIFICATION_SUPERSEDED_IMAGE.md",
+   "bytes": 4789,
+   "sha256": "2b35f97c75584b29964f90c984f7dbb4a3b3342bd67c254fd49197734ff73e31"
   },
   {
    "path": "DATA_PROVENANCE.md",
