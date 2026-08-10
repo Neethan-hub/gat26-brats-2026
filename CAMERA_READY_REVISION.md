@@ -302,5 +302,8 @@ near the boundary — the fold-0 rank gain was −0.333 against a required +1/6,
 condition was met either. `scripts/g45_selection_policy.py` was not modified, and no selection
 outcome, evidence file or recorded value changed.
 
-**Publication snapshot.** The paper cites `brats-goat-2026-camera-ready-21-r6`, again a parentless
-snapshot whose tree is byte-identical to public `main`. Tags r1 through r5 are unchanged.
+**Publication snapshot.** The paper cites `brats-goat-2026-camera-ready-21-r7`, again a parentless
+snapshot whose tree is byte-identical to public `main`. Tags r1 through r6 are unchanged and remain
+resolvable. `r6` was tagged before a final supplement typesetting fix and is therefore superseded
+rather than cited; it was left in place rather than moved, because published tags in this repository
+are never rewritten.

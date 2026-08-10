@@ -93,9 +93,10 @@ def test_supplement_discloses_the_binary64_comparison() -> None:
         print("  skip  paper/supplement.tex not present in this tree")
         return
     text = " ".join(path.read_text().split())
+    # \allowbreak hints are typesetting-only; drop them before matching the quoted expression.
+    flat = " ".join(re.sub(r"\\allowbreak\s*", "", text).split())
     check("supplement names the executable comparison",
-          "rank\\_gain >= MEANINGFUL\\_RANK\\_GAIN" in text or
-          "rank\\_gain >= MEANINGFUL\\_RANK\\_GAIN" in text.replace("  ", " "),
+          "rank\\_gain >= MEANINGFUL\\_RANK\\_GAIN" in flat,
           "executable comparison not quoted")
     check("supplement says binary64", "binary64" in text)
     check(f"supplement gives the stored threshold {STORED}", STORED in text)
