@@ -53,14 +53,27 @@ that rule governs the decision, not the rank arithmetic. The screen was applied 
 under DSC/HD95.
 
 \medskip\noindent\textbf{The advancement rule in full.} ResEnc-L could advance from fold~0 to
-fold-1 confirmation only if $R(\mathrm{M})-R(\mathrm{L})\ge 1/6$ --- one component of six, the
-constant \texttt{MEANINGFUL\_RANK\_GAIN} of the committed policy --- the paired-bootstrap 95\%
-percentile interval for $\Delta R=R(\mathrm{L})-R(\mathrm{M})$ lay entirely below zero, and every
-frozen noninferiority gate was supplied and passed, a gate with no input supplied counting as a
-failure. Note the two directions: the rank gain $R(\mathrm{M})-R(\mathrm{L})$ is positive when
-ResEnc-L is ahead, whereas $\Delta R$ is negative when ResEnc-L is ahead. Passing on fold~0 did not
-select or prefer ResEnc-L; it only triggered fold-1 confirmation, and expansion required the same
-rule to hold on fold~1. In every other case ResEnc-M was retained.
+fold-1 confirmation only if the executable rank-gain threshold on $R(\mathrm{M})-R(\mathrm{L})$ was
+met --- nominally $1/6$, one component of six, stored as the constant
+\texttt{MEANINGFUL\_RANK\_GAIN} of the committed policy --- the paired-bootstrap 95\% percentile
+interval for $\Delta R=R(\mathrm{L})-R(\mathrm{M})$ lay entirely below zero, and every frozen
+auxiliary gate was supplied and passed, a gate with no input supplied counting as a failure. Note
+the two directions: the rank gain $R(\mathrm{M})-R(\mathrm{L})$ is positive when ResEnc-L is ahead,
+whereas $\Delta R$ is negative when ResEnc-L is ahead. Passing on fold~0 did not select or prefer
+ResEnc-L; it only triggered fold-1 confirmation, and expansion required the same rule to hold on
+fold~1. In every other case ResEnc-M was retained.
+
+\medskip\noindent\textbf{What the executable comparison actually is.} The gate is the
+binary64 comparison \texttt{rank\_gain >= MEANINGFUL\_RANK\_GAIN}, not an exact real-number test of
+$R(\mathrm{M})-R(\mathrm{L})\ge 1/6$, and at the boundary the two are not equivalent. The stored
+threshold is the double nearest to $1/6$, $0.16666666666666666$. A rank configuration that is
+exactly $1/6$ in rational arithmetic --- ResEnc-L ahead on three components, tied on one, behind on
+two --- is computed as a difference of averaged ranks and evaluates to approximately
+$0.16666666666666652$, about $1.4\times10^{-16}$ below the stored threshold, so that nominal
+boundary case is rejected. The disclosure is made because the manuscript quotes the nominal value.
+It did not affect the recorded architecture decision: the observed statistic was nowhere near the
+boundary, the fold-0 rank gain being $-0.333$ against a required $+1/6$, and no other declared
+condition was met either. We did not modify the frozen policy code, and no result changed.
 
 \medskip\noindent\textbf{Audit C utility, $U_\tau$ (raw metric mean).} Let $S_\tau$ be the subjects
 for which all six DSC/NSD components are finite under \emph{both} policies, and

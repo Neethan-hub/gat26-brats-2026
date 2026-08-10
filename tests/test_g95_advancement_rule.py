@@ -209,10 +209,17 @@ def test_prose_states_the_rule_the_code_implements() -> None:
         if not m:
             continue
         sentence = m.group(0)
-        check(f"{rel} states the rank-gain threshold {threshold}",
-              re.search(r"R\(M\)\s*-\s*R\(L\)\s*\\ge\s*" + re.escape(threshold),
-                        sentence) is not None,
+        # G96: the sentence must name the rank-gain quantity and the nominal threshold derived
+        # from the constant. It must NOT assert an exact real-number inequality, because the
+        # executable gate is a binary64 comparison that differs from it at the boundary.
+        check(f"{rel} names the rank-gain quantity",
+              re.search(r"R\(M\)\s*-\s*R\(L\)", sentence) is not None, sentence[:180])
+        check(f"{rel} states the nominal threshold {threshold}",
+              re.search(r"nominally\s*" + re.escape(threshold), sentence) is not None,
               sentence[:180])
+        check(f"{rel} does not claim an exact real-number inequality",
+              re.search(r"R\(M\)\s*-\s*R\(L\)\s*\\ge\s*" + re.escape(threshold),
+                        sentence) is None, sentence[:180])
         check(f"{rel} names the bootstrap difference as R(L)-R(M)",
               "DeltaR=R(L)-R(M)" in sentence or "DeltaR" in sentence)
         check(f"{rel} requires the interval below zero",

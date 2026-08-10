@@ -130,9 +130,10 @@ DSC, lower HD95), exact ties taking the average of the tied positions; $R$ is th
 fractional ranks, so \emph{lower $R$ is better}. We report $\Delta R=R(\mathrm{L})-R(\mathrm{M})$,
 negative favouring ResEnc-L, with a paired subject-level bootstrap (seed $21072026$, $10{,}000$
 resamples) summarized by a 95\% percentile interval. ResEnc-L could advance from fold~0 to fold-1
-confirmation only if $R(\mathrm{M})-R(\mathrm{L})\ge 1/6$, the interval for $\Delta R$ lay entirely
-below zero, and every frozen noninferiority gate was supplied and passed; expansion required the
-same rule to hold on fold~1, and otherwise ResEnc-M was retained. $R$ is a rank statistic, a different
+confirmation only if the executable rank-gain threshold on $R(\mathrm{M})-R(\mathrm{L})$, nominally
+$1/6$, was met, the interval for $\Delta R$ lay entirely below zero, and every frozen auxiliary gate
+was supplied and passed; expansion required the same rule to hold on fold~1, and otherwise ResEnc-M
+was retained. $R$ is a rank statistic, a different
 object from $U_\tau$, which is a mean of raw metric values; the two are never combined, and neither
 is the challenge's ranking procedure. The challenge ranks the Dice similarity coefficient (DSC) and
 the normalized surface distance (NSD) and excludes HD95, so the screen and the ranking metric do not
@@ -240,7 +241,7 @@ $\{0,1,2,3\}$, geometry is preserved exactly, and modality discovery fails close
 is written. The official contract supplies a fresh writable \texttt{/output}; we make no claim that
 the runner refuses to overwrite an existing file. The supplement carries the remaining operational
 detail. The source is public under the Apache License 2.0 at
-\url{https://github.com/Neethan-hub/gat26-brats-2026/tree/brats-goat-2026-camera-ready-21-r5}; it
+\url{https://github.com/Neethan-hub/gat26-brats-2026/tree/brats-goat-2026-camera-ready-21-r6}; it
 contains no images, labels, checkpoints or predictions.
 
 \section{Results}

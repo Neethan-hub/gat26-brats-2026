@@ -135,9 +135,11 @@ def t_submission_ordering_and_uniqueness():
           SPEC["official_validation_submission"]["max_submissions_this_stage"] == 1)
     check("6b no_automatic_retry",
           SPEC["official_validation_submission"]["no_automatic_retry"] is True)
-    check("6c docker_queue_never_used",
-          SPEC["official_validation_submission"]["docker_queue_never_used"] == "9619630"
-          and SPEC["official_validation_submission"]["predictions_queue"] == "9619539")
+    _q = SPEC["official_validation_submission"]
+    check("6c queues_redacted_in_public_export",
+          _q["docker_queue_never_used"] is None and _q["predictions_queue"] is None
+          and "intentionally removed from the public export"
+          in _q.get("queue_identifiers_redacted_for_public_export", ""))
     receipt = os.path.join(ROOT, "artifacts", "g83_submission_receipt.json")
     conf = os.path.join(ROOT, "artifacts", "g83_confirmation.json")
     rt = os.path.join(ROOT, "artifacts", "g83_runtime_gate.json")

@@ -147,8 +147,10 @@ def t_submission_ordering():
     s = SPEC["official_validation_submission"]
     check("6 one_submission_max", s["max_submissions_this_stage"] == 1)
     check("6b no_automatic_retry", s["no_automatic_retry"] is True)
-    check("6c queues_correct", s["predictions_queue"] == "9619539"
-          and s["docker_queue_never_used"] == "9619630")
+    check("6c queues_redacted_in_public_export",
+          s["predictions_queue"] is None and s["docker_queue_never_used"] is None
+          and "intentionally removed from the public export"
+          in s.get("queue_identifiers_redacted_for_public_export", ""))
     receipt = os.path.join(ROOT, "artifacts", "g84_submission_receipt.json")
     need = [os.path.join(ROOT, "artifacts", f) for f in
             ("g84_calibration_decision.json", "g84_candidate_freeze.json",

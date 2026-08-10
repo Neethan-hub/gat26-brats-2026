@@ -12,43 +12,66 @@
   "g84_tip_must_remain": "9ac56ccc74642ed0f1aba6be7c8f6d65c638b829",
   "public_repo_must_remain": "43672e13e400d0bc97814eae1c8c86c17d64eabe",
   "merge_into_main": false,
-
-  "candidates": ["C0", "M8"],
+  "candidates": [
+    "C0",
+    "M8"
+  ],
   "no_other_candidate_permitted": true,
   "candidate_is_frozen_from_g84_unchanged": true,
   "candidate_definitions": {
-    "C0": {"tile_step_size": 0.5, "use_gaussian": true, "use_mirroring": false,
-           "threshold": 0.5, "checkpoints": "checkpoint_final only",
-           "fold_weighting": "equal arithmetic mean in original checkpoint order",
-           "reconstruction": "hierarchy-safe ET subset TC subset WT",
-           "cleanup": "none", "presence_gate": "none"},
-    "M8": {"identical_to_C0_except": "use_mirroring",
-           "use_mirroring": true, "allowed_mirroring_axes": [0, 1, 2],
-           "meaning": "the original prediction plus all seven nonempty flip combinations",
-           "tile_step_size": 0.5}
+    "C0": {
+      "tile_step_size": 0.5,
+      "use_gaussian": true,
+      "use_mirroring": false,
+      "threshold": 0.5,
+      "checkpoints": "checkpoint_final only",
+      "fold_weighting": "equal arithmetic mean in original checkpoint order",
+      "reconstruction": "hierarchy-safe ET subset TC subset WT",
+      "cleanup": "none",
+      "presence_gate": "none"
+    },
+    "M8": {
+      "identical_to_C0_except": "use_mirroring",
+      "use_mirroring": true,
+      "allowed_mirroring_axes": [
+        0,
+        1,
+        2
+      ],
+      "meaning": "the original prediction plus all seven nonempty flip combinations",
+      "tile_step_size": 0.5
+    }
   },
   "freeze_manifest": "artifacts/g85_candidate_freeze.json",
-
   "prohibited": [
-    "any new candidate", "any M8 modification", "recalibration or calibration rerun",
-    "re-search, blend or checkpoint change", "training or fine-tuning", "D25 or any step change",
-    "threshold change", "cleanup", "presence gate", "postprocessing",
+    "any new candidate",
+    "any M8 modification",
+    "recalibration or calibration rerun",
+    "re-search, blend or checkpoint change",
+    "training or fine-tuning",
+    "D25 or any step change",
+    "threshold change",
+    "cleanup",
+    "presence gate",
+    "postprocessing",
     "size-based exclusion or filtering of lesions",
     "folds 3-4 access before the committed freeze",
     "using stored nnU-Net internal-validation predictions as confirmation evidence",
-    "validation-label or hidden-test access", "leaderboard-position inference",
-    "second G85 prediction submission", "Docker-queue submission",
-    "OpenReview submission", "public repository change", "merge into private main",
+    "validation-label or hidden-test access",
+    "leaderboard-position inference",
+    "second G85 prediction submission",
+    "Docker-queue submission",
+    "OpenReview submission",
+    "public repository change",
+    "merge into private main",
     "deletion of C0, checkpoints, archives, credentials, volumes or historical evidence"
   ],
-
   "disclosure": {
     "blind": false,
     "statement": "G85 is an owner-authorized protocol amendment written with full knowledge of G84's calibration result. The candidate was chosen before this stage and is frozen by hash. Independent primary evidence comes from confirmation folds 3-4, which no stage has ever opened.",
     "g84_status_unchanged": "G84_RETAIN_C0_M8_CALIBRATION_FAILURE",
     "g84_gate_was_correctly_applied": true
   },
-
   "corrected_lesion_analysis": {
     "rationale": "The historical auxiliary counter is not a one-to-one detection confusion matrix: TP counts predicted components overlapping any reference, FN counts reference components with no predicted overlap, and ET/TC/WT are counted separately. TP+FN is therefore not invariant and derived precision/recall/F1 must remain diagnostic only. A zero-tolerance FN veto is brittle because one extra missed component can veto an otherwise robust all-component gain.",
     "definitions": {
@@ -60,47 +83,67 @@
       "miss_rate": "fn_ref_total / n_ref_total",
       "miss_rate_delta": "miss_rate_M8 - miss_rate_C0"
     },
-    "bootstrap": {"seed": 20260730, "resamples": 10000, "unit": "subject",
-                  "recompute_numerator_denominator_and_rate_inside_every_resample": true,
-                  "report": ["point difference", "one-sided 95% upper confidence bound"]},
+    "bootstrap": {
+      "seed": 20260730,
+      "resamples": 10000,
+      "unit": "subject",
+      "recompute_numerator_denominator_and_rate_inside_every_resample": true,
+      "report": [
+        "point difference",
+        "one-sided 95% upper confidence bound"
+      ]
+    },
     "margins_frozen_before_confirmation": {
       "point_miss_rate_increase_max": 0.0025,
       "point_margin_meaning": "at most one additional missed reference component per 400 reference components",
-      "one_sided_95_upper_bound_max": 0.0050,
-      "per_region_miss_rate_increase_max": 0.0050,
+      "one_sided_95_upper_bound_max": 0.005,
+      "per_region_miss_rate_increase_max": 0.005,
       "fp_pred_max_increase_fraction": 0.05,
       "zero_dsc_et_total_and_unique_subject_must_not_increase": true
     },
     "nature": "noninferiority safety gates; they do not reward an FN increase and do not erase G84's failure; they replace the invalid zero-tolerance veto only for the new untouched confirmation decision",
     "diagnostic_only_never_a_release_gate": [
-      "old TP/FP/FN totals", "naive precision/recall/F1",
-      "component counts by ET/TC/WT", "reference component volume distribution",
+      "old TP/FP/FN totals",
+      "naive precision/recall/F1",
+      "component counts by ET/TC/WT",
+      "reference component volume distribution",
       "how many additional misses are smaller than 50 voxels"
     ],
     "no_size_based_exclusion_or_filtering": true
   },
-
   "confirmation": {
-    "folds": [3, 4],
+    "folds": [
+      3,
+      4
+    ],
     "n_expected_subjects": 540,
     "opened_exactly_once": true,
     "opens_only_after_remote_verification_of_the_freeze_commit": true,
-    "policies_generated_fresh": ["C0", "M8"],
+    "policies_generated_fresh": [
+      "C0",
+      "M8"
+    ],
     "oof_rule": "each subject predicted only by the checkpoint trained without it",
     "stored_internal_validation_predictions_forbidden_as_evidence": true,
-    "nsd_tolerances_explicit": [0.5, 1.0],
-    "evaluator": {"panoptica": "2.1.4", "brats_evaluation": "0.0.8",
-                  "path": "preserved read-only environment; site-packages never modified"},
+    "nsd_tolerances_explicit": [
+      0.5,
+      1.0
+    ],
+    "evaluator": {
+      "panoptica": "2.1.4",
+      "brats_evaluation": "0.0.8",
+      "path": "preserved read-only environment; site-packages never modified"
+    },
     "independent_kahan_recomputation_within": 1e-12,
     "primary_gates_all_required": {
-      "delta_U_common_tau1_min": 0.0010,
+      "delta_U_common_tau1_min": 0.001,
       "delta_U_common_tau05_min": 0.0015,
       "official_policy_deltas_positive_both_tolerances": true,
       "bootstrap_prob_tau1_positive_min": 0.95,
       "bootstrap_tau1_lower_bound_strictly_above_zero": true,
       "min_nonnegative_components_each_tolerance": 5,
       "min_dsc_component_delta": -0.0005,
-      "min_nsd_component_delta": -0.0010,
+      "min_nsd_component_delta": -0.001,
       "fold3_tau1_delta_nonnegative": true,
       "fold4_tau1_delta_nonnegative": true,
       "et_total_and_unique_subject_zero_dsc_must_not_increase": true,
@@ -110,30 +153,35 @@
     },
     "on_failure": "G85_RETAIN_C0_M8_INDEPENDENT_CONFIRMATION_FAILURE"
   },
-
   "pooled_all_five_folds": {
     "construction": "the immutable G84 fold-0-2 records combined with the new G85 fold-3-4 records",
     "not_a_substitute_for_confirmation": true,
     "gates_all_required": {
       "delta_U_common_tau1_min": 0.0015,
-      "delta_U_common_tau05_min": 0.0020,
+      "delta_U_common_tau05_min": 0.002,
       "bootstrap_prob_positive_min": 0.99,
       "bootstrap_lower_bound_above_zero": true,
       "min_nonnegative_components_each_tolerance": 5,
       "zero_dsc_gates_remain_true": true,
       "point_miss_rate_increase_max": 0.0025,
-      "one_sided_miss_rate_upper_bound_max": 0.0050,
+      "one_sided_miss_rate_upper_bound_max": 0.005,
       "exact_membership_and_zero_errors": true
     }
   },
-
   "runtime_qualification": {
     "aws_non_viable_do_not_wait": true,
-    "order": ["private ephemeral exact NVIDIA A10G 24 GB via the configured Hugging Face account",
-              "RunPod NVIDIA L4 24 GB as a conservative proxy"],
+    "order": [
+      "private ephemeral exact NVIDIA A10G 24 GB via the configured Hugging Face account",
+      "RunPod NVIDIA L4 24 GB as a conservative proxy"
+    ],
     "never_upload_to_a_public_hf_repo_or_space": [
-      "protected training data", "labels", "case identifiers", "per-case metrics",
-      "archives", "credentials"],
+      "protected training data",
+      "labels",
+      "case identifiers",
+      "per-case metrics",
+      "archives",
+      "credentials"
+    ],
     "private_ephemeral_execution_only": true,
     "smoke_cases": 2,
     "same_hardware_cache_equivalence_cases": 10,
@@ -141,50 +189,64 @@
     "benchmark_selection": "deterministic official-validation geometry, without labels",
     "requirements": {
       "exactly_the_frozen_m8_implementation": true,
-      "allowed_mirroring_axes": [0, 1, 2],
+      "allowed_mirroring_axes": [
+        0,
+        1,
+        2
+      ],
       "inference_errors": 0,
       "cached_vs_original_segmentation_arrays": "exactly equal",
       "threshold_crossing_differences": 0,
-      "max_abs_probability_difference": 1e-7,
+      "max_abs_probability_difference": 1e-07,
       "peak_reserved_vram_gib_max_a10g": 21,
       "peak_reserved_vram_gib_max_l4": 20.5,
       "no_ram_cpu_or_disk_exhaustion": true,
       "all_g80_output_gates_pass": true,
       "projected_451_case_hours_max_a10g": 9,
       "projected_451_case_hours_max_l4": 7,
-      "safety_factor": 0.20
+      "safety_factor": 0.2
     },
     "optimization_order": [
       "retain all five predictors if VRAM passes",
       "otherwise reuse one network loading frozen checkpoint states sequentially in the original order",
-      "otherwise the original release implementation"],
-    "never_alter": ["mixed precision", "preprocessing", "checkpoint order",
-                    "accumulation order", "reconstruction"],
-    "labels": {"exact_a10g": "exact runtime qualification",
-               "l4": "conservative L4 runtime proxy; not exact A10G acceptance"},
+      "otherwise the original release implementation"
+    ],
+    "never_alter": [
+      "mixed precision",
+      "preprocessing",
+      "checkpoint order",
+      "accumulation order",
+      "reconstruction"
+    ],
+    "labels": {
+      "exact_a10g": "exact runtime qualification",
+      "l4": "conservative L4 runtime proxy; not exact A10G acceptance"
+    },
     "l4_proxy_may_authorize_the_one_accuracy_submission_but_docker_stays_blocked": true,
     "on_failure": "G85_M8_CONFIRMED_RUNTIME_QUALIFICATION_BLOCKED"
   },
-
   "official_validation_submission": {
     "cases": 451,
-    "predictions_queue": "9619539",
-    "docker_queue_never_used": "9619630",
+    "predictions_queue": null,
+    "docker_queue_never_used": null,
     "team": "Vericerno",
     "max_submissions_this_stage": 1,
     "no_automatic_retry": true,
     "partitioning": "deterministic, disjoint, exhaustive; exactly one flat prediction per expected case; at least ten deterministic cases compared against single-path execution with exact voxel and geometry equality",
     "archive_gates": "all 17 G80 gates, before and after independent re-extraction",
     "frozen_c0_official_scores": {
-      "DSC_ET": 0.772185975381129, "DSC_TC": 0.823529052186837,
-      "DSC_WT": 0.879421230596971, "NSD_ET": 0.539788495869978,
-      "NSD_TC": 0.499919028770286, "NSD_WT": 0.483422275392118
+      "DSC_ET": 0.772185975381129,
+      "DSC_TC": 0.823529052186837,
+      "DSC_WT": 0.879421230596971,
+      "NSD_ET": 0.539788495869978,
+      "NSD_TC": 0.499919028770286,
+      "NSD_WT": 0.483422275392118
     },
     "release_consideration_gates": {
-      "official_six_component_mean_gain_min": 0.0020,
+      "official_six_component_mean_gain_min": 0.002,
       "min_improved_components": 4,
-      "max_dsc_component_regression": 0.0010,
-      "max_nsd_component_regression": 0.0020,
+      "max_dsc_component_regression": 0.001,
+      "max_nsd_component_regression": 0.002,
       "et_and_total_zero_dsc_must_not_worsen_on_comparable_support": true,
       "confirmation_and_runtime_gates_remain_true": true,
       "archive_and_receipt_gates_pass": true,
@@ -195,26 +257,31 @@
       "not_better": "G85_RETAIN_C0_M8_OFFICIAL_VALIDATION_NOT_BETTER",
       "point_better_but_gate_fails": "G85_M8_VALIDATION_POINT_BETTER_RELEASE_RETAINS_C0",
       "all_gates_pass": "G85_M8_OFFICIAL_VALIDATION_BETTER_AWAITING_RELEASE_AUTHORIZATION"
-    }
+    },
+    "queue_identifiers_redacted_for_public_export": "The organizer evaluation-queue identifiers recorded in this object were intentionally removed from the public export and are null above. The exact frozen private originals are preserved unchanged in the private repository. No scientific parameter, gate, threshold, result or chronology was altered by this redaction."
   },
-
   "resource_policy": {
     "max_new_workers": 3,
     "max_simultaneous_project_gpus": 4,
-    "max_price_per_gpu_hour_usd": 2.50,
+    "max_price_per_gpu_hour_usd": 2.5,
     "incremental_cost_cap_usd": 45,
     "no_new_volume": true,
     "no_volume_create_resize_attach_detach_or_delete": true,
     "reuse_confirmation_workers_for_official_validation_when_safe": true,
     "terminate_only_g85_created_compute": true,
-    "evaluator_thread_caps": {"OMP_NUM_THREADS": 1, "MKL_NUM_THREADS": 1,
-                              "OPENBLAS_NUM_THREADS": 1},
+    "evaluator_thread_caps": {
+      "OMP_NUM_THREADS": 1,
+      "MKL_NUM_THREADS": 1,
+      "OPENBLAS_NUM_THREADS": 1
+    },
     "max_evaluator_processes": 48,
-    "prohibited_evaluator_process_counts": [80, 88],
+    "prohibited_evaluator_process_counts": [
+      80,
+      88
+    ],
     "liveness": "exact /proc/<pid>/cmdline identity; never a broad pgrep -f or pkill -f; never let SSH consume an orchestration-loop stdin or heredoc",
     "restarts": "at most one automatic restart per task; a repeated identical failure stops the phase"
   },
-
   "commits": {
     "preregistration_and_freeze": "one combined commit before folds 3-4",
     "post_result": "one scoped sanitized commit",

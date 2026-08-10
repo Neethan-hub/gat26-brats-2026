@@ -9,8 +9,10 @@
   "private_main_must_remain": "81cb90ac8b906e412a65d3232b048c70a6377b71",
   "public_repo_must_remain": "43672e13e400d0bc97814eae1c8c86c17d64eabe",
   "merge_into_main": false,
-
-  "candidates": ["C0", "D25"],
+  "candidates": [
+    "C0",
+    "D25"
+  ],
   "no_other_candidate_permitted": true,
   "candidate_definitions": {
     "C0": {
@@ -29,55 +31,106 @@
     }
   },
   "exact_scientific_difference": "tile_step_size: 0.5 -> 0.25",
-  "allowed_tile_steps": [0.5, 0.25],
+  "allowed_tile_steps": [
+    0.5,
+    0.25
+  ],
   "prohibited": [
     "tile steps 0.20, 0.30, 0.33, 0.40 or any adaptive step",
-    "threshold search", "TTA", "mirroring", "checkpoint_best", "checkpoint soup",
-    "G82 checkpoints or blends", "G81 postprocessing",
-    "connected-component filtering", "presence gates", "region-specific thresholds",
-    "validation-image adaptation", "pseudo-labeling", "training or fine-tuning",
-    "architecture changes", "selecting a different policy after seeing D25 results",
+    "threshold search",
+    "TTA",
+    "mirroring",
+    "checkpoint_best",
+    "checkpoint soup",
+    "G82 checkpoints or blends",
+    "G81 postprocessing",
+    "connected-component filtering",
+    "presence gates",
+    "region-specific thresholds",
+    "validation-image adaptation",
+    "pseudo-labeling",
+    "training or fine-tuning",
+    "architecture changes",
+    "selecting a different policy after seeing D25 results",
     "new weights of any kind"
   ],
-
   "rationale_recorded_before_results": "Denser overlapping sliding windows average more Gaussian-weighted predictions per voxel, which can reduce patch-boundary variance. The change is purely an inference-time aggregation choice: it is independent of tumour labels, cohort, validation identities and leaderboard feedback, and it creates no new trainable parameters. Improvement is NOT claimed or guaranteed; the preregistered gates decide.",
-
   "splits": {
-    "calibration_folds": [0, 1, 2],
+    "calibration_folds": [
+      0,
+      1,
+      2
+    ],
     "n_calibration_subjects": 811,
-    "confirmation_folds": [3, 4],
+    "confirmation_folds": [
+      3,
+      4
+    ],
     "n_confirmation_subjects": 540,
     "confirmation_opens_only_after_candidate_freeze_commit": true,
     "confirmation_executes_once_only": true,
     "every_subject_predicted_by_the_model_that_excluded_it": true,
     "split_sha256_prefix": "16014d7b8830"
   },
-
   "metric": {
-    "official_components": ["DSC_ET", "DSC_TC", "DSC_WT", "NSD_ET", "NSD_TC", "NSD_WT"],
+    "official_components": [
+      "DSC_ET",
+      "DSC_TC",
+      "DSC_WT",
+      "NSD_ET",
+      "NSD_TC",
+      "NSD_WT"
+    ],
     "utility": "U_tau = mean(DSC_ET, DSC_TC, DSC_WT, NSD_ET, NSD_TC, NSD_WT)",
-    "nsd_tolerances_explicit": [0.5, 1.0],
+    "nsd_tolerances_explicit": [
+      0.5,
+      1.0
+    ],
     "tolerance_never_implicit": true,
-    "evaluator": {"panoptica": "2.1.4", "brats_evaluation": "0.0.8",
-                  "path": "preserved read-only environment; site-packages is never modified"},
-    "aggregation": ["official skip-NaN with realized denominators", "common support"],
+    "evaluator": {
+      "panoptica": "2.1.4",
+      "brats_evaluation": "0.0.8",
+      "path": "preserved read-only environment; site-packages is never modified"
+    },
+    "aggregation": [
+      "official skip-NaN with realized denominators",
+      "common support"
+    ],
     "tau1_label": "controlled sensitivity at the organizer-confirmed tolerance, NOT an exact reproduction of the final scorer",
-    "bootstrap": {"seed": 20260730, "resamples": 10000, "unit": "subject",
-                  "recompute_means_and_denominators_inside_each_resample": true},
+    "bootstrap": {
+      "seed": 20260730,
+      "resamples": 10000,
+      "unit": "subject",
+      "recompute_means_and_denominators_inside_each_resample": true
+    },
     "baseline_wins_ties": true
   },
-
   "baseline_reproduction_gate": {
     "purpose": "C0 must be reproduced before any D25 evaluation",
-    "required_tau05": {"DSC_ET": 0.864632, "DSC_TC": 0.917205, "DSC_WT": 0.928174,
-                       "NSD_ET": 0.655812, "NSD_TC": 0.621476, "NSD_WT": 0.573399},
-    "required_tau10": {"DSC_ET": 0.864632, "DSC_TC": 0.917205, "DSC_WT": 0.928174,
-                       "NSD_ET": 0.895995, "NSD_TC": 0.878328, "NSD_WT": 0.866410},
-    "required_denominators": {"ET": 806, "TC": 809, "WT": 811},
+    "required_tau05": {
+      "DSC_ET": 0.864632,
+      "DSC_TC": 0.917205,
+      "DSC_WT": 0.928174,
+      "NSD_ET": 0.655812,
+      "NSD_TC": 0.621476,
+      "NSD_WT": 0.573399
+    },
+    "required_tau10": {
+      "DSC_ET": 0.864632,
+      "DSC_TC": 0.917205,
+      "DSC_WT": 0.928174,
+      "NSD_ET": 0.895995,
+      "NSD_TC": 0.878328,
+      "NSD_WT": 0.86641
+    },
+    "required_denominators": {
+      "ET": 806,
+      "TC": 809,
+      "WT": 811
+    },
     "required_evaluator_errors": 0,
     "on_failure": "the baseline is not reproducible under the C0 definition in this specification; retain C0 and fail closed"
   },
-
   "runtime_only_optimization": {
     "is_a_scientific_candidate": false,
     "permitted_order": [
@@ -85,9 +138,14 @@
       "otherwise preload checkpoint states and reuse one network while preserving checkpoint and accumulation order",
       "otherwise retain the original release implementation"
     ],
-    "must_not_alter": ["ensemble arithmetic", "preprocessing", "mixed precision",
-                       "checkpoint order", "output reconstruction",
-                       "probability accumulation order"],
+    "must_not_alter": [
+      "ensemble arithmetic",
+      "preprocessing",
+      "mixed precision",
+      "checkpoint order",
+      "output reconstruction",
+      "probability accumulation order"
+    ],
     "equivalence_requirements": {
       "segmentation_voxel_arrays": "exactly equal",
       "geometry": "exactly equal",
@@ -99,7 +157,6 @@
     },
     "on_failure": "abandon the optimized path without editing frozen release files; D25 may continue on the original path and must still satisfy the runtime gate"
   },
-
   "calibration_gates_all_required": {
     "delta_U_common_tau1_min": 0.0005,
     "delta_U_common_tau05_min": 0.0,
@@ -123,12 +180,11 @@
     "independent_aggregate_recomputation_tolerance": 1e-12,
     "on_failure": "G83_RETAIN_C0_D25_CALIBRATION_FAILURE"
   },
-
   "confirmation_gates_all_required": {
     "pooled_delta_U_common_tau1_min": 0.0005,
     "pooled_delta_U_common_tau05_positive": true,
     "official_policy_deltas_positive_at_both_tolerances": true,
-    "bootstrap_prob_positive_min": 0.90,
+    "bootstrap_prob_positive_min": 0.9,
     "min_individual_fold_delta": -0.0015,
     "min_nonnegative_pooled_components_tau1": 4,
     "max_dsc_component_regression": 0.001,
@@ -147,7 +203,6 @@
     },
     "on_failure": "G83_RETAIN_C0_D25_CONFIRMATION_FAILURE"
   },
-
   "runtime_gate_hf_a10g_proxy": {
     "flavor": "a10g-large",
     "gpu": "exactly one NVIDIA A10G, 24 GB VRAM",
@@ -163,30 +218,41 @@
       "outputs_pass_g80_validation_gates": true,
       "c0_step_0_5_equivalence_still_true": true,
       "projected_451_case_runtime_hours_max": 9,
-      "safety_factor": 0.20
+      "safety_factor": 0.2
     },
     "projection_formula": "startup_seconds + 451 * max(p95_case_seconds, mean_case_seconds + 2*stdev_case_seconds), then multiplied by 1.20",
-    "never_upload_to_hf": ["training data", "labels", "case identifiers",
-                            "per-case metrics", "credentials", "protected archives"],
+    "never_upload_to_hf": [
+      "training data",
+      "labels",
+      "case identifiers",
+      "per-case metrics",
+      "credentials",
+      "protected archives"
+    ],
     "on_missing_auth_or_path": "G83_D25_INTERNAL_ADVANCE_AWAITING_HF_A10G_PROXY",
     "on_failure": "G83_RETAIN_C0_D25_RUNTIME_OR_CONTAINER_FAILURE"
   },
-
   "official_validation_submission": {
     "cases": 451,
-    "predictions_queue": "9619539",
-    "docker_queue_never_used": "9619630",
+    "predictions_queue": null,
+    "docker_queue_never_used": null,
     "team": "Vericerno",
     "max_submissions_this_stage": 1,
     "no_automatic_retry": true,
     "partitioning_allowed": true,
-    "partition_requirements": ["disjoint", "exhaustive",
+    "partition_requirements": [
+      "disjoint",
+      "exhaustive",
       "merged output identical in naming and semantics to one release-container run",
-      "deterministic ten-case cross-check against single-path execution with exactly equal voxels and geometry"],
+      "deterministic ten-case cross-check against single-path execution with exactly equal voxels and geometry"
+    ],
     "frozen_c0_official_scores": {
-      "DSC_ET": 0.772185975381129, "DSC_TC": 0.823529052186837,
-      "DSC_WT": 0.879421230596971, "NSD_ET": 0.539788495869978,
-      "NSD_TC": 0.499919028770286, "NSD_WT": 0.483422275392118
+      "DSC_ET": 0.772185975381129,
+      "DSC_TC": 0.823529052186837,
+      "DSC_WT": 0.879421230596971,
+      "NSD_ET": 0.539788495869978,
+      "NSD_TC": 0.499919028770286,
+      "NSD_WT": 0.483422275392118
     },
     "release_consideration_gates": {
       "official_six_component_mean_gain_min": 0.002,
@@ -209,9 +275,9 @@
       "not_better": "G83_RETAIN_C0_D25_OFFICIAL_VALIDATION_NOT_BETTER",
       "point_better_but_gate_fails": "G83_D25_VALIDATION_POINT_BETTER_RELEASE_RETAINS_C0",
       "all_gates_pass": "G83_D25_OFFICIAL_VALIDATION_BETTER_AWAITING_RELEASE_AUTHORIZATION"
-    }
+    },
+    "queue_identifiers_redacted_for_public_export": "The organizer evaluation-queue identifiers recorded in this object were intentionally removed from the public export and are null above. The exact frozen private originals are preserved unchanged in the private repository. No scientific parameter, gate, threshold, result or chronology was altered by this redaction."
   },
-
   "timing_utc": {
     "preregistration_pushed_by": "2026-07-30T05:30:00Z",
     "calibration_completed_by": "2026-07-30T07:00:00Z",
@@ -223,25 +289,26 @@
     "score_polling_until": "2026-07-30T12:30:00Z",
     "on_missed_cutoff": "do not start the next phase; preserve C0; clean up G83-created compute; return G83_ABORTED_TO_PRESERVE_RELEASE_WINDOW_C0_INTACT"
   },
-
   "resource_policy": {
     "max_simultaneous_project_gpus_all_providers": 4,
     "max_new_runpod_workers": 3,
-    "max_price_per_gpu_hour_usd": 2.50,
+    "max_price_per_gpu_hour_usd": 2.5,
     "min_gpu_vram_gib": 24,
     "min_ephemeral_disk_gib": 100,
     "incremental_cost_cap_usd": 40,
     "no_new_volume": true,
     "no_volume_attach_resize_detach_or_delete": true,
     "terminate_only_g83_created_compute": true,
-    "evaluator_thread_caps": {"OMP_NUM_THREADS": 1, "MKL_NUM_THREADS": 1,
-                              "OPENBLAS_NUM_THREADS": 1},
+    "evaluator_thread_caps": {
+      "OMP_NUM_THREADS": 1,
+      "MKL_NUM_THREADS": 1,
+      "OPENBLAS_NUM_THREADS": 1
+    },
     "max_evaluator_processes": 48,
     "evaluator_process_count_note": "48 is the highest count proven stable in G82; 80 and 88 both failed with pthread_create exhaustion and must not be repeated",
     "liveness": "verify via /proc/<pid>/cmdline and an exact command identity; never a broad pgrep -f or pkill -f; never let SSH consume orchestration-loop stdin",
     "restarts": "at most one automatic restart per failed task; after a second identical failure, fail closed"
   },
-
   "no_result_dependent_edits": true,
   "governing_rule": "If anything is ambiguous, late, inconsistent, unavailable, statistically unconvincing or operationally unsafe, retain C0."
 }

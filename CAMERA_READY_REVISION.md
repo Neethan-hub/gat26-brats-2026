@@ -226,10 +226,11 @@ and r3 are unchanged and remain resolvable.
 **The advancement rule is now stated in full, and it is the rule the code implements.** The earlier
 text said only that ResEnc-L "is preferred if the interval excludes zero and every declared
 noninferiority gate passes". That was incomplete in four ways, all of which mattered. ResEnc-L could
-advance from fold 0 to fold-1 confirmation only if R(M) − R(L) ≥ 1/6 — one component of six, the
-constant `MEANINGFUL_RANK_GAIN` in the committed policy — the paired-bootstrap 95 % percentile
-interval for ΔR = R(L) − R(M) lay entirely below zero, and every frozen noninferiority gate was
-supplied and passed, a gate with no input supplied counting as a failure rather than a pass.
+advance from fold 0 to fold-1 confirmation only if the executable rank-gain threshold on
+R(M) − R(L) was met — nominally 1/6, one component of six, stored as the constant
+`MEANINGFUL_RANK_GAIN` in the committed policy — the paired-bootstrap 95 % percentile interval for
+ΔR = R(L) − R(M) lay entirely below zero, and every frozen auxiliary gate was supplied and passed, a
+gate with no input supplied counting as a failure rather than a pass.
 Expansion required the same rule to hold on fold 1; otherwise ResEnc-M was retained.
 
 Two points the earlier wording obscured. The rank gain is written R(M) − R(L) and the reported
@@ -267,3 +268,39 @@ six-page layout in Word remains the owner's check.
 `brats-goat-2026-camera-ready-21-r5`, a parentless snapshot commit whose tree is byte-identical to
 public `main`. The paper cites r5. Tags r1 through r4 are unchanged and remain resolvable; the
 commit metadata recorded in them is historical and has not been rewritten.
+
+## G96 — public-export sanitization and the executable threshold
+
+**Submission-infrastructure identifiers are removed from the public export.** The frozen
+preregistration configurations record two organizer evaluation-queue identifiers. They are
+submission-infrastructure values: no scientific parameter, gate, threshold, result or chronology
+depends on them, and they do not belong in a public source release. In the exported copies of
+`configs/g82_preregistration.json`, `g83_dense_overlap_preregistration.json`,
+`g84_release_tta_preregistration.json` and `g85_confirmation_preregistration.json` those fields are
+`null`, and each redacted object carries a note saying the removal was intentional, that the exact
+frozen private originals are preserved unchanged, and that no scientific content was altered.
+
+The redaction is performed by the exporter, not by editing the sources: the private configurations
+remain byte-for-byte frozen. The three stage tests that assert those fields are themselves frozen
+prior-stage artifacts, so they are likewise not edited in place; the exporter substitutes their
+queue assertion for one that verifies the redaction actually happened, and it fails closed if the
+substitution does not match exactly once. `EXPORT_MANIFEST.json` lists every redacted file.
+
+This applies to the current tree from this revision onward. Earlier published tags are immutable and
+have not been rewritten; no claim is made that they are free of these identifiers.
+
+**The rank-gain threshold is described as what the code executes.** The previous text stated the
+exact real-number condition R(M) − R(L) ≥ 1/6. The frozen policy actually evaluates the binary64
+comparison `rank_gain >= MEANINGFUL_RANK_GAIN`, and the two are not equivalent at the boundary: the
+stored threshold is the double nearest 1/6, 0.16666666666666666, while a rank configuration that is
+exactly 1/6 in rational arithmetic computes to about 0.16666666666666652 and is rejected. The
+manuscript now says the executable threshold was met, nominally 1/6; the supplement states the
+comparison and both values in full.
+
+This is a disclosure, not a correction of any result. The recorded architecture decision was nowhere
+near the boundary — the fold-0 rank gain was −0.333 against a required +1/6, and no other declared
+condition was met either. `scripts/g45_selection_policy.py` was not modified, and no selection
+outcome, evidence file or recorded value changed.
+
+**Publication snapshot.** The paper cites `brats-goat-2026-camera-ready-21-r6`, again a parentless
+snapshot whose tree is byte-identical to public `main`. Tags r1 through r5 are unchanged.

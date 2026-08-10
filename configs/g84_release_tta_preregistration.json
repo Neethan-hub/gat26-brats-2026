@@ -11,41 +11,65 @@
   "g83_tip_must_remain": "d0fbbb388f45fd45f1ad7236dcbcf20a95daf1e5",
   "public_repo_must_remain": "43672e13e400d0bc97814eae1c8c86c17d64eabe",
   "merge_into_main": false,
-
-  "candidates": ["C0", "M8"],
+  "candidates": [
+    "C0",
+    "M8"
+  ],
   "no_other_candidate_permitted": true,
   "candidate_definitions": {
     "C0": {
       "model": "frozen five-fold ResEnc-M release policy",
-      "tile_step_size": 0.5, "use_gaussian": true, "use_mirroring": false,
-      "threshold": 0.5, "checkpoints": "checkpoint_final only",
+      "tile_step_size": 0.5,
+      "use_gaussian": true,
+      "use_mirroring": false,
+      "threshold": 0.5,
+      "checkpoints": "checkpoint_final only",
       "fold_weighting": "equal arithmetic mean in original checkpoint order",
       "reconstruction": "hierarchy-safe ET subset TC subset WT",
-      "cleanup": "none", "presence_gate": "none"
+      "cleanup": "none",
+      "presence_gate": "none"
     },
     "M8": {
       "identical_to_C0_except": "use_mirroring",
       "use_mirroring": true,
-      "allowed_mirroring_axes": [0, 1, 2],
+      "allowed_mirroring_axes": [
+        0,
+        1,
+        2
+      ],
       "meaning": "the original prediction plus all seven nonempty flip combinations",
       "tile_step_size": 0.5
     }
   },
   "exact_scientific_difference": "use_mirroring: false -> true",
-
   "prohibited": [
-    "D25 or any dense-overlap step change", "combined TTA and dense overlap",
-    "threshold change", "cleanup", "postprocessing", "presence gate",
-    "model change", "checkpoint change", "checkpoint_best", "checkpoint soup",
-    "blend", "fine-tuning", "training", "pseudo-labeling", "adaptation",
+    "D25 or any dense-overlap step change",
+    "combined TTA and dense overlap",
+    "threshold change",
+    "cleanup",
+    "postprocessing",
+    "presence gate",
+    "model change",
+    "checkpoint change",
+    "checkpoint_best",
+    "checkpoint soup",
+    "blend",
+    "fine-tuning",
+    "training",
+    "pseudo-labeling",
+    "adaptation",
     "combination with any G81 or G82 candidate",
-    "validation-label or hidden-test access", "leaderboard-position inference",
-    "post-result candidate alteration", "second G84 prediction submission",
-    "Docker-queue submission", "OpenReview submission",
-    "public repository change", "merge into private main",
-    "checkpoint deletion", "editing frozen G82 or G83 files"
+    "validation-label or hidden-test access",
+    "leaderboard-position inference",
+    "post-result candidate alteration",
+    "second G84 prediction submission",
+    "Docker-queue submission",
+    "OpenReview submission",
+    "public repository change",
+    "merge into private main",
+    "checkpoint deletion",
+    "editing frozen G82 or G83 files"
   ],
-
   "candidate_choice_disclosure": {
     "blind": false,
     "statement": "The candidate was chosen because Stage G83 disclosed strong historical out-of-fold evidence for mirroring TTA across all six official components. This stage is therefore NOT blind, and the historical figures below are recorded as rationale and cross-checks, not as this stage's result.",
@@ -56,70 +80,120 @@
       "provenance": "nnU-Net internal-validation predictions with inference_allowed_mirroring_axes (0,1,2); NOT the exact release path, and NOT admissible as G84 candidate evidence"
     }
   },
-
   "baseline": {
     "source": "the preserved full-precision per-case no-TTA release cache",
     "never_use_the_internal_validation_tta_values_as_baseline": true,
-    "required_tau05": {"ET_DSC": 0.8626659246742145, "TC_DSC": 0.9153800380672195,
-                       "WT_DSC": 0.9262648462885401, "ET_NSD": 0.6504683719775504,
-                       "TC_NSD": 0.6149990762499165, "WT_NSD": 0.5661281491384665},
-    "required_tau10": {"ET_DSC": 0.8626659246742145, "TC_DSC": 0.9153800380672195,
-                       "WT_DSC": 0.9262648462885401, "ET_NSD": 0.8939112072084582,
-                       "TC_NSD": 0.8746458540350784, "WT_NSD": 0.8628208597369766},
-    "required_denominators": {"ET": 806, "TC": 809, "WT": 811},
+    "required_tau05": {
+      "ET_DSC": 0.8626659246742145,
+      "TC_DSC": 0.9153800380672195,
+      "WT_DSC": 0.9262648462885401,
+      "ET_NSD": 0.6504683719775504,
+      "TC_NSD": 0.6149990762499165,
+      "WT_NSD": 0.5661281491384665
+    },
+    "required_tau10": {
+      "ET_DSC": 0.8626659246742145,
+      "TC_DSC": 0.9153800380672195,
+      "WT_DSC": 0.9262648462885401,
+      "ET_NSD": 0.8939112072084582,
+      "TC_NSD": 0.8746458540350784,
+      "WT_NSD": 0.8628208597369766
+    },
+    "required_denominators": {
+      "ET": 806,
+      "TC": 809,
+      "WT": 811
+    },
     "required_common_support": 806,
     "required_U_tau1": 0.8904584958239496,
     "required_U_tau05": 0.757053521409012,
-    "required_lesion_TP_FP_FN": [3990, 1243, 4103],
-    "required_zero_dsc_region_unique_et": [33, 24, 22],
+    "required_lesion_TP_FP_FN": [
+      3990,
+      1243,
+      4103
+    ],
+    "required_zero_dsc_region_unique_et": [
+      33,
+      24,
+      22
+    ],
     "per_case_agreement_tolerance": 1e-12,
     "on_failure": "G84_BLOCKED_C0_RELEASE_BASELINE_REPRODUCTION"
   },
-
   "splits": {
-    "calibration_folds": [0, 1, 2], "n_calibration": 811,
-    "confirmation_folds": [3, 4], "n_confirmation": 540,
+    "calibration_folds": [
+      0,
+      1,
+      2
+    ],
+    "n_calibration": 811,
+    "confirmation_folds": [
+      3,
+      4
+    ],
+    "n_confirmation": 540,
     "confirmation_opens_only_after_candidate_freeze_commit": true,
     "confirmation_executes_once_only": true,
     "oof_rule": "every subject predicted only by the checkpoint trained without it",
     "official_validation_rule": "all five frozen checkpoints, original order, equal arithmetic mean"
   },
-
   "metric": {
-    "components": ["DSC_ET", "DSC_TC", "DSC_WT", "NSD_ET", "NSD_TC", "NSD_WT"],
+    "components": [
+      "DSC_ET",
+      "DSC_TC",
+      "DSC_WT",
+      "NSD_ET",
+      "NSD_TC",
+      "NSD_WT"
+    ],
     "utility": "U_tau = mean of the six components",
-    "nsd_tolerances_explicit": [0.5, 1.0],
-    "evaluator": {"panoptica": "2.1.4", "brats_evaluation": "0.0.8",
-                  "path": "preserved read-only environment; site-packages never modified"},
-    "aggregation": ["official skip-NaN with realized denominators", "common support"],
-    "bootstrap": {"seed": 20260730, "resamples": 10000, "unit": "subject",
-                  "recompute_means_and_denominators_inside_each_resample": true},
+    "nsd_tolerances_explicit": [
+      0.5,
+      1.0
+    ],
+    "evaluator": {
+      "panoptica": "2.1.4",
+      "brats_evaluation": "0.0.8",
+      "path": "preserved read-only environment; site-packages never modified"
+    },
+    "aggregation": [
+      "official skip-NaN with realized denominators",
+      "common support"
+    ],
+    "bootstrap": {
+      "seed": 20260730,
+      "resamples": 10000,
+      "unit": "subject",
+      "recompute_means_and_denominators_inside_each_resample": true
+    },
     "baseline_wins_ties": true,
     "independent_recomputation_tolerance": 1e-12
   },
-
   "storage": {
     "mode": "final segmentations stored directly",
     "rationale": "no probability quantisation is involved, so no quantisation-induced threshold difference is possible"
   },
-
   "cache_equivalence_gate": {
     "runtime_only_not_a_candidate": true,
-    "tested_separately_for": ["C0", "M8"],
+    "tested_separately_for": [
+      "C0",
+      "M8"
+    ],
     "sample": "at least ten real calibration cases spanning input geometry, selected deterministically and before any result is read",
     "synthetic_may_supplement_never_replace": true,
-    "requirements": {"max_abs_probability_difference": 1e-7,
-                     "voxels_crossing_threshold_differently": 0,
-                     "segmentation_arrays": "exactly equal",
-                     "geometry_labels_names_counts": "exactly equal",
-                     "checkpoint_and_accumulation_order": "identical",
-                     "errors": 0},
+    "requirements": {
+      "max_abs_probability_difference": 1e-07,
+      "voxels_crossing_threshold_differently": 0,
+      "segmentation_arrays": "exactly equal",
+      "geometry_labels_names_counts": "exactly equal",
+      "checkpoint_and_accumulation_order": "identical",
+      "errors": 0
+    },
     "on_failure": "abandon caching and use the original release implementation; never relax the tolerance or alter inference arithmetic after observing results"
   },
-
   "calibration_gates_all_required": {
     "delta_U_common_tau1_min": 0.0015,
-    "delta_U_common_tau05_min": 0.0020,
+    "delta_U_common_tau05_min": 0.002,
     "official_policy_deltas_positive_both_tolerances": true,
     "all_six_component_deltas_nonnegative_at_both_tolerances": true,
     "bootstrap_prob_tau1_positive_min": 0.99,
@@ -134,35 +208,35 @@
     "independent_recomputation_within": 1e-12,
     "on_failure": "G84_RETAIN_C0_M8_CALIBRATION_FAILURE"
   },
-
   "confirmation_gates_all_required": {
-    "delta_U_common_tau1_min": 0.0010,
+    "delta_U_common_tau1_min": 0.001,
     "delta_U_common_tau05_min": 0.0015,
     "official_policy_deltas_positive_both_tolerances": true,
     "bootstrap_prob_positive_min": 0.95,
     "bootstrap_lower_bound_above_zero": true,
     "min_nonnegative_components_each_tolerance": 5,
     "min_dsc_component_delta": -0.0005,
-    "min_nsd_component_delta": -0.0010,
-    "min_fold_delta": -0.0010,
+    "min_nsd_component_delta": -0.001,
+    "min_fold_delta": -0.001,
     "at_least_one_fold_positive": true,
     "zero_dsc_and_lesion_fn_gates_remain_true": true,
     "no_denominator_only_gain": true,
     "exact_membership_and_zero_errors": true,
     "pooled_all_five_folds": {
       "delta_U_common_tau1_min": 0.0015,
-      "delta_U_common_tau05_min": 0.0020,
+      "delta_U_common_tau05_min": 0.002,
       "bootstrap_prob_positive_min": 0.99,
       "min_nonnegative_components_each_tolerance": 5,
       "all_tail_and_integrity_gates_remain_true": true
     },
     "on_failure": "G84_RETAIN_C0_M8_CONFIRMATION_FAILURE"
   },
-
   "runtime_qualification": {
-    "provider_order": ["exact NVIDIA A10G 24 GB through RunPod",
-                       "exact NVIDIA A10G through the authorized Hugging Face path",
-                       "clearly labelled conservative L4 24 GB proxy with a stricter gate"],
+    "provider_order": [
+      "exact NVIDIA A10G 24 GB through RunPod",
+      "exact NVIDIA A10G through the authorized Hugging Face path",
+      "clearly labelled conservative L4 24 GB proxy with a stricter gate"
+    ],
     "never_call_non_a10g_exact_acceptance": true,
     "smoke_cases": 2,
     "benchmark_cases": 30,
@@ -175,28 +249,30 @@
       "cache_equivalence_still_true_if_used": true,
       "projected_451_case_hours_max_a10g": 9,
       "projected_451_case_hours_max_l4": 7,
-      "safety_margin": 0.20,
+      "safety_margin": 0.2,
       "no_cpu_ram_or_disk_exhaustion": true
     },
     "on_unavailable": "G84_M8_INTERNAL_ADVANCE_RUNTIME_QUALIFICATION_BLOCKED"
   },
-
   "official_validation_submission": {
     "cases": 451,
-    "predictions_queue": "9619539",
-    "docker_queue_never_used": "9619630",
+    "predictions_queue": null,
+    "docker_queue_never_used": null,
     "team": "Vericerno",
     "max_submissions_this_stage": 1,
     "no_automatic_retry": true,
     "partitioning": "deterministic, disjoint and exhaustive; re-merged to exactly one flat prediction per expected case; at least ten deterministic cases compared against single-path execution with exact voxel and geometry equality",
     "archive_gates": "all 17 G80 gates, before and after independent re-extraction",
     "frozen_c0_official_scores": {
-      "DSC_ET": 0.772185975381129, "DSC_TC": 0.823529052186837,
-      "DSC_WT": 0.879421230596971, "NSD_ET": 0.539788495869978,
-      "NSD_TC": 0.499919028770286, "NSD_WT": 0.483422275392118
+      "DSC_ET": 0.772185975381129,
+      "DSC_TC": 0.823529052186837,
+      "DSC_WT": 0.879421230596971,
+      "NSD_ET": 0.539788495869978,
+      "NSD_TC": 0.499919028770286,
+      "NSD_WT": 0.483422275392118
     },
     "release_consideration_gates": {
-      "official_six_component_mean_gain_min": 0.0020,
+      "official_six_component_mean_gain_min": 0.002,
       "min_improved_components": 4,
       "max_dsc_component_regression": 0.001,
       "max_nsd_component_regression": 0.002,
@@ -210,25 +286,30 @@
       "not_better": "G84_RETAIN_C0_M8_OFFICIAL_VALIDATION_NOT_BETTER",
       "point_better_but_gate_fails": "G84_M8_VALIDATION_POINT_BETTER_RELEASE_RETAINS_C0",
       "all_gates_pass": "G84_M8_OFFICIAL_VALIDATION_BETTER_AWAITING_RELEASE_AUTHORIZATION"
-    }
+    },
+    "queue_identifiers_redacted_for_public_export": "The organizer evaluation-queue identifiers recorded in this object were intentionally removed from the public export and are null above. The exact frozen private originals are preserved unchanged in the private repository. No scientific parameter, gate, threshold, result or chronology was altered by this redaction."
   },
-
   "resource_policy": {
     "max_simultaneous_project_gpus": 4,
     "max_new_workers": 3,
-    "max_price_per_gpu_hour_usd": 2.50,
+    "max_price_per_gpu_hour_usd": 2.5,
     "incremental_cost_cap_usd": 60,
     "no_new_volume": true,
     "no_volume_create_resize_detach_or_delete": true,
     "terminate_only_g84_created_compute": true,
-    "evaluator_thread_caps": {"OMP_NUM_THREADS": 1, "MKL_NUM_THREADS": 1,
-                              "OPENBLAS_NUM_THREADS": 1},
+    "evaluator_thread_caps": {
+      "OMP_NUM_THREADS": 1,
+      "MKL_NUM_THREADS": 1,
+      "OPENBLAS_NUM_THREADS": 1
+    },
     "max_evaluator_processes": 48,
-    "prohibited_evaluator_process_counts": [80, 88],
+    "prohibited_evaluator_process_counts": [
+      80,
+      88
+    ],
     "liveness": "exact process identity via /proc/<pid>/cmdline; never a broad pgrep -f or pkill -f; never let SSH consume orchestration-loop stdin",
     "restarts": "at most one automatic restart per task; a repeated identical failure stops that phase"
   },
-
   "commits": {
     "preregistration": "one, before any candidate result",
     "candidate_freeze": "one, only if calibration passes, before folds 3-4 are opened",

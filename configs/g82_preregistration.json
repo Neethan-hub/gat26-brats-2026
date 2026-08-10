@@ -6,7 +6,6 @@
   "base_commit": "81cb90ac8b906e412a65d3232b048c70a6377b71",
   "branch": "g82-generalization-finetune",
   "not_based_on_g81_branch": true,
-
   "immutable_baseline": {
     "policy": "C0",
     "definition": "ResEnc-M, five original folds, equal mean-probability sequential ensemble, threshold 0.5, tile step 0.5, Gaussian weighting, no TTA, hierarchy-safe ET subset TC subset WT, no component cleanup, no presence gate, no checkpoint soup",
@@ -20,8 +19,12 @@
     },
     "protection": "never trained into, written into, renamed, moved or deleted; every G82 artifact uses a fresh path; C0 files are rehashed at every stage boundary and required to be byte-identical"
   },
-
-  "candidates": ["C0", "T", "DG", "TDG"],
+  "candidates": [
+    "C0",
+    "T",
+    "DG",
+    "TDG"
+  ],
   "no_other_candidate_permitted": true,
   "candidate_definitions": {
     "C0": "the immutable baseline; no G82 training",
@@ -30,20 +33,30 @@
     "TDG": "T plus DG"
   },
   "explicitly_excluded": [
-    "boundary or surface loss", "new architecture", "training from scratch",
-    "post-processing search", "threshold search", "TTA", "checkpoint soup",
-    "component cleanup rule", "component classifier", "rescue model",
+    "boundary or surface loss",
+    "new architecture",
+    "training from scratch",
+    "post-processing search",
+    "threshold search",
+    "TTA",
+    "checkpoint soup",
+    "component cleanup rule",
+    "component classifier",
+    "rescue model",
     "MedNeXt / Transformer / Mamba / ResEnc-L replacement",
     "any candidate added after this commit"
   ],
-
   "initialization": {
     "from": "a copy of the original C0 checkpoint for the same fold",
     "load": "every compatible parameter including segmentation heads, strict=True",
     "optimizer": "fresh SGD, same family/momentum/Nesterov/weight-decay as C0",
     "weight_decay": 3e-05,
     "batch_size": 2,
-    "patch_size": [128, 160, 112],
+    "patch_size": [
+      128,
+      160,
+      112
+    ],
     "deep_supervision": true,
     "loss": "native Dice + BCE (region-based)",
     "plans": "nnUNetResEncUNetMPlans",
@@ -62,12 +75,15 @@
       "on_failure": "G82_BLOCKED_CHECKPOINT_INITIALIZATION_NOT_C0_EQUIVALENT"
     }
   },
-
   "tail_aware_sampling_T": {
     "derived_from": "labels in each fold's own training partition only",
     "subject_mixture": {
-      "uniform": 0.50, "small_et": 0.15, "small_tc": 0.10,
-      "multifocal": 0.075, "et_absent": 0.10, "wt_extreme": 0.075
+      "uniform": 0.5,
+      "small_et": 0.15,
+      "small_tc": 0.1,
+      "multifocal": 0.075,
+      "et_absent": 0.1,
+      "wt_extreme": 0.075
     },
     "definitions": {
       "small_et": "lowest positive-volume quartile of ET inside the training partition",
@@ -79,14 +95,17 @@
     "empty_stratum": "its probability is redistributed to uniform sampling",
     "cap": "every case capped at 3x the uniform probability, then renormalised",
     "foreground_oversampling_fraction": "unchanged from C0 (0.33)",
-    "region_choice_within_foreground_patches": {"ET": 0.50, "TC": 0.30, "WT": 0.20},
+    "region_choice_within_foreground_patches": {
+      "ET": 0.5,
+      "TC": 0.3,
+      "WT": 0.2
+    },
     "region_redistribution": "mass of an absent region flows to its nearest available parent (ET -> TC -> WT)",
     "oof_hardness_not_used": "forbidden, because it could require opening sealed folds 3-4"
   },
-
   "appearance_transform_DG": {
     "count": 1,
-    "probability": 0.20,
+    "probability": 0.2,
     "native_augmentation": "entirely retained; audited so gamma, noise, blur and low-resolution transforms are not duplicated",
     "field": "independent 4x4x4 zero-mean smooth field per modality, trilinearly upsampled to the patch, max|f| normalised to 1",
     "a": "Uniform(-0.20, 0.20)",
@@ -94,22 +113,39 @@
     "apply": "x' = x * (1 + a*f) + b*f, only inside the nonzero foreground",
     "invariants": "labels, geometry, dtype, shape, background zeros and finiteness preserved; spatial transforms remain shared across the four modalities and the labels",
     "excluded": [
-      "modality dropout", "histogram matching to validation", "Rician or k-space simulation",
-      "motion artifacts", "neural style transforms", "target-domain adaptation"
+      "modality dropout",
+      "histogram matching to validation",
+      "Rician or k-space simulation",
+      "motion artifacts",
+      "neural style transforms",
+      "target-domain adaptation"
     ]
   },
-
   "folds": {
-    "discovery": [0, 1, 2],
-    "confirmation": [3, 4],
+    "discovery": [
+      0,
+      1,
+      2
+    ],
+    "confirmation": [
+      3,
+      4
+    ],
     "confirmation_sealed_until_candidate_freeze_commit": true,
     "every_evaluated_case_predicted_by_the_fold_model_that_excluded_it": true
   },
-
   "screen": {
     "epochs": 40,
-    "candidates": ["T", "DG", "TDG"],
-    "folds": [0, 1, 2],
+    "candidates": [
+      "T",
+      "DG",
+      "TDG"
+    ],
+    "folds": [
+      0,
+      1,
+      2
+    ],
     "seed": 20260730,
     "eligibility_all_required": {
       "delta_U_common_tau1_min": 0.0,
@@ -124,24 +160,38 @@
       "integrity_and_evaluator_error_gates": "all must pass"
     },
     "selection": "maximise min(delta_U_common_tau1, delta_U_common_tau05)",
-    "tie_rules": ["baseline wins all ties", "differences under 1e-4 count as ties",
-                  "among tied non-baseline recipes prefer T, then DG, then TDG"],
+    "tie_rules": [
+      "baseline wins all ties",
+      "differences under 1e-4 count as ties",
+      "among tied non-baseline recipes prefer T, then DG, then TDG"
+    ],
     "on_no_eligible_recipe": "G82_RETAIN_C0_NO_SCREEN_ADVANCEMENT"
   },
-
   "full_discovery": {
     "epochs": 160,
     "restart_from": "copied original C0 weights",
-    "checkpoints": [80, 120, 160],
-    "alphas": [1.0, 0.75, 0.5],
+    "checkpoints": [
+      80,
+      120,
+      160
+    ],
+    "alphas": [
+      1.0,
+      0.75,
+      0.5
+    ],
     "blend": "(1-alpha) * C0_probability + alpha * candidate_probability",
     "reconstruction": "unchanged C0 hierarchy, threshold 0.5; no threshold or post-processing search",
-    "bootstrap": {"seed": 20260730, "resamples": 10000, "unit": "subject",
-                  "recompute_means_and_denominators_inside_each_resample": true,
-                  "baseline_wins_ties": true},
+    "bootstrap": {
+      "seed": 20260730,
+      "resamples": 10000,
+      "unit": "subject",
+      "recompute_means_and_denominators_inside_each_resample": true,
+      "baseline_wins_ties": true
+    },
     "freeze_gates_all_required": {
       "delta_U_common_tau1_min": 0.0015,
-      "delta_U_common_tau05_min": 0.0010,
+      "delta_U_common_tau05_min": 0.001,
       "both_official_policy_deltas_positive": true,
       "bootstrap_prob_delta_U_common_tau1_positive_min": 0.95,
       "min_nonnegative_common_support_tau1_components": 4,
@@ -158,18 +208,24 @@
       "no_gain_produced_solely_by_denominator_removal": true,
       "evaluator_errors_required": 0
     },
-    "multiple_passers": ["highest lower 95% bootstrap bound for delta_U_common_tau1",
-                         "larger min(tau1, tau05) gain", "alpha = 1.00", "baseline"],
+    "multiple_passers": [
+      "highest lower 95% bootstrap bound for delta_U_common_tau1",
+      "larger min(tau1, tau05) gain",
+      "alpha = 1.00",
+      "baseline"
+    ],
     "alpha_below_one_requires": {
       "benchmark_ten_checkpoint_inference_path": true,
       "projected_a10g_runtime_hours_max": 10,
-      "min_margin_under_12h_container_limit": 0.20
+      "min_margin_under_12h_container_limit": 0.2
     },
     "on_failure": "G82_RETAIN_C0_NO_FULL_DISCOVERY_ADVANCEMENT"
   },
-
   "confirmation": {
-    "folds": [3, 4],
+    "folds": [
+      3,
+      4
+    ],
     "opened_only_after": "the candidate-freeze commit exists",
     "evaluated_exactly_once": true,
     "no_retuning_after_observing_either_fold": true,
@@ -177,7 +233,7 @@
       "pooled_delta_U_common_tau1_min": 0.0005,
       "pooled_delta_U_common_tau05_positive": true,
       "pooled_official_policy_deltas_positive_at_both_tolerances": true,
-      "bootstrap_prob_positive_min": 0.90,
+      "bootstrap_prob_positive_min": 0.9,
       "min_individual_fold_delta_U_common_tau1": -0.002,
       "min_nonnegative_pooled_common_support_tau1_components": 4,
       "max_dsc_component_regression": 0.003,
@@ -189,16 +245,18 @@
       "evaluator_errors_required": 0
     },
     "all_five_folds_combined": {
-      "delta_U_common_tau1_min": 0.0010,
+      "delta_U_common_tau1_min": 0.001,
       "bootstrap_prob_positive_min": 0.95,
       "effect_direction_must_agree_between_discovery_and_confirmation": true
     },
     "on_failure": "G82_RETAIN_C0_CONFIRMATION_FAILURE"
   },
-
   "metric": {
     "definition": "U_tau = mean(DSC_ET, DSC_TC, DSC_WT, NSD_ET, NSD_TC, NSD_WT)",
-    "taus": [0.5, 1.0],
+    "taus": [
+      0.5,
+      1.0
+    ],
     "official_ranking_uses": "DSC and NSD at tau=1; HD95 excluded",
     "U_official": "organizer-compatible NaN skipping with realized denominators",
     "U_common": "each component over the per-case finite-value intersection shared by C0 and the candidate",
@@ -206,11 +264,10 @@
     "zero_dsc_counts_reported_as_both_region_case_and_deduplicated_unique_subject": true,
     "evaluator": "preserved official panoptica 2.1.4 / brats_evaluation 0.0.8 environment"
   },
-
   "official_validation_test": {
     "cases": 451,
-    "prediction_queue": "9619539",
-    "docker_queue_never_used": "9619630",
+    "prediction_queue": null,
+    "docker_queue_never_used": null,
     "max_additional_submissions": 1,
     "candidate_officially_better_requires": {
       "official_six_component_mean_gain_min": 0.002,
@@ -222,16 +279,15 @@
       "no_training_or_parameter_change_after_scoring": true
     },
     "on_failure": "G82_RETAIN_C0_OFFICIAL_VALIDATION_NOT_BETTER",
-    "on_success": "G82_CANDIDATE_OFFICIAL_VALIDATION_BETTER_AWAITING_RELEASE_AUTHORIZATION"
+    "on_success": "G82_CANDIDATE_OFFICIAL_VALIDATION_BETTER_AWAITING_RELEASE_AUTHORIZATION",
+    "queue_identifiers_redacted_for_public_export": "The organizer evaluation-queue identifiers recorded in this object were intentionally removed from the public export and are null above. The exact frozen private originals are preserved unchanged in the private repository. No scientific parameter, gate, threshold, result or chronology was altered by this redaction."
   },
-
   "nan_and_denominator_handling": {
     "official": "a component that is NaN for a case is skipped and leaves that component's denominator",
     "common_support": "components are recomputed on the subject set finite for both policies",
     "a_gain_that_exists_only_because_subjects_left_the_denominator_is_not_a_gain": true,
     "lesson_carried_from_G81": "under NaN skipping, correctly predicting region absence earns no credit; denominators must always be reported beside means"
   },
-
   "timing_utc": {
     "infrastructure_and_preregistration_by": "2026-07-30T01:30:00Z",
     "screen_complete_by": "2026-07-30T04:30:00Z",
@@ -243,12 +299,11 @@
     "handoff_by": "2026-07-30T15:15:00Z",
     "on_missed_cutoff": "do not start the next long stage; preserve C0; terminate only G82 resources; return G82_ABORTED_TO_PRESERVE_RELEASE_WINDOW_C0_INTACT"
   },
-
   "resource_policy": {
     "max_account_wide_concurrent_gpus": 4,
     "max_new_workers": 3,
     "incremental_cost_cap_usd": 80,
-    "max_price_per_gpu_hour_usd": 2.50,
+    "max_price_per_gpu_hour_usd": 2.5,
     "min_gpu_vram_gib": 24,
     "min_ephemeral_disk_gib": 100,
     "cloud": "SECURE",
@@ -258,7 +313,6 @@
     "terminate_only_g82_created_pods": true,
     "data_path": "the retained training volume's datacenter is absent from the pod-create datacenter enum, so it cannot be attached; the preprocessed dataset is therefore staged read-only over the provider's S3-compatible endpoint into each worker's ephemeral disk and verified by count, bytes and sampled content"
   },
-
   "prohibited": [
     "external data or externally pretrained/prior-year weights",
     "another BraTS task's data",
@@ -277,6 +331,5 @@
     "a second candidate validation submission",
     "post-score retraining or parameter change"
   ],
-
   "governing_rule": "A modest, repeatable, common-support improvement that survives sealed confirmation is preferable to a larger validation-only gain. If evidence is ambiguous, retain C0."
 }

@@ -1,7 +1,17 @@
 {
- "n_files": 116,
- "total_bytes": 1087404,
+ "n_files": 117,
+ "total_bytes": 1102686,
  "declared_license": "Apache-2.0",
+ "redacted_files": [
+  "configs/g82_preregistration.json",
+  "configs/g83_dense_overlap_preregistration.json",
+  "configs/g84_release_tta_preregistration.json",
+  "configs/g85_confirmation_preregistration.json",
+  "tests/test_g83_science.py",
+  "tests/test_g84_science.py",
+  "tests/test_g85_science.py"
+ ],
+ "redaction_note": "The organizer evaluation-queue identifiers recorded in this object were intentionally removed from the public export and are null above. The exact frozen private originals are preserved unchanged in the private repository. No scientific parameter, gate, threshold, result or chronology was altered by this redaction.",
  "files": [
   {
    "path": ".gitignore",
@@ -55,23 +65,23 @@
   },
   {
    "path": "configs/g82_preregistration.json",
-   "bytes": 13386,
-   "sha256": "af6d11af3946ced8026acabcbc76e8d9536fcf31f8cf8d9c93acc31df4e204e2"
+   "bytes": 14049,
+   "sha256": "52170f8a4b1b923c948bd36df4f0c5d53a61b1b0a1bb75f7b9b2161e7512c09b"
   },
   {
    "path": "configs/g83_dense_overlap_preregistration.json",
-   "bytes": 12129,
-   "sha256": "e6752961fd105b98d1ec74ec2e72ef588dc6b8e9ae494c8f54b31aee1a2ddcad"
+   "bytes": 12778,
+   "sha256": "29792312133c6e34f1c5ab5dfe6d88963f4093df35a20f44bb3972034874533f"
   },
   {
    "path": "configs/g84_release_tta_preregistration.json",
-   "bytes": 11826,
-   "sha256": "9239fe4c010332f856aeb7ec7ba4b3a92b034c0fa2bfc6fb852ef662fc45033c"
+   "bytes": 12472,
+   "sha256": "ff6dc56758985a458bac1ac97f93c8858790c56189dc58dcef83a353d0a81864"
   },
   {
    "path": "configs/g85_confirmation_preregistration.json",
-   "bytes": 12157,
-   "sha256": "bf57726292555cd5568cc87e36bd465eda2e0525a5083e92ded94a4a4e5d3e81"
+   "bytes": 12821,
+   "sha256": "71dd6dbd3d18fc351b0b1d107563c7e2c3551129e8b0174c4be44da752fb991d"
   },
   {
    "path": "configs/release/AWS_A10G_RUNBOOK.md",
@@ -185,8 +195,8 @@
   },
   {
    "path": "paper/main.tex",
-   "bytes": 33082,
-   "sha256": "bf0fd5d4a8282d9cf5ceb54306c9afc6050c779875d5e44a4209a52ea63cc9b3"
+   "bytes": 33134,
+   "sha256": "ffa948ce19c31a50aae3eb35157e567544d1f4da50eff6411b67a57e8ef31645"
   },
   {
    "path": "paper/references.bib",
@@ -195,8 +205,8 @@
   },
   {
    "path": "paper/supplement.tex",
-   "bytes": 29226,
-   "sha256": "809c3893fc4d36230e7a7a7ef586bf52dce63474a9631578ba7ddbd9a2e366ec"
+   "bytes": 30326,
+   "sha256": "3c6148c88526343fdb6a29d3896d37d902255d48cb83fa05b29e84a592f31f41"
   },
   {
    "path": "preflight/PACKAGE_MANIFEST.sha256",
@@ -230,8 +240,8 @@
   },
   {
    "path": "CAMERA_READY_REVISION.md",
-   "bytes": 20037,
-   "sha256": "f325601c7d1f231655e5f9df3c9f6c74ecda71cd1f4a27cdfcd7e146456ac808"
+   "bytes": 22739,
+   "sha256": "31d075ba6b68b199f3b38dc01a8bec4990defa413bdca2a16597a29ff3ee6821"
   },
   {
    "path": "DATA_PROVENANCE.md",
@@ -445,8 +455,8 @@
   },
   {
    "path": "scripts/g92_build_supplement.py",
-   "bytes": 26164,
-   "sha256": "4d6f8861a6cb966761a8c8bcf09e6db12dd90e3839aa9621688b9c507c85784d"
+   "bytes": 27264,
+   "sha256": "795a2208dd1aa2034348af8f189eb4b55c6c47bfc761fc52d899e81d9edc36bd"
   },
   {
    "path": "scripts/release_build_preflight.py",
@@ -515,13 +525,13 @@
   },
   {
    "path": "tests/test_g83_science.py",
-   "bytes": 14330,
-   "sha256": "76ff8ad75f60a98216a7e277cc9fae156cc216a040bdf369b4e400aeaed5bf08"
+   "bytes": 14428,
+   "sha256": "ed366ee44c1f5aa2d3ab8d0653ce73d6b695ea8ee8905ee7e45c86d8072dbc13"
   },
   {
    "path": "tests/test_g84_science.py",
-   "bytes": 14221,
-   "sha256": "1be2d0b3b108bb1c83c087ccf4abd7a5b13fe45ed41c2b6da626cd2091d0ee07"
+   "bytes": 14361,
+   "sha256": "ef3d3b3e00490ced39e03bf7b9e627ec53b294d22f8b4cf5df15210250629976"
   },
   {
    "path": "tests/test_g85_lesion_audit.py",
@@ -530,8 +540,8 @@
   },
   {
    "path": "tests/test_g85_science.py",
-   "bytes": 21227,
-   "sha256": "2f30de63723aaf158b883de611d63a2e8c5f52e08c7c42f932aa0e7c4439871b"
+   "bytes": 21367,
+   "sha256": "d6a537c1b528abd5fa7afa01f32d3cfe2f762936cfa6d19841aed9269b797a58"
   },
   {
    "path": "tests/test_g88_container_naming.py",
@@ -560,8 +570,13 @@
   },
   {
    "path": "tests/test_g95_advancement_rule.py",
-   "bytes": 12382,
-   "sha256": "dedf6d923fd5e3c52f25db290981e84a4cbef5a08eb7aa87d81238df91bfc64a"
+   "bytes": 12967,
+   "sha256": "128209f563291158504b8a9cf4559d06ae77510d1acf35292e93ad77985a3eaf"
+  },
+  {
+   "path": "tests/test_g96_threshold_disclosure.py",
+   "bytes": 6743,
+   "sha256": "cff2f4436e1d7fbd491007b69df367354abad314c3f43891e912755bf0f2c74a"
   },
   {
    "path": "tests/test_paper_scaffold.py",
