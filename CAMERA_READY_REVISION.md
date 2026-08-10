@@ -56,13 +56,14 @@ rationale and identified explicitly as operational, not externally validated cli
 selection used DSC/HD95 while the challenge ranks DSC/NSD. We searched the committed record and
 rescored the same fold-0 predictions under DSC/NSD at τ=0.5. **The point ordering reverses**:
 ResEnc-L is better on four of six official components. The reversal is not robust — the interval
-includes a tie — so no architecture review was triggered and no retraining was performed. The
+includes zero, so no rank advantage is established — and no architecture review was triggered. The
 diagnostic was never repeated at τ=1. The paper therefore no longer claims the conclusion is
 unchanged under the ranking metric, and records the mismatch as an open limitation.
 
-**Per-component numbers are published.** The main paper carries a compact table of individual
-ET/TC/WT DSC and NSD deltas for both subsets at both tolerances. The complete 18- and 23-check
-decision matrices, per-component means and the lesion-safety detail are in [`evidence/`](evidence/).
+**Per-component numbers are published.** The individual ET/TC/WT DSC and NSD means and deltas live in
+the **supplement**, one table per subset and tolerance, each with its own bootstrap summary and
+per-fold values printed beside it. The complete 18- and 23-check decision matrices, the lesion-safety
+detail and the machine-readable aggregates are in [`evidence/`](evidence/).
 
 **Precision.** Machine-precision values are gone from the paper; performance is rounded to four
 decimals. The exact official scores are preserved in machine-readable form in
@@ -134,3 +135,35 @@ failure. The corrected image has never been measured on an A10G.
 - **Reviewer phrasing not supported by evidence** — "flawless code", "independent confirmation",
   "pre-registered", "~0.002 DSC drop across all regions" as a universal claim, and "seven unused
   hours easily allow TTA" — is not adopted.
+
+
+## G93 — final consistency corrections
+
+The workflow figure is now the **general** decision procedure, not a picture of what happened: a
+candidate failing the development subset is rejected, one that passes reaches the policy-selection
+holdout, and there it is either **adopted** or rejected. Both outcomes feed a neutral *selected
+release policy* node, and only that node reaches official validation. The figure no longer implies
+that the baseline is always retained; the caption states separately that in this study all three
+audits ended in the reject branch.
+
+The architecture rank statistic is now defined completely and with one consistent sign convention:
+`R` is the mean fractional award rank over the six screened components, lower is better, exact ties
+take the average of the tied positions, and the reported difference is ΔR = R(L) − R(M) with a paired
+subject-level bootstrap (seed 21072026, 10,000 resamples, 95 % percentile interval). The earlier text
+labelled a *difference* as `R` and paired it with the interval of the opposite-signed quantity.
+
+"Six ranked components" is replaced by "six DSC/NSD components" wherever the audit utility is meant,
+so only the genuinely rank-based architecture statistic is described with the word *rank*. Every
+"interval did not exclude a tie" becomes "the interval included zero". The bootstrap fraction is
+described as the *fraction of paired bootstrap resamples with a positive difference*, never as a
+probability; where legacy machine field names such as `bootstrap_probability` are reproduced verbatim
+so tables can be matched to the published JSON, they are labelled as identifiers rather than claims.
+
+The inventory table no longer says that everything listed was "tried": it distinguishes executed
+candidates from proposals screened out before execution.
+
+Defensive framing is gone from the official-validation discussion, which now states the measurement
+and the limits of attribution plainly. The obsolete initial-submission checklist has been removed
+from the public source, and the paper build documentation no longer claims cross-version byte
+identity or sole Springer copyright over `splncs04.bst`, which is LPPL-licensed upstream work by
+Patrick W. Daly adapted by Maurizio Patrignani.

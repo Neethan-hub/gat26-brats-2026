@@ -56,14 +56,14 @@ ResEnc-L screen ranks the two candidates component by component and averages the
 ties resolved to the smaller model. It was applied once, to fold~0, under DSC/HD95.
 
 \medskip\noindent\textbf{Audit C utility, $U_\tau$ (raw metric mean).} Let $S_\tau$ be the subjects
-for which all six ranked components are finite under \emph{both} policies, and
+for which all six DSC/NSD components are finite under \emph{both} policies, and
 $\bar m_{c,\tau}(P;S_\tau)$ the mean of component $c$ over $S_\tau$. Then
 \[
 U_\tau(P;S_\tau)=\frac{1}{6}\sum_{c}\bar m_{c,\tau}(P;S_\tau),
 \qquad
 \Delta U_\tau=U_\tau(P_{\mathrm{cand}};S_\tau)-U_\tau(P_{\mathrm{base}};S_\tau),
 \]
-where $c$ ranges over the six ranked components, ET/TC/WT $\times$ DSC/NSD$_\tau$.
+where $c$ ranges over the six DSC/NSD components, ET/TC/WT $\times$ DSC/NSD$_\tau$.
 $U_\tau$ retains the magnitude of every difference and is \emph{not a rank statistic}: no ranking
 or tie-breaking enters it. $R$ and $U_\tau$ are different objects and are never combined. Because both
 policies share $S_\tau$, $\Delta U_\tau$ is identically the arithmetic mean of the six component
@@ -138,8 +138,13 @@ Subset & $\tau$ & Recorded $\Delta U_\tau$ & Mean of six deltas & $|$difference$
 \end{table}
 """)
 
-    # ---- per-component means -------------------------------------------------------
+    # ---- per-component means, each with its own adjacent bootstrap summary --------
     L.append(r"\section{Per-component means and deltas, Audit C (M8 versus C0)}" + "\n")
+    L.append(r"""Each table below carries its own bootstrap summary and per-fold values inside the
+same float, so no cross-referencing between paragraphs is required. ``Fraction of paired bootstrap
+resamples with positive $\Delta U_\tau$'' is exactly that -- a resampling frequency, not a
+probability and not a posterior.
+""")
     for label, block, k1, k05, ncom in subsets:
         for key, tau in ((k1, "1.0"), (k05, "0.5")):
             b = block.get(key)
@@ -147,6 +152,20 @@ Subset & $\tau$ & Recorded $\Delta U_\tau$ & Mean of six deltas & $|$difference$
                 continue
             n = b.get("n_common") or ncom
             role = "official-ranking-aligned" if tau == "1.0" else "sensitivity analysis"
+            base, cand, dl = b["baseline_means"], b["candidate_means"], b["component_deltas"]
+            bs = b.get("bootstrap") or {}
+            if bs:
+                ci = bs.get("ci95")
+                boot = (f"Fraction of paired bootstrap resamples with positive "
+                        f"$\\Delta U_\\tau$: ${bs.get('prob_positive')}$. "
+                        f"95\\% percentile interval $[{ci[0]:+.6f},{ci[1]:+.6f}]$.")
+            else:
+                boot = ("Bootstrap: \\emph{not present in the committed record for this tolerance}. "
+                        "No value is computed after the fact, and none is implied.")
+            fd = b.get("fold_deltas")
+            per = ("Per-fold $\\Delta U_\\tau$: "
+                   + ", ".join(f"fold {k} ${v:+.6f}$" for k, v in sorted(fd.items())) + "."
+                   ) if fd else ""
             L.append(rf"""
 \begin{{table}}[htbp]\centering
 \caption{{{label}, $\tau={tau}$ ({role}). Common subject support $|S_\tau|={n}$. DSC does not
@@ -155,34 +174,28 @@ depend on $\tau$, so the DSC rows repeat between tolerances.}}
 \toprule
 Component & Baseline C0 & Candidate M8 & $\Delta$ \\
 \midrule""")
-            base, cand, dl = b["baseline_means"], b["candidate_means"], b["component_deltas"]
             for c in COMPONENTS:
                 L.append(f"{PRETTY[c]} & ${base[c]:.6f}$ & ${cand[c]:.6f}$ & ${dl[c]:+.6f}$ \\\\")
             L.append(r"\midrule")
             L.append(rf"$U_\tau$ / $\Delta U_\tau$ & ${sum(base[c] for c in COMPONENTS)/6:.6f}$ & "
                      rf"${sum(cand[c] for c in COMPONENTS)/6:.6f}$ & "
                      rf"${b['delta_U_common']:+.6f}$ \\")
-            L.append(r"\bottomrule" + "\n" + r"\end{tabular}" + "\n" + r"\end{table}")
-            bs = b.get("bootstrap") or {}
-            if bs:
-                ci = bs.get("ci95")
-                L.append(rf"\noindent Paired subject-level bootstrap: "
-                         rf"$\Pr(\Delta U_\tau>0)={bs.get('prob_positive')}$, "
-                         rf"95\% percentile interval $[{ci[0]:+.6f},{ci[1]:+.6f}]$.")
-            else:
-                L.append(r"\noindent Paired subject-level bootstrap: \emph{not present in the "
-                         r"committed record for this tolerance, and not computed after the fact.}")
-            fd = b.get("fold_deltas")
-            if fd:
-                per = ", ".join(f"fold {k} ${v:+.6f}$" for k, v in sorted(fd.items()))
-                L.append(rf"Per-fold $\Delta U_\tau$: {per}.")
-            L.append("")
+            L.append(r"\bottomrule")
+            L.append(r"\end{tabular}")
+            L.append(r"\par\medskip")
+            L.append(r"\begin{minipage}{0.92\textwidth}\small " + boot + " " + per +
+                     r"\end{minipage}")
+            L.append(r"\end{table}")
 
     # ---- decision matrices ---------------------------------------------------------
     L.append(r"""
 \section{Complete decision-check matrices}
 
-A check is reported exactly as the committed record holds it. The holdout matrix contains three
+Check names are the \emph{legacy machine field names} recorded by the audit code, reproduced verbatim
+so the tables can be matched against the published JSON. They are identifiers, not claims: in
+particular \texttt{bootstrap\_probability} names a gate on the \emph{fraction of paired bootstrap
+resamples with a positive difference}, which is a resampling frequency and not a probability. Each
+check is reported exactly as the committed record holds it. The holdout matrix contains three
 checks whose only purpose is to make the audit fail closed --- exact membership, zero evaluator
 errors and independent recomputation agreement --- so that a missing, errored or
 membership-mismatched candidate evaluation is ineligible rather than silently compared on whatever
@@ -202,7 +215,7 @@ subset survived.
 \caption{{{title} --- {cap}.}}
 \begin{{tabular}}{{@{{}}lc@{{}}}}
 \toprule
-Check & Outcome \\
+Check (legacy machine field name) & Outcome \\
 \midrule""")
         for k, v in blob["checks"].items():
             name = k.replace("_", r"\_")
@@ -309,10 +322,16 @@ ResEnc-L            & \textbf{0.8602} & 0.9117 & 0.9322 & \textbf{0.6679} & \tex
 \end{tabular}
 \end{table}
 
-ResEnc-L is better at the point estimate on four of six ranked components, so the ordering
+ResEnc-L is better at the point estimate on four of six DSC/NSD components, so the ordering
 \emph{reverses} relative to the DSC/HD95 screen. The rank gain is $R=+0.333$ with a 95\% interval of
 $[-1.000,+0.667]$, which includes zero: no rank advantage is established, and the declared robustness
 requirement was not met.
+
+\medskip\noindent\textbf{Chronology, for the record.} The fold-0 screen completed on 2026-07-23 and
+the organizers' clarification that the final ranking uses DSC/NSD at $\tau=1$ and excludes HD95 was
+received on 2026-07-28, both dated in the committed decision log. That ordering is recorded as fact
+and is \emph{not} offered as justification: the deployed model was still selected under a metric pair
+the challenge does not rank on, and that remains a limitation of this submission.
 
 \medskip\noindent\textbf{Limitations.} The diagnostic is fold-0 only and was computed at $\tau=0.5$
 only; it was never repeated at the official-ranking tolerance $\tau=1$. It scores each architecture's
@@ -324,16 +343,19 @@ architecture--metric mismatch is therefore recorded as an open limitation, not a
 
 \section{Bounded experiment inventory}
 
-The search was bounded, and is listed rather than implied to be exhaustive.
+The search was bounded, and is listed rather than implied to be exhaustive. The list mixes
+candidates that were executed and scored with proposals that were screened out \emph{before}
+execution; the outcome column says which is which.
 
-\begin{table}[htbp]\centering
-\caption{Everything tried, with its outcome. None was adopted; the released policy is unchanged.}
+\begin{table}[!ht]\centering
+\caption{Bounded experiment inventory, including executed candidates and proposals screened out
+before execution. Nothing here was adopted; the released policy is unchanged.}
 \begin{tabular}{@{}p{0.42\textwidth}p{0.5\textwidth}@{}}
 \toprule
 Item & Outcome \\
 \midrule
 Best-validation checkpoint & No robust improvement; stopped on the development subset. \\
-Mirroring over recorded axes & Point-positive, interval did not exclude a tie; superseded by Audit~C. \\
+Mirroring over recorded axes & Executed. Point-positive, but the interval included zero; superseded by Audit~C. \\
 ET connected-component cleanup, three declared volume thresholds & Traded ET overlap against ET boundary distance; an apparent mean gain proved to come from changed ET support. \\
 Weight averaging (two declared per-fold soups of the final and best-validation checkpoints) & All six components moved the wrong way for both soups, monotonically in the amount mixed in. \\
 Eightfold mirroring TTA (candidate M8) & Improved all six components on the development subset; failed the policy-selection holdout on the utility gate and the lesion miss-rate safety gate. \\

@@ -21,7 +21,7 @@ that page. Method citations are the standard primary sources. **No invented refe
 | `isensee2021nnunet` | Method backbone — nnU-Net (Nature Methods, DOI 10.1038/s41592-020-01008-z) | standard primary source |
 | `isensee2024nnunetrevisited` | ResEnc presets — nnU-Net Revisited (arXiv:2404.09556) | standard primary source |
 
-**HARD BLOCKER — RESOLVED 2026-07-28 (Stage G78).** Incomplete BibTeX was a submission blocker.
+**Bibliography completeness.** Every cited work below has a verified primary record.
 Every entry's exact title and leading author list has now been verified against the **primary
 source** — the arXiv landing page for each arXiv-identified manuscript, and the publisher DOI record
 for the journal entries — and the BibTeX was rewritten accordingly. The organizational-author
@@ -70,6 +70,5 @@ Still required at camera-ready: the mandated acknowledgement sentence is present
 | Container limits | A10G 24 GB, 16 vCPU, 48 GiB mem, 16 GiB shm, CUDA ≤13.0, 12 h | wiki/639582 (2026-07-12); `docs/RULE_SNAPSHOT.md` |
 | Inference | threshold 0.5, no TTA/CC/presence-gate, hierarchy-safe WT⊇TC⊇ET | `scripts/release_infer.py` |
 
-Every numeric value in `main.tex` maps to a committed artifact above. Values marked `\pending{}` /
-`\ownerinput{}` in the paper are intentionally absent (do not exist yet) — never fill them by
+Every numeric value in `main.tex` maps to a committed artifact above. Every value is populated; no placeholder remains.
 extrapolation.

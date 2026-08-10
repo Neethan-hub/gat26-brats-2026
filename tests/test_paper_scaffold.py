@@ -347,21 +347,25 @@ def main():
     # assert a falsehood. They are replaced by guards on the NEW true state: the compile result and
     # the verified page count must be recorded, and compiling must NOT be mistaken for being
     # submission-ready while owner placeholders remain open.
+    # G93: the scaffold-era guards that lived here required the paper directory to keep
+    # "hard blocker" language, an owner-placeholder inventory and a separate submission
+    # checklist. That checklist carried an obsolete deadline plus evaluation-queue and
+    # submission-view identifiers and has been removed from the public source, and the
+    # scaffold wording with it. The replacements below check the state that is now true.
     ledger = (PAPER / "CITATION_LEDGER.md").read_text().lower()
-    checklist = (PAPER / "SUBMISSION_CHECKLIST.md").read_text().lower()
-    check("bibtex_hard_blocker", "hard blocker" in ledger and "hard blocker" in checklist)
-    check("compile_result_recorded",
-          "llncs" in low and "llncs" in checklist
-          and re.search(r"excluding references", low) is not None)
-    # The count is re-measured whenever the manuscript changes; G78 recorded 9, the G86 final
-    # build measures 10. Assert a recorded count that is actually inside the required range,
-    # rather than pinning the number of one historical build.
-    m_pages = re.findall(r"\b(\d{1,2}) pages? excluding references", low)
-    check("page_count_recorded_in_range",
-          bool(m_pages) and all(8 <= int(v) <= 10 for v in m_pages) and "8–10" in low)
-    check("compile_not_equated_with_submission_ready",
-          "not the same as being submission-ready" in low)
-    # A clean compile must never be reported as clearing the owner-input placeholders.
+    readme = (PAPER / "README.md").read_text().lower()
+    check("bibliography_provenance_recorded",
+          "primary" in ledger and "no invented references" in ledger)
+    check("build_toolchain_recorded", "pdftex" in readme and "bibtex" in readme)
+    # Byte identity may be claimed only within a pinned toolchain, never across versions.
+    check("reproducibility_claim_is_scoped",
+          "pinned toolchain" in readme
+          and ("not claimed across" in readme or "is not claimed" in readme))
+    forbid("no_scaffold_language_in_paper_dir",
+           any(s in low for s in ("hard blocker", "\\pending{", "\\ownerinput{",
+                                  "still open", "must not be submitted as it stands")))
+    forbid("no_stale_submission_identifiers",
+           bool(re.search(r"submissionview|evaluation queue|queues? `?9[0-9]{6}", low)))
     forbid("no_placeholders_resolved_claim",
            bool(re.search(r"(all|every) (owner|placeholder)[^.\n]*(resolved|filled|complete)", low)))
 

@@ -45,7 +45,7 @@ does not transfer to a same-corpus policy-selection holdout. GAT-26 is a five-fo
 residual-encoder nnU-Net trained only on subchallenge data from a recorded random initialization. Our
 contribution is procedural: the inference policy that ships is the object under test, and candidates,
 utility and gates were fixed in a pushed commit before the specified comparison. The utility is the unweighted mean of six raw component means, ET/TC/WT by
-DSC and NSD, on common subject support. Eightfold mirroring improved all six components on the
+DSC and NSD, on common subject support. Eightfold mirroring improved all six DSC/NSD components on the
 development folds, then weakened on the holdout: at the official-ranking tolerance the gain fell from
 $+0.00253$ to $+0.00073$, and in a sensitivity analysis at the lower tolerance from $+0.00417$ to
 $+0.00247$. On the holdout the bootstrap interval spanned zero at both tolerances, one of the two
@@ -77,7 +77,7 @@ architecture. What interested us instead is that a challenge submission is not a
 augmentation, tiling overlap, thresholding, post-processing, ensembling---is routinely chosen on the
 same data used to report cross-validated performance, with no holdout and no advance commitment.
 Underspecification makes this fragile: pipelines equivalent on a development distribution can differ
-elsewhere~\cite{damour2022underspecification}, the regime a generalization task probes.
+elsewhere~\cite{damour2022underspecification}.
 
 \paragraph{Research question.} We ask: \emph{for a fixed containerized segmentation system, can a
 commit-frozen, multi-gate policy audit prevent adoption of an inference modification whose aggregate
@@ -113,25 +113,30 @@ confirmed duplicate group, not that leakage is impossible. Every fold contains E
 TC-absent cases, exercising the empty-region paths the evaluator must handle.
 
 Preprocessing is the standard nnU-Net v2.8.1 pipeline over the four modalities (T1n, T1c, T2w, T2f)
-in a fixed channel order, using nnU-Net's own fingerprint and plans. The backbone is the ResEnc-M
-residual-encoder U-Net in \texttt{3d\_fullres} with region-based ET/TC/WT targets, patch size
-$[128,160,112]$, batch size 2, SGD with Nesterov momentum, initial learning rate $10^{-2}$ with
-polynomial decay, 0.33 foreground oversampling and deep supervision, trained 1000 epochs per fold
-with the final checkpoint retained; the full plan is in the public repository. All parameters begin
-from a recorded random initialization; no pretrained or self-supervised weights are used. Folds train
-independently, and all five are complete.
+in a fixed channel order. The backbone is the ResEnc-M residual-encoder U-Net in
+\texttt{3d\_fullres} with region-based ET/TC/WT targets, patch size $[128,160,112]$, batch size 2,
+SGD with Nesterov momentum, initial learning rate $10^{-2}$ with polynomial decay, 0.33 foreground
+oversampling and deep supervision, trained 1000 epochs per fold with the final checkpoint retained;
+the full plan is in the public repository. All parameters begin from a recorded random
+initialization; no pretrained or self-supervised weights are used. Folds train independently, and all
+five are complete.
 
 \subsection{Architecture Selection, and Its Metric}
 \label{sec:arch}
 Selection between the ResEnc-M and ResEnc-L presets followed a policy fixed before any fold result
-was seen. Its statistic is a \emph{fractional-rank} statistic $R$ over six equally weighted
-components, with ties resolving to the smaller model and ResEnc-L preferred only on a rank gain
-$\ge 1/6$ supported by a paired-bootstrap interval and all declared gates. $R$ is a rank statistic
-and a different object from the audit utility $U_\tau$ of Section~\ref{sec:procedure}, which is a
-mean of raw metric values; the two are never combined, and neither is the challenge's own ranking
-procedure. The screen used fold~0 only and paired DSC with HD95. The challenge ranks the Dice similarity coefficient (DSC) and the normalized surface distance (NSD)
-and excludes HD95; the organizers clarified that definition after this screen had been run and
-frozen.
+was seen, on fold~0 only, using DSC and HD95. Its statistic differs from the audit utility. For each
+of the six screened components the presets are ranked against each other, better value first (higher
+DSC, lower HD95), exact ties taking the average of the tied positions; $R$ is the mean of those six
+fractional ranks, so \emph{lower $R$ is better}. We report $\Delta R=R(\mathrm{L})-R(\mathrm{M})$,
+negative favouring ResEnc-L, with a paired subject-level bootstrap (seed $21072026$, $10{,}000$
+resamples) summarized by a 95\% percentile interval; ResEnc-L is preferred only if that interval
+excludes zero and every declared noninferiority gate passes. $R$ is a rank statistic, a different
+object from $U_\tau$, which is a mean of raw metric values; the two are never combined, and neither
+is the challenge's ranking procedure. The challenge ranks the Dice similarity coefficient (DSC) and
+the normalized surface distance (NSD) and excludes HD95, so the screen and the ranking metric do not
+agree;
+Section~\ref{sec:arch2} rescores the same predictions and Section~\ref{sec:disc} records the
+mismatch as a limitation.
 
 \subsection{Release Inference Path}
 Final inference is a sequential five-checkpoint mean-probability ensemble: one fold model is resident
@@ -139,9 +144,8 @@ at a time and freed before the next, so peak memory is that of a single model. R
 are thresholded at a fixed $0.5$---no learned threshold or ensemble weight, no test-time
 augmentation, no component filtering, no presence gate---and reconstructed by a hierarchy-safe
 projection enforcing $\mathrm{WT}\supseteq\mathrm{TC}\supseteq\mathrm{ET}$ at the exact source
-geometry. Across two independent 24-case runs, 18 of $2.14\times10^{8}$ output voxels differed: the
-runner is near-deterministic but not bit-exact, because deterministic-algorithm enforcement runs in
-warn-only mode.
+geometry. The runner is near-deterministic but not bit-exact, because deterministic-algorithm
+enforcement runs in warn-only mode; the supplement quantifies the residual variation.
 
 \subsection{Decision Procedure for Policy Audits}
 \label{sec:procedure}
@@ -156,7 +160,7 @@ DSC and NSD, excludes HD95, and computes final-ranking NSD at $\tau=1$. We there
 Panoptica's default is $\tau=0.5$, which our earlier runs used; we retain it throughout as a
 prespecified sensitivity analysis, which does not carry equal official standing.
 
-\paragraph{Utility.} Let $S_\tau$ be the subjects for which all six ranked components are finite
+\paragraph{Utility.} Let $S_\tau$ be the subjects for which all six DSC/NSD components are finite
 under \emph{both} policies, and $\bar m_{c,\tau}(P;S_\tau)$ the mean of component $c$ over $S_\tau$.
 The audit utility is the unweighted arithmetic mean of those six \emph{raw} component means,
 \begin{equation}
@@ -187,34 +191,37 @@ conclusions~\cite{reinke2024metricsreloaded}: a reference component counts as mi
 component of the same region overlaps it. The frozen margins were $0.0025$ on the point change in
 miss rate, $0.0050$ on its one-sided 95\% upper bound and per region, and a 5\% cap on the relative
 increase in predicted false-positive components. These are \emph{operational} margins fixed in the
-protocol; it records no clinical derivation for them, and they are not externally validated clinical
+protocol, which records no clinical derivation for them; they are not externally validated clinical
 thresholds.
 
 \begin{figure}[tbp]
 \centering
 \begin{tikzpicture}[
   font=\footnotesize,
-  box/.style={draw,rounded corners=2pt,align=center,inner sep=3pt,minimum height=7mm},
+  box/.style={draw,rounded corners=2pt,align=center,inner sep=3pt,minimum height=6.5mm},
   lbl/.style={font=\scriptsize,inner sep=1.5pt,fill=white},
   ar/.style={-{Latex[length=1.6mm]},semithick}]
-\node[box] (train) {Five-fold\\training};
-\node[box,right=3mm of train] (freeze) {Commit-freeze:\\candidate, $U_\tau$, gates};
-\node[box,right=3mm of freeze] (dev) {Development\\folds 0--2};
-\node[box,right=9mm of dev] (hold) {Policy-selection\\holdout, folds 3--4};
-\node[box,below=7mm of dev] (keep) {Retain baseline C0};
-\node[box,below=6mm of keep] (off) {Official validation\\(withheld cohort)};
-\draw[ar] (train) -- (freeze);
+\node[box] (freeze) {Commit-freeze:\\candidate, $U_\tau$, gates};
+\node[box,right=5mm of freeze] (dev) {Development\\folds 0--2};
+\node[box,right=7mm of dev] (hold) {Holdout\\folds 3--4};
+\node[box,right=6mm of hold] (adopt) {Adopt\\candidate};
+\node[box,below=7mm of dev] (keep) {Retain\\baseline};
+\node[box,right=6mm of keep] (sel) {Selected\\release policy};
+\node[box,right=6mm of sel] (off) {Official\\validation};
 \draw[ar] (freeze) -- (dev);
 \draw[ar] (dev) -- node[lbl,above]{pass} (hold);
+\draw[ar] (hold) -- node[lbl,above]{pass} (adopt);
 \draw[ar] (dev) -- node[lbl,right]{fail} (keep);
-\draw[ar] (hold) |- node[lbl,above right]{fail} (keep.east);
-\draw[ar] (keep) -- (off);
+\draw[ar] (hold) -- node[lbl,above,pos=0.35]{fail} (keep);
+\draw[ar] (adopt) -- (sel);
+\draw[ar] (keep) -- (sel);
+\draw[ar] (sel) -- (off);
 \end{tikzpicture}
-\caption{Staged decision workflow. A candidate failing the development subset stops there; only a
-passing candidate reaches the policy-selection holdout, and a candidate failing the holdout is also
-discarded. Either way baseline C0 is retained, and \emph{only the retained release policy} reaches
-official validation --- no candidate is ever scored there. The development subset holds 811 subjects
-and the holdout 540.}
+\caption{The staged decision procedure, in general form. A candidate failing on the development
+subset stops there; one that passes advances to the policy-selection holdout, where it is either
+adopted or rejected. Either branch yields one \emph{selected release policy}, and only that policy is
+run on the official validation cohort. The diagram is the procedure, not the outcome: here all three
+audits ended in the reject branch, so the selected policy was the baseline C0.}
 \label{fig:workflow}
 \end{figure}
 
@@ -231,7 +238,7 @@ $\{0,1,2,3\}$, geometry is preserved exactly, and modality discovery fails close
 is written. The official contract supplies a fresh writable \texttt{/output}; we make no claim that
 the runner refuses to overwrite an existing file. The supplement carries the remaining operational
 detail. The source is public under the Apache License 2.0 at
-\url{https://github.com/Neethan-hub/gat26-brats-2026/tree/brats-goat-2026-camera-ready-21-r2}, and
+\url{https://github.com/Neethan-hub/gat26-brats-2026/tree/brats-goat-2026-camera-ready-21-r3}; it
 contains no images, labels, checkpoints or predictions.
 
 \section{Results}
@@ -257,16 +264,16 @@ different inference path.
 \label{sec:arch2}
 Because the architecture screen used DSC/HD95, we rescored the same fold-0 predictions under DSC/NSD
 at $\tau=0.5$ as a diagnostic. \textbf{The ordering reverses at the point estimate}: ResEnc-L is
-better on four of six official components, ResEnc-M on TC and WT DSC. The rank gain for L is
-$R=+0.333$, but its 95\% interval $[-1.000,+0.667]$ includes zero, so no rank advantage is
-established. Fold-0 ResEnc-L weights already existed---they are what the diagnostic scores---so the
-point is not that no ResEnc-L was ever trained; it is that after the diagnostic we undertook \emph{no
-five-fold ResEnc-L expansion, no architecture change and no retraining campaign}. The diagnostic is
-fold-0 only, at $\tau=0.5$ only, and scores end-of-training rather than release-path predictions; the
-supplement gives all six components. We therefore do \emph{not} claim the architecture conclusion is
-unchanged under the ranking metric: the ordering reverses, the reversal is not robust, and the
-deployed model was selected under a metric pair the challenge does not rank on. This
-architecture--metric mismatch is a limitation, not a resolved question.
+better on four of six official components, ResEnc-M on TC and WT DSC. On the same statistic
+$\Delta R = R(\mathrm{L})-R(\mathrm{M}) = -0.333$, nominally favouring ResEnc-L, but its
+paired-bootstrap 95\% interval $[-1.000,+0.667]$ includes zero, so no rank advantage is established.
+Fold-0 ResEnc-L weights already existed---they are what the diagnostic scores---so the point is not
+that no ResEnc-L was ever trained, but that no five-fold expansion, architecture change or retraining
+campaign followed it. The diagnostic is fold-0 only, at $\tau=0.5$ only, and scores end-of-training
+rather than release-path predictions; the supplement gives all six components. We therefore do
+\emph{not} claim the architecture conclusion is unchanged under the ranking metric: the ordering
+reverses, the reversal is not robust, and the deployed model was selected under a metric pair the
+challenge does not rank on.
 
 \subsection{Two Inference Paths}
 \label{sec:twopaths}
@@ -288,7 +295,7 @@ what the released container produces.
 combined, and ET component cleanup at three declared volume thresholds; no candidate improved
 robustly. \textbf{Audit~B} tested two declared per-fold weight averages of the final and
 best-validation checkpoints~\cite{wortsman2022modelsoups} and is the sharpest negative: all six
-components moved the wrong way for both soups, monotonically in the amount mixed in. Both stopped on
+DSC/NSD components moved the wrong way for both soups, monotonically in the amount mixed in. Both stopped on
 the development subset; per-component values are in the supplement.
 
 \subsection{Mirroring: a Development Gain That Did Not Transfer}
@@ -300,7 +307,7 @@ checkpoint}, whereas the deployed submission ensembles \emph{all five}. The audi
 related inference-policy effect; it does not directly measure mirroring on the deployed five-model
 ensemble.
 
-On the development subset M8 improved all six components at both tolerances and
+On the development subset M8 improved all six DSC/NSD components at both tolerances and
 seventeen of eighteen frozen checks passed. The one failure was a strict
 veto on any increase in lesion false-negative \emph{count}, which rose by 13 ($+0.3\%$); under that
 frozen gate the audit retained the baseline. Inspecting it exposed a limitation of the veto rather
@@ -374,13 +381,13 @@ denominators are $440/449/450$, and the organizers' mean summary row equals the 
 exactly. \emph{(iv)} We do not claim to reproduce the official scorer: its version, the units of
 $\tau$ and parts of the non-finite handling are not exposed.
 
-These values fall substantially below our internal cross-validation figures, and we do not explain the
-gap away. One component is identified---the inference-path difference of Section~\ref{sec:twopaths},
-roughly $0.002$ DSC. The remainder is \emph{not} attributable, with the evidence we hold, to any
-specific mechanism: cohort labels were not derivable and we have no subgroup results or controlled
-comparison. Domain shift, case composition, ET heterogeneity, adaptive reuse and scorer differences
-are all consistent with what we observe, so we report the gap as a measured fact and decline to
-attribute it---including to cross-tumor transfer, the attribution our own framing would most invite.
+These values fall substantially below our internal cross-validation figures. One component of the
+difference is identified: the inference-path difference of Section~\ref{sec:twopaths}, worth roughly
+$0.002$ DSC. The remainder cannot be assigned to a specific mechanism with the evidence available.
+Per-case cohort labels were not derivable, and there are no subgroup results and no controlled
+comparison, so domain shift, case composition, ET heterogeneity, adaptive reuse and scorer
+differences all remain consistent with the observation and cannot be separated. The gap is reported
+as a measurement, without attribution to any single cause.
 
 \subsection{Runtime Evidence}
 \label{sec:container}
@@ -397,15 +404,16 @@ eight, and we measured neither its full-ensemble runtime nor its memory profile 
 platform, so we make no feasibility claim in either direction.
 
 \section{Discussion and Limitations}
+\label{sec:disc}
 Our quantities are not interchangeable: out-of-fold cross-validation is descriptive and
-post-selection, produced by the augmented internal path; audit results are policy-selection
-comparisons, not performance estimates; the single official measurement came from the release path on
-a withheld cohort and carries no rank; and hidden-test performance, which alone determines the
-ranking, does not exist at the time of writing, so we report and estimate none.
+post-selection, from the augmented internal path; audit results are policy-selection comparisons, not
+performance estimates; the single official measurement came from the release path on a withheld
+cohort and carries no rank; and hidden-test performance, which alone determines the ranking, does not
+exist at the time of writing, so we report and estimate none.
 
 Returning to our question: the procedure did what it was built to do---a candidate that improved all
-six components on the development subset, with every $\tau=1$ bootstrap resample positive, was
-stopped before release by gates fixed in advance. But this is one demonstration on one system. We
+six DSC/NSD components on the development subset, with every $\tau=1$ bootstrap resample positive,
+was stopped before release by gates fixed in advance. But this is one demonstration on one system. We
 have not shown that the gates generalize, that the margins suit another model or corpus, or that the
 procedure outperforms nested cross-validation, which remains preferable where feasible and which we
 did not run.
@@ -418,15 +426,15 @@ Section~\ref{sec:arch2} reverses the point ordering without robustness. The mirr
 single-model out-of-fold comparison and does not determine how mirroring would affect the deployed
 five-checkpoint ensemble, which could mitigate, preserve or amplify the lesion-miss behaviour; we
 neither adopted mirroring nor claim it would have helped. One submitted validation prediction is
-absent from the organizers' per-case output for undisclosed reasons. Cohort labels were not
-derivable, so no cohort-stratified analysis was possible in a task about cohort transfer. We hold no
-hidden-test evidence, no rank, and no A10G measurement of the corrected image, and we did not run the
-comparison that would show whether the procedure outperforms nested validation. Group-level splitting
-cannot prove the absence of same-subject leakage, a small minority of cases dominates the
-boundary-error mean, and the development-subset bootstrap exists only at $\tau=1$. GAT-26 trains only
-on GoAT-provided data from a recorded random initialization, with no external, prior-BraTS, private
-or pretrained data or weights; validation and test labels were never used, and we performed no
-pseudo-labeling, transductive adaptation or leaderboard-driven tuning.
+absent from the organizers' per-case output. Cohort labels were not derivable, so no
+cohort-stratified analysis was possible in a task about cohort transfer. We hold no hidden-test
+evidence, no rank and no A10G measurement of the corrected image, and did not run the comparison that
+would show whether the procedure outperforms nested validation. Group-level splitting cannot prove
+the absence of same-subject leakage, a small minority of cases dominates the boundary-error mean, and
+the development-subset bootstrap exists only at $\tau=1$. GAT-26 trains only on GoAT-provided data
+from a recorded random initialization, with no external, prior-BraTS, private or pretrained data or
+weights; validation and test labels were never used, and we performed no pseudo-labeling,
+transductive adaptation or leaderboard-driven tuning.
 
 \section{Conclusion}
 GAT-26 is a five-fold region-based residual-encoder nnU-Net ensemble evaluated under commit-frozen
@@ -448,17 +456,15 @@ review of the manuscript, and mentorship.
 Data used in this publication were obtained as part of the Challenge project through Synapse ID
 (syn74274097).
 
-\subsubsection{Data use and ethics.} This work analyses only de-identified imaging data distributed by
-the BraTS-GoAT 2026 subchallenge, under that challenge's data-use agreement. No participants were
-recruited, no new data were collected, and no attempt was made to re-identify any subject. No patient
-images, labels, per-case scores or case identifiers appear in this paper, the supplement or the
-public repository.
-
-\subsubsection{Use of generative AI.} Generative AI tools assisted software auditing, code review,
-editorial drafting and \LaTeX{} preparation, including the source of Fig.~\ref{fig:workflow}---a
-text-based TikZ diagram compiled from source, not generated imagery; the paper contains no
-generative-AI images. The author independently reviewed and verified all analyses, code, claims and
-references, and accepts full responsibility. No software system is an author or contributor.
+\subsubsection{Data use, ethics and use of generative AI.} This work analyses only de-identified
+imaging data distributed by the BraTS-GoAT 2026 subchallenge, under that challenge's data-use
+agreement. No participants were recruited, no new data were collected, and no re-identification was
+attempted. No patient images, labels, per-case scores or case identifiers appear in this paper, the
+supplement or the repository. Generative AI tools assisted software auditing, code review, editorial
+drafting and \LaTeX{} preparation, including the source of Fig.~\ref{fig:workflow}, a text-based TikZ
+diagram compiled from source rather than generated imagery; the paper contains no generative-AI
+images. The author verified all analyses, code, claims and references and accepts full
+responsibility. No software system is an author or contributor.
 
 \subsubsection{\discintname} The author declares no competing interests.
 \end{credits}

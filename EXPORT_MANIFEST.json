@@ -1,6 +1,6 @@
 {
- "n_files": 115,
- "total_bytes": 1061575,
+ "n_files": 114,
+ "total_bytes": 1049218,
  "declared_license": "Apache-2.0",
  "files": [
   {
@@ -175,23 +175,18 @@
   },
   {
    "path": "paper/CITATION_LEDGER.md",
-   "bytes": 5885,
-   "sha256": "e1e5573e321fe50d8368787c28afc97815b007952bb86bfd714900a74dd1b5ef"
+   "bytes": 5797,
+   "sha256": "63a299c14661b7ac891e1ccb8a5f0681fcbde3402858be76908767baf94b8573"
   },
   {
    "path": "paper/README.md",
-   "bytes": 12115,
-   "sha256": "76dd25a5bd2f30418d1d5ff309ef242069534ef65e75601a98e006ad05915e74"
-  },
-  {
-   "path": "paper/SUBMISSION_CHECKLIST.md",
-   "bytes": 9453,
-   "sha256": "7a75a863de593786e5877bd6eb6f94a73f5277ac8f28dfeadb669dc6958df31f"
+   "bytes": 2787,
+   "sha256": "23f23e6eab8a348879c0b847620b0f62cd322e252425959af55431e9193185c2"
   },
   {
    "path": "paper/main.tex",
-   "bytes": 32624,
-   "sha256": "248c9c3d5ae8eca815b9f7973b2b90fe3eaffc72ed559dee4775516955497f6b"
+   "bytes": 32884,
+   "sha256": "b35ff49b5db02386adf755c1c54158a135df51b5d932ddb4ff17e20af9ca09cc"
   },
   {
    "path": "paper/references.bib",
@@ -200,8 +195,8 @@
   },
   {
    "path": "paper/supplement.tex",
-   "bytes": 23623,
-   "sha256": "ab243c25c4d32fb4af999846d23abd13d082aedb7ff6f34ac4678c56c2fba10d"
+   "bytes": 25557,
+   "sha256": "e358d5976153fae94717fcd2a44d5cfeca6a1b56506782e8be8bd3048a3afb09"
   },
   {
    "path": "preflight/PACKAGE_MANIFEST.sha256",
@@ -235,8 +230,8 @@
   },
   {
    "path": "CAMERA_READY_REVISION.md",
-   "bytes": 9991,
-   "sha256": "7166f93405c900a9868d8912e599d561efc47df3572ccca2588c3e6bbcfd5021"
+   "bytes": 12341,
+   "sha256": "e3c54d76d5853df9fce2bd1c4baf8aee89706a8e2a294731dc8fb530c34ff79d"
   },
   {
    "path": "DATA_PROVENANCE.md",
@@ -450,8 +445,8 @@
   },
   {
    "path": "scripts/g92_build_supplement.py",
-   "bytes": 20756,
-   "sha256": "85a7a8bb59ca3d3744fae1d62c72c1373d77b9d36f5fdcf7159b470cc4a24ab4"
+   "bytes": 22401,
+   "sha256": "069f93aa7e4a33f1d02867fe80f3035659324430ec44580e2355a49870a8cfcf"
   },
   {
    "path": "scripts/release_build_preflight.py",
@@ -560,8 +555,8 @@
   },
   {
    "path": "tests/test_paper_scaffold.py",
-   "bytes": 33393,
-   "sha256": "abee23430b14e3c862f4d2dbdcce6b9bd41093cf28039ceedeaa98738663b1e4"
+   "bytes": 33716,
+   "sha256": "0aa3451265adee115149b8ae11bc327ab42d19450711c04ba3a589646e95f68d"
   },
   {
    "path": "tests/test_release_build_preflight.py",
