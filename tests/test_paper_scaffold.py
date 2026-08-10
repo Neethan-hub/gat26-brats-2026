@@ -246,8 +246,16 @@ def main():
     # false. The replacement guards keep the two things that must not drift: the manuscript points
     # to the submission record for the exact image identity instead of printing a digest it cannot
     # keep in sync, and it still refuses to claim measurement on the organizers' target GPU.
+    # G91: the camera-ready removed the image-identity sentence entirely rather than deferring it.
+    # Saying nothing is strictly safer than saying "recorded elsewhere", so accept either -- but
+    # never accept a paper that actually names an image, tag or registry path.
+    # The alternative branch is scoped to the manuscript BODY (comments stripped): the process
+    # docs under paper/ legitimately discuss image identity as a checklist item, and a LaTeX
+    # comment is not a published claim.
+    main_body = re.sub(r"(?m)^\s*%.*$", "", MAIN).lower()
     check("container_identity_deferred_to_submission_record",
-          "recorded with the challenge submission" in flat)
+          "recorded with the challenge submission" in flat
+          or not re.search(r"image (digest|identity|tag)|registry|docker\.io|ghcr", main_body))
     # the manuscript must never print the image tag or digest
     check("no_image_digest_in_manuscript",
           re.search(r"sha256|gat26-c0:|docker\.synapse", MAIN, re.I) is None)
@@ -259,11 +267,14 @@ def main():
     # backed by committed evidence (checked below in g87r_a10g_claim_backed_by_evidence) and must
     # carry its limitations -- synthetic inputs, not organizer execution, not full runtime parity.
     a10g_in_paper = "nvidia a10g" in flat
+    # G91: the historical A10G exercise applies to a SUPERSEDED pre-correction image. The corrected
+    # image that was finally submitted has no A10G measurement at all, and the paper must say so.
     check("a10g_claim_carries_its_limits",
           (not a10g_in_paper) or
           ("synthetic" in flat
-           and "neither organizer execution nor hidden-test evidence" in flat
-           and "rather than full runtime parity" in flat))
+           and "superseded" in flat
+           and "does not qualify the corrected image" in flat
+           and "no organizer execution log" in flat))
 
     # (c) code availability. Stage G79-P actually published the sanitized export and verified it by
     # unauthenticated clone, so the pre-G79-P guards ("currently private" + an \ownerinput
@@ -381,8 +392,11 @@ def main():
     forbid("g87_no_unbiased_oof_claim", bool(affirmative_unbiased))
 
     # (4) The G85 protocol was confirmation-frozen but calibration-informed, never result-blind.
+    # G91: "calibration" as a subset name is retired; the admission itself is unchanged.
     check("g87_protocol_honesty",
-          "calibration-informed" in flat and "not globally result-blind" in flat)
+          "not globally result-blind" in flat
+          and ("calibration-informed" in flat
+               or "designed after seeing the development outcome" in flat))
 
     # (5) The submitted runner does NOT fail closed on an output collision (G86 measured
     #     exit_code 0, failed_closed false), so no rejection may be claimed anywhere in paper/.
@@ -428,8 +442,9 @@ def main():
         return out
 
     # (1) Not every candidate had to survive a holdout; audits A and B stopped at calibration.
+    # G91: audits now "stop on the development subset" rather than "at calibration".
     check("g87r_staged_evaluation_stated",
-          "stopped at calibration" in flat
+          ("stopped at calibration" in flat or "stopped on the development subset" in flat)
           and ("evaluation is" in flat and "staged" in flat))
     forbid("g87r_no_universal_holdout_claim",
            bool(affirms(r"(each|every) (audit|candidate)[^.]{0,80}(holdout|calibration-then-holdout)"))
