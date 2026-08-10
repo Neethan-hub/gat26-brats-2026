@@ -1,0 +1,10 @@
+dimension,key,count,bytes,missing_size_count
+by_split,training,2,37037902090,0
+by_split,validation,1,6757781920,0
+by_role,train_with_gt,1,14836495703,0
+by_role,train_without_gt,1,22201406387,0
+by_role,validation,1,6757781920,0
+by_label,labeled,1,14836495703,0
+by_label,unlabeled,2,28959188307,0
+by_ext_category,zip,3,43795684010,0
+total,ALL,3,43795684010,0

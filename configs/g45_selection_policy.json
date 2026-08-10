@@ -1,0 +1,144 @@
+{
+  "policy_id": "gat26_g45_selection_policy_v2",
+  "supersedes": "gat26_g45_selection_policy_v1",
+  "frozen": true,
+  "frozen_before_any_fold_result": true,
+  "result_dependent_editing_forbidden": true,
+  "change_requires_new_owner_gate": true,
+  "evaluator": {
+    "package": "BraTS-evaluation",
+    "version": "0.0.8",
+    "config": "GoAT",
+    "regions": {
+      "ET": [
+        3
+      ],
+      "TC": [
+        1,
+        3
+      ],
+      "WT": [
+        1,
+        2,
+        3
+      ]
+    },
+    "hd95_zero_tp_penalty_mm": 373.0,
+    "fail_closed": "evaluator errors / missing outputs / malformed metrics are HARD failures, never a 373 penalty"
+  },
+  "primary_award_utility": {
+    "components": [
+      {
+        "region": "ET",
+        "metric": "DSC",
+        "direction": "higher_is_better"
+      },
+      {
+        "region": "TC",
+        "metric": "DSC",
+        "direction": "higher_is_better"
+      },
+      {
+        "region": "WT",
+        "metric": "DSC",
+        "direction": "higher_is_better"
+      },
+      {
+        "region": "ET",
+        "metric": "HD95",
+        "direction": "lower_is_better"
+      },
+      {
+        "region": "TC",
+        "metric": "HD95",
+        "direction": "lower_is_better"
+      },
+      {
+        "region": "WT",
+        "metric": "HD95",
+        "direction": "lower_is_better"
+      }
+    ],
+    "weighting": "equal",
+    "aggregation": "mean_fractional_award_rank_over_six_components",
+    "excluded_from_award": [
+      "NSD",
+      "connected_component_metrics",
+      "sensitivity",
+      "specificity",
+      "precision"
+    ]
+  },
+  "bootstrap": {
+    "method": "paired_subject_level_within_fold_with_replacement",
+    "seed": 21072026,
+    "resamples": 10000,
+    "delta_definition": "delta = rank_L - rank_M (negative favors L)",
+    "report": [
+      "delta_point",
+      "percentile_95_ci"
+    ],
+    "deterministic": true
+  },
+  "meaningful_benefit_rule": {
+    "min_mean_award_rank_gain_L_over_M": 0.16666666666666666,
+    "bootstrap_ci_upper_bound_delta_lt_0": true,
+    "must_pass_every_frozen_noninferiority_gate": true,
+    "fold0_alone_only_triggers_fold1_confirmation": true,
+    "L_expands_only_if_fold1_confirms_same_direction": true
+  },
+  "m_decision_rule": {
+    "select_M_if": [
+      "L fails meaningful benefit on fold 0",
+      "L violates any noninferiority gate",
+      "tie"
+    ],
+    "M_is_baseline_control_and_tie_winner": true,
+    "no_result_dependent_policy_change": true
+  },
+  "noninferiority_margins": {
+    "regional_dsc_abs": 0.005,
+    "regional_hd95_mm": 0.75,
+    "smallest_volume_stratum_dsc_abs": 0.01,
+    "dsc_5th_percentile_abs": 0.01,
+    "hd95_95th_percentile_mm": 1.5,
+    "empty_reference_false_positive_rate_abs": 0.02,
+    "missed_region_rate_abs": 0.02,
+    "runtime_regression_frac": 0.25,
+    "cost_regression_frac": 0.25
+  },
+  "noninferiority_rationale": {
+    "regional_dsc_abs": "0.005 Dice ~ sub-noise floor at 1,351 cases; larger L drops are real regressions. Inequality: L_DSC >= M_DSC - 0.005.",
+    "regional_hd95_mm": "0.75 mm < one isotropic voxel (1 mm); tighter would flag resampling jitter. Inequality: L_HD95 <= M_HD95 + 0.75.",
+    "smallest_volume_stratum_dsc_abs": "0.01 on the smallest-lesion stratum where Dice is noisiest. Inequality: L >= M - 0.01.",
+    "dsc_5th_percentile_abs": "0.01 guards the hard-case tail (5th pct). Inequality: L_p05 >= M_p05 - 0.01.",
+    "hd95_95th_percentile_mm": "1.5 mm guards the worst-boundary tail (95th pct). Inequality: L_p95 <= M_p95 + 1.5.",
+    "empty_reference_false_positive_rate_abs": "0.02 caps extra false positives on empty-reference regions. Inequality: L_fp <= M_fp + 0.02.",
+    "missed_region_rate_abs": "0.02 caps extra fully-missed present regions. Inequality: L_miss <= M_miss + 0.02.",
+    "runtime_regression_frac": "L may not cost >25% more wall time than M without benefit. Inequality: L_rt <= M_rt * 1.25.",
+    "cost_regression_frac": "L may not cost >25% more $ than M without benefit. Inequality: L_cost <= M_cost * 1.25."
+  },
+  "tie_rule": {
+    "rule": "select_M_the_cheaper_simpler_plan"
+  },
+  "frozen_g5_inference": {
+    "threshold": 0.5,
+    "reconstruction": "hierarchy_safe_projection_WT_TC_ET",
+    "tta": false,
+    "connected_component_filtering": false,
+    "presence_gate": false,
+    "learned_threshold": false,
+    "learned_ensemble_weight": false,
+    "primary_checkpoint": "checkpoint_final"
+  },
+  "public_validation_use": {
+    "purpose": "integration_confirmation_only",
+    "never_used_for": [
+      "architecture_choice",
+      "threshold_choice",
+      "post_processing_choice",
+      "fold_selection",
+      "checkpoint_choice"
+    ]
+  }
+}

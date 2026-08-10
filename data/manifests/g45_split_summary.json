@@ -1,0 +1,195 @@
+{
+  "stage": "G4.5",
+  "artifact": "sanitized_split_and_grouping_summary",
+  "no_case_ids": true,
+  "no_private_hashes": true,
+  "grouping": {
+    "cases": 1351,
+    "canonical_files": 6755,
+    "near_dup_method": "z-scored downsampled 4-modality cosine + seg-Dice + shape corroboration; O(N^2) on compact vectors only",
+    "suspicious_threshold_cos": 0.999,
+    "confirm_threshold_cos": 0.9999,
+    "suspicious_pairs": 0,
+    "confirmed_same_subject_pairs": 0,
+    "ambiguous_unresolved_pairs": 0,
+    "groups_total": 1351,
+    "multi_case_groups": 0,
+    "largest_group": 1,
+    "detector_selftest": {
+      "identical_detected": true,
+      "near_detected": true,
+      "unrelated_not_detected": true
+    }
+  },
+  "split": {
+    "seed": 21072026,
+    "nfolds": 5,
+    "singleton_only": true,
+    "all_invariants_pass": true,
+    "invariants": {
+      "all_appear_once_as_val": true,
+      "no_missing_extra": true,
+      "nonempty_folds": true,
+      "train_val_disjoint": true,
+      "train_val_union_full": true,
+      "fold_sizes_270_or_271": true,
+      "max_fold_size_diff_le_1": true,
+      "all_folds_have_et_absent": true,
+      "all_folds_have_tc_absent": true,
+      "et_absent_range_le_feasible": true,
+      "tc_absent_range_le_feasible": true,
+      "wt_bin_balanced": true,
+      "tc_bin_balanced": true,
+      "et_bin_balanced": true
+    },
+    "fold_sizes": [
+      271,
+      270,
+      270,
+      270,
+      270
+    ],
+    "et_present_per_fold": [
+      264,
+      263,
+      263,
+      264,
+      264
+    ],
+    "et_absent_per_fold": [
+      7,
+      7,
+      7,
+      6,
+      6
+    ],
+    "tc_present_per_fold": [
+      269,
+      269,
+      269,
+      269,
+      269
+    ],
+    "tc_absent_per_fold": [
+      2,
+      1,
+      1,
+      1,
+      1
+    ],
+    "wt_bin_per_fold": {
+      "1": [
+        54,
+        55,
+        54,
+        54,
+        53
+      ],
+      "2": [
+        53,
+        53,
+        54,
+        55,
+        55
+      ],
+      "3": [
+        55,
+        55,
+        53,
+        53,
+        54
+      ],
+      "4": [
+        55,
+        53,
+        54,
+        54,
+        54
+      ],
+      "5": [
+        54,
+        54,
+        55,
+        54,
+        54
+      ]
+    },
+    "tc_bin_per_fold": {
+      "1": [
+        53,
+        55,
+        54,
+        53,
+        54
+      ],
+      "2": [
+        53,
+        52,
+        53,
+        55,
+        55
+      ],
+      "3": [
+        55,
+        54,
+        55,
+        53,
+        53
+      ],
+      "4": [
+        53,
+        55,
+        54,
+        54,
+        53
+      ],
+      "5": [
+        55,
+        53,
+        53,
+        54,
+        54
+      ]
+    },
+    "et_bin_per_fold": {
+      "1": [
+        53,
+        55,
+        54,
+        52,
+        50
+      ],
+      "2": [
+        54,
+        52,
+        53,
+        51,
+        53
+      ],
+      "3": [
+        52,
+        51,
+        50,
+        56,
+        55
+      ],
+      "4": [
+        52,
+        52,
+        56,
+        51,
+        52
+      ],
+      "5": [
+        53,
+        53,
+        50,
+        54,
+        54
+      ]
+    },
+    "split_sha256_prefix": "16014d7b8830",
+    "byte_identical_double_run": true,
+    "cohort_stratification": "UNKNOWN/NOT_POSSIBLE (no official cohort labels; never inferred from filenames or morphology)"
+  }
+}
