@@ -1,0 +1,110 @@
+{
+  "dataset": "Dataset777_GAT26G4SMOKE (2 pilots, smoke-only)",
+  "evaluator": {
+    "config_et": [
+      3
+    ],
+    "config_tc": [
+      1,
+      3
+    ],
+    "config_wt": [
+      1,
+      2,
+      3
+    ],
+    "controls": {
+      "actual_errors": 0,
+      "actual_missings": 0,
+      "actual_records": 2,
+      "all_zero_dsc0_inf_to_373": true,
+      "geometry_mismatch_hard_fail": true,
+      "missing_name_hard_fail": true,
+      "perfect_dsc1_hd0": true,
+      "six_global_columns": true
+    },
+    "global_metrics": [
+      "DSC",
+      "NSD",
+      "HD95"
+    ],
+    "goat_config_sha256": "9ac3b9c065c02326896bc2c89bbba7fd16cc3ef2363d96e8856f305aa3239845",
+    "hd95_zeroTP": "INF",
+    "package": "BraTS-evaluation==0.0.8",
+    "source_commit": "88e3e39cd5c4137b0831345c78d16bd393624c3a",
+    "source_tag": "v0.0.8",
+    "training_venv_unchanged": true
+  },
+  "inference": {
+    "cases": 2,
+    "deterministic_repeat_ok": true,
+    "et_subset_tc": true,
+    "flat_output_ok": true,
+    "gaussian": true,
+    "infer_seconds": [
+      1.59,
+      0.64
+    ],
+    "missing_modality_failed": true,
+    "missing_modality_no_extra_output": true,
+    "no_tta": true,
+    "output_count_eq_case_count": true,
+    "overlap": 0.5,
+    "peak_reserved_gib": [
+      3.01,
+      2.23
+    ],
+    "shuffled_order_ok": true,
+    "tc_subset_wt": true,
+    "validator_ok_all": true,
+    "value_set": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "label": "g4_real_data_smoke_only",
+  "no_accuracy_claim": true,
+  "not_A10G_parity": true,
+  "notes": [
+    "One-step metrics are plumbing evidence ONLY \u2014 not accuracy or model quality.",
+    "RTX PRO 6000 timing is NOT A10G parity evidence.",
+    "Predictions, checkpoints, real case IDs, and scores remain private/ignored."
+  ],
+  "one_step": {
+    "bitwise_equal_after_reload": true,
+    "grad_finite": true,
+    "grad_norm": 0.7642,
+    "grad_norm_positive": true,
+    "loss_finite": true,
+    "params_changed": 102290047,
+    "params_finite": true,
+    "peak_allocated_gib": 5.8,
+    "peak_reserved_gib": 6.75,
+    "pretrained_used": false,
+    "step_seconds": 37.15,
+    "strict_reload": true
+  },
+  "plan": {
+    "arch": "ResidualEncoderUNet",
+    "batch_size": 2,
+    "channels": 4,
+    "patch_size": [
+      128,
+      128,
+      128
+    ],
+    "plan_sha256_first12": "b21d13c873cf",
+    "planner": "nnUNetPlannerResEncM",
+    "plans_name": "nnUNetResEncUNetMPlans",
+    "preprocess_wall_seconds": 29,
+    "regions_class_order": [
+      2,
+      1,
+      3
+    ]
+  },
+  "schema": "gat26.g4.smoke_summary.v1",
+  "standard_volume_io": "preprocess of 2 cases wrote preprocessed cache in ~29 s on the Standard network volume (2-case sample; full-corpus throughput still to be measured at G4.5)"
+}

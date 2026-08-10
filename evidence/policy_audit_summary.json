@@ -1,0 +1,110 @@
+{
+  "note": "Aggregate policy-audit evidence for the mirroring candidate M8 against the released baseline C0. Development = folds 0-2; the policy-selection holdout = folds 3-4. Comparisons are on common subject support: a subject contributes only if all six required components are finite under both policies. Uncertainty is a paired subject-level bootstrap, seed 20260730, 10,000 resamples, percentile intervals. Where a bootstrap is absent from the committed record it is reported as null and is never inferred.",
+  "utility": "U_tau(P; S_tau) is the unweighted arithmetic mean of the six RAW component means -- ET/TC/WT x DSC/NSD(tau) -- over the common subject set S_tau. delta U_tau = U_tau(candidate) - U_tau(baseline), which is identically the arithmetic mean of the six component deltas. It is NOT a rank statistic: no ranking, fractional ranking or tie-breaking enters it. HD95 never enters U_tau. The separate fold-0 architecture screen uses a distinct fractional-rank statistic R; R and U_tau are different objects and are never combined.",
+  "tolerances": "The organizers confirmed that the final challenge ranking uses DSC and NSD with NSD at tau=1, and that HD95 is diagnostic only. tau=1 is therefore the official-ranking-aligned analysis. tau=0.5 is Panoptica's default tolerance and is reported as a prespecified sensitivity analysis, not as an equally official quantity.",
+  "subsets": {
+    "development_folds_0_2": {
+      "tau_1.0": {
+        "role": "official-ranking-aligned",
+        "delta_U_common_support": 0.0025323244486669116,
+        "delta_U_recomputed_as_mean_of_component_deltas": 0.0025323244486669485,
+        "n_common_support": 806,
+        "bootstrap_positive_fraction": 1.0,
+        "bootstrap_ci95_percentile": [
+          0.0012838407331331966,
+          0.004547533089661013
+        ],
+        "bootstrap_available": true,
+        "per_fold_delta_U": {
+          "0": 0.0012354965539065343,
+          "1": 0.0038744453283073854,
+          "2": 0.002496709283897114
+        }
+      },
+      "tau_0.5": {
+        "role": "sensitivity analysis (Panoptica default tolerance)",
+        "delta_U_common_support": 0.0041677789721078495,
+        "delta_U_recomputed_as_mean_of_component_deltas": 0.004167778972107905,
+        "n_common_support": 806,
+        "bootstrap_positive_fraction": null,
+        "bootstrap_ci95_percentile": null,
+        "bootstrap_available": false,
+        "per_fold_delta_U": null
+      }
+    },
+    "policy_selection_holdout_folds_3_4": {
+      "tau_1.0": {
+        "role": "official-ranking-aligned",
+        "delta_U_common_support": 0.0007258872103750313,
+        "delta_U_recomputed_as_mean_of_component_deltas": 0.0007258872103750128,
+        "n_common_support": 538,
+        "bootstrap_positive_fraction": 0.7342,
+        "bootstrap_ci95_percentile": [
+          -0.0025311355101770593,
+          0.0026331937351914804
+        ],
+        "bootstrap_available": true,
+        "per_fold_delta_U": {
+          "3": 0.0023227843713687912,
+          "4": -0.0008829270936113742
+        }
+      },
+      "tau_0.5": {
+        "role": "sensitivity analysis (Panoptica default tolerance)",
+        "delta_U_common_support": 0.0024733934523016865,
+        "delta_U_recomputed_as_mean_of_component_deltas": 0.0024733934523016865,
+        "n_common_support": 538,
+        "bootstrap_positive_fraction": 0.9609,
+        "bootstrap_ci95_percentile": [
+          -0.0003126870289108712,
+          0.004167259838778498
+        ],
+        "bootstrap_available": true,
+        "per_fold_delta_U": {
+          "3": 0.0038816769586939026,
+          "4": 0.0010546003675034887
+        }
+      }
+    },
+    "pooled_all_folds": {
+      "tau_1.0": {
+        "role": "official-ranking-aligned",
+        "delta_U_common_support": 0.0018092119232199222,
+        "delta_U_recomputed_as_mean_of_component_deltas": 0.0018092119232197372,
+        "n_common_support": 1344,
+        "bootstrap_positive_fraction": 0.9875,
+        "bootstrap_ci95_percentile": [
+          0.00025551907726655503,
+          0.0033605894686756206
+        ],
+        "bootstrap_available": true,
+        "per_fold_delta_U": {
+          "0": 0.0012354965539067564,
+          "1": 0.0038744453283073854,
+          "2": 0.002496709283896892,
+          "3": 0.0023227843713687912,
+          "4": -0.0008829270936112632
+        }
+      },
+      "tau_0.5": {
+        "role": "sensitivity analysis (Panoptica default tolerance)",
+        "delta_U_common_support": 0.003489520482780728,
+        "delta_U_recomputed_as_mean_of_component_deltas": 0.003489520482780728,
+        "n_common_support": 1344,
+        "bootstrap_positive_fraction": 1.0,
+        "bootstrap_ci95_percentile": [
+          0.0021985749999708336,
+          0.004708743004057018
+        ],
+        "bootstrap_available": true,
+        "per_fold_delta_U": {
+          "0": 0.002973368655064479,
+          "1": 0.004721365218885887,
+          "2": 0.0048175165522019725,
+          "3": 0.0038816769586941247,
+          "4": 0.0010546003675033777
+        }
+      }
+    }
+  }
+}

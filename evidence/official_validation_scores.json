@@ -1,0 +1,25 @@
+{
+  "note": "Organizer-reported official validation values for the frozen released ensemble, from a single submission, exactly as returned. DSC and NSD are the ranked metrics; HD95 is diagnostic only. The organizers confirmed that the FINAL RANKING uses NSD at tau=1, but did not disclose which tolerance generated these particular participant-visible validation values, so no tolerance is attached to them here. No rank was exposed and none is inferred. 451 predictions were submitted; the participant-visible per-case file contained 450 scored rows, a discrepancy whose cause was not disclosed and which is attributed to neither party.",
+  "n_predictions_submitted": 451,
+  "n_scored_rows_in_participant_visible_file": 450,
+  "finite_per_case_denominator": {
+    "ET": 440,
+    "TC": 449,
+    "WT": 450
+  },
+  "DSC": {
+    "ET": 0.772185975381129,
+    "TC": 0.823529052186837,
+    "WT": 0.879421230596971
+  },
+  "NSD": {
+    "ET": 0.539788495869978,
+    "TC": 0.499919028770286,
+    "WT": 0.483422275392118
+  },
+  "HD95_mm_diagnostic_only": {
+    "ET": 44.82,
+    "TC": 23.64,
+    "WT": 17.56
+  }
+}

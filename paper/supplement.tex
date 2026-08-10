@@ -1,0 +1,537 @@
+\documentclass[runningheads]{llncs}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{longtable}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xurl}
+\hypersetup{
+  pdftitle={Supplementary material: GAT-26, BraTS-GoAT 2026 Task 3},
+  pdfauthor={Nathan Chen},
+  pdfsubject={Supplementary material for the GAT-26 camera-ready paper}
+}
+% Float placement parameters. These govern where LaTeX may put a float; they change no
+% margin, font size, page size or spacing. Loosening them keeps each table on or near the page
+% that discusses it instead of accumulating a backlog that lands on half-empty float pages.
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.90}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.60}
+\renewcommand{\thetable}{S\arabic{table}}
+\begin{document}
+\title{Supplementary Material\texorpdfstring{\\}{ --- }GAT-26: Release-Path Auditing and Confirmation-Gated
+Inference Selection for Cross-Tumor Brain Tumor Segmentation}
+\titlerunning{Supplementary material --- GAT-26}
+\author{Nathan Chen}
+\authorrunning{N. Chen}
+\institute{Kang Chiao International School, Xiugang Campus, New Taipei City, Taiwan\\
+\email{naifenchen52@gmail.com}}
+\maketitle
+
+\begin{center}\fbox{\parbox{0.93\textwidth}{\small
+\textbf{Scope.} This supplement contains \emph{aggregate} evidence only. It includes no patient
+image, no label, no prediction, no case identifier, no split membership and no per-case metric.
+It supports the main paper; it does not replace its core evidence.}}\end{center}
+
+\section{Two distinct statistics: the architecture rank $R$ and the audit utility $U_\tau$}
+
+The paper uses two scalar summaries that must not be conflated, and neither is the challenge's own
+ranking procedure.
+
+\medskip\noindent\textbf{Architecture screen, $R$ (fractional rank).} The fold-0 ResEnc-M versus
+ResEnc-L screen ranks the two candidates component by component and averages those ranks, so $R$ is
+a mean fractional rank over the six components and \emph{lower $R$ is better}. It is a \emph{rank}
+statistic: it discards the size of each difference and retains only its direction. Two different tie
+conventions apply here and must not be confused. \emph{Within} $R$, an exact component-level metric
+tie assigns both models the average of the tied positions, so a tied component contributes the same
+amount to each model's rank and can favour neither. \emph{Separately}, the frozen selection rule
+resolves a tied or unmet advancement criterion in favour of ResEnc-M, the cheaper baseline plan;
+that rule governs the decision, not the rank arithmetic. The screen was applied once, to fold~0,
+under DSC/HD95.
+
+\medskip\noindent\textbf{The advancement rule in full.} ResEnc-L could advance from fold~0 to
+fold-1 confirmation only if the executable rank-gain threshold on $R(\mathrm{M})-R(\mathrm{L})$ was
+met --- nominally $1/6$, one component of six, stored as the constant
+\texttt{MEANINGFUL\_\allowbreak RANK\_\allowbreak GAIN} of the committed policy --- the
+paired-bootstrap 95\% percentile
+interval for $\Delta R=R(\mathrm{L})-R(\mathrm{M})$ lay entirely below zero, and every frozen
+auxiliary gate was supplied and passed, a gate with no input supplied counting as a failure. Note
+the two directions: the rank gain $R(\mathrm{M})-R(\mathrm{L})$ is positive when ResEnc-L is ahead,
+whereas $\Delta R$ is negative when ResEnc-L is ahead. Passing on fold~0 did not select or prefer
+ResEnc-L; it only triggered fold-1 confirmation, and expansion required the same rule to hold on
+fold~1. In every other case ResEnc-M was retained.
+
+\medskip\noindent\textbf{What the executable comparison actually is.} The gate is the binary64
+comparison \texttt{rank\_\allowbreak gain >= MEANINGFUL\_\allowbreak RANK\_\allowbreak GAIN}, not an
+exact real-number test of $R(\mathrm{M})-R(\mathrm{L})\ge 1/6$, and the two differ at the boundary.
+The stored threshold is the double nearest $1/6$, $0.16666666666666666$; a configuration that is
+exactly $1/6$ in rational arithmetic --- ResEnc-L ahead on three components, tied on one, behind on
+two --- is computed as a difference of averaged ranks and evaluates to about $0.16666666666666652$,
+some $1.4\times10^{-16}$ short, so that nominal boundary case is rejected. We disclose this because
+the manuscript quotes the nominal value. It did not affect the recorded architecture decision, whose
+fold-0 rank gain was $-0.333$ against a required $+1/6$ and which failed the other conditions too.
+We did not modify the frozen policy code, and no result changed.
+
+\medskip\noindent\textbf{Audit C utility, $U_\tau$ (raw metric mean).} Let $S_\tau$ be the subjects
+for which all six DSC/NSD components are finite under \emph{both} policies, and
+$\bar m_{c,\tau}(P;S_\tau)$ the mean of component $c$ over $S_\tau$. Then
+\[
+U_\tau(P;S_\tau)=\frac{1}{6}\sum_{c}\bar m_{c,\tau}(P;S_\tau),
+\qquad
+\Delta U_\tau=U_\tau(P_{\mathrm{cand}};S_\tau)-U_\tau(P_{\mathrm{base}};S_\tau),
+\]
+where $c$ ranges over the six DSC/NSD components, ET/TC/WT $\times$ DSC/NSD$_\tau$.
+$U_\tau$ retains the magnitude of every difference and is \emph{not a rank statistic}: no ranking
+or tie-breaking enters it. $R$ and $U_\tau$ are different objects and are never combined. Because both
+policies share $S_\tau$, $\Delta U_\tau$ is identically the arithmetic mean of the six component
+deltas; Table~\ref{tab:identity} verifies this against the committed record for every analysis
+reported.
+
+\medskip\noindent\textbf{Tolerance.} The organizers confirmed that the final challenge ranking uses
+DSC and NSD, excludes HD95, and computes final-ranking NSD at $\tau=1$. Throughout, $\tau=1$ is the
+official-ranking-aligned analysis and $\tau=0.5$ --- Panoptica's default, and what our earlier runs
+used --- is a prespecified sensitivity analysis reported at the reviewers' request. It does not
+carry equal official standing.
+
+
+\begin{table}[htbp]\centering
+\caption{The utility identity, re-derived from the committed component evidence. For every analysis
+reported, the recorded $\Delta U_\tau$ equals the arithmetic mean of its six component deltas. A
+fractional-rank definition would instead yield exactly $+1.000$ in all six rows, since the candidate
+improved all six components everywhere; it does not describe these data.}
+\label{tab:identity}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Subset & $\tau$ & Recorded $\Delta U_\tau$ & Mean of six deltas & $|$difference$|$ \\
+\midrule
+Development (folds 0--2) & $1.0$ & $+0.002532324$ & $+0.002532324$ & $<10^{-12}$ \\
+Development (folds 0--2) & $0.5$ & $+0.004167779$ & $+0.004167779$ & $<10^{-12}$ \\
+Policy-selection holdout (folds 3--4) & $1.0$ & $+0.000725887$ & $+0.000725887$ & $<10^{-12}$ \\
+Policy-selection holdout (folds 3--4) & $0.5$ & $+0.002473393$ & $+0.002473393$ & $<10^{-12}$ \\
+Pooled, supportive only (all folds) & $1.0$ & $+0.001809212$ & $+0.001809212$ & $<10^{-12}$ \\
+Pooled, supportive only (all folds) & $0.5$ & $+0.003489520$ & $+0.003489520$ & $<10^{-12}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Per-component means and deltas, Audit C (M8 versus C0)}
+
+Each table below carries its own bootstrap summary and per-fold values inside the
+same float, so no cross-referencing between paragraphs is required. ``Fraction of paired bootstrap
+resamples with positive $\Delta U_\tau$'' is exactly that -- a resampling frequency, not a
+probability and not a posterior.
+
+
+\begin{table}[htbp]\centering
+\caption{Development (folds 0--2), $\tau=1.0$ (official-ranking-aligned). Common subject support $|S_\tau|=806$. DSC does not
+depend on $\tau$, so the DSC rows repeat between tolerances.}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Component & Baseline C0 & Candidate M8 & $\Delta$ \\
+\midrule
+ET DSC & $0.862666$ & $0.864668$ & $+0.002002$ \\
+TC DSC & $0.916734$ & $0.918590$ & $+0.001856$ \\
+WT DSC & $0.927779$ & $0.929696$ & $+0.001918$ \\
+ET NSD & $0.893911$ & $0.896031$ & $+0.002120$ \\
+TC NSD & $0.876474$ & $0.880153$ & $+0.003678$ \\
+WT NSD & $0.865187$ & $0.868807$ & $+0.003620$ \\
+\midrule
+$U_\tau$ / $\Delta U_\tau$ & $0.890458$ & $0.892991$ & $+0.002532$ \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.92\textwidth}\small Fraction of paired bootstrap resamples with positive $\Delta U_\tau$: $1.0$. 95\% percentile interval $[+0.001284,+0.004548]$. Per-fold $\Delta U_\tau$: fold 0 $+0.001235$, fold 1 $+0.003874$, fold 2 $+0.002497$.\end{minipage}
+\end{table}
+
+\begin{table}[htbp]\centering
+\caption{Development (folds 0--2), $\tau=0.5$ (sensitivity analysis). Common subject support $|S_\tau|=806$. DSC does not
+depend on $\tau$, so the DSC rows repeat between tolerances.}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Component & Baseline C0 & Candidate M8 & $\Delta$ \\
+\midrule
+ET DSC & $0.862666$ & $0.864668$ & $+0.002002$ \\
+TC DSC & $0.916734$ & $0.918590$ & $+0.001856$ \\
+WT DSC & $0.927779$ & $0.929696$ & $+0.001918$ \\
+ET NSD & $0.650468$ & $0.655845$ & $+0.005377$ \\
+TC NSD & $0.616659$ & $0.623215$ & $+0.006556$ \\
+WT NSD & $0.568016$ & $0.575313$ & $+0.007297$ \\
+\midrule
+$U_\tau$ / $\Delta U_\tau$ & $0.757054$ & $0.761221$ & $+0.004168$ \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.92\textwidth}\small Bootstrap: \emph{not present in the committed record for this tolerance}. No value is computed after the fact, and none is implied. \end{minipage}
+\end{table}
+
+\begin{table}[htbp]\centering
+\caption{Policy-selection holdout (folds 3--4), $\tau=1.0$ (official-ranking-aligned). Common subject support $|S_\tau|=538$. DSC does not
+depend on $\tau$, so the DSC rows repeat between tolerances.}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Component & Baseline C0 & Candidate M8 & $\Delta$ \\
+\midrule
+ET DSC & $0.863684$ & $0.864145$ & $+0.000461$ \\
+TC DSC & $0.912545$ & $0.913423$ & $+0.000878$ \\
+WT DSC & $0.925596$ & $0.925685$ & $+0.000089$ \\
+ET NSD & $0.890061$ & $0.890349$ & $+0.000288$ \\
+TC NSD & $0.872497$ & $0.873684$ & $+0.001187$ \\
+WT NSD & $0.860108$ & $0.861561$ & $+0.001452$ \\
+\midrule
+$U_\tau$ / $\Delta U_\tau$ & $0.887415$ & $0.888141$ & $+0.000726$ \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.92\textwidth}\small Fraction of paired bootstrap resamples with positive $\Delta U_\tau$: $0.7342$. 95\% percentile interval $[-0.002531,+0.002633]$. Per-fold $\Delta U_\tau$: fold 3 $+0.002323$, fold 4 $-0.000883$.\end{minipage}
+\end{table}
+
+\begin{table}[htbp]\centering
+\caption{Policy-selection holdout (folds 3--4), $\tau=0.5$ (sensitivity analysis). Common subject support $|S_\tau|=538$. DSC does not
+depend on $\tau$, so the DSC rows repeat between tolerances.}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Component & Baseline C0 & Candidate M8 & $\Delta$ \\
+\midrule
+ET DSC & $0.863684$ & $0.864145$ & $+0.000461$ \\
+TC DSC & $0.912545$ & $0.913423$ & $+0.000878$ \\
+WT DSC & $0.925596$ & $0.925685$ & $+0.000089$ \\
+ET NSD & $0.644482$ & $0.647926$ & $+0.003444$ \\
+TC NSD & $0.608462$ & $0.612769$ & $+0.004307$ \\
+WT NSD & $0.562636$ & $0.568297$ & $+0.005662$ \\
+\midrule
+$U_\tau$ / $\Delta U_\tau$ & $0.752901$ & $0.755374$ & $+0.002473$ \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.92\textwidth}\small Fraction of paired bootstrap resamples with positive $\Delta U_\tau$: $0.9609$. 95\% percentile interval $[-0.000313,+0.004167]$. Per-fold $\Delta U_\tau$: fold 3 $+0.003882$, fold 4 $+0.001055$.\end{minipage}
+\end{table}
+
+\begin{table}[htbp]\centering
+\caption{Pooled, supportive only (all folds), $\tau=1.0$ (official-ranking-aligned). Common subject support $|S_\tau|=1344$. DSC does not
+depend on $\tau$, so the DSC rows repeat between tolerances.}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Component & Baseline C0 & Candidate M8 & $\Delta$ \\
+\midrule
+ET DSC & $0.863074$ & $0.864459$ & $+0.001385$ \\
+TC DSC & $0.915057$ & $0.916522$ & $+0.001465$ \\
+WT DSC & $0.926905$ & $0.928091$ & $+0.001186$ \\
+ET NSD & $0.892370$ & $0.893757$ & $+0.001387$ \\
+TC NSD & $0.874882$ & $0.877563$ & $+0.002681$ \\
+WT NSD & $0.863154$ & $0.865906$ & $+0.002752$ \\
+\midrule
+$U_\tau$ / $\Delta U_\tau$ & $0.889240$ & $0.891050$ & $+0.001809$ \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.92\textwidth}\small Fraction of paired bootstrap resamples with positive $\Delta U_\tau$: $0.9875$. 95\% percentile interval $[+0.000256,+0.003361]$. Per-fold $\Delta U_\tau$: fold 0 $+0.001235$, fold 1 $+0.003874$, fold 2 $+0.002497$, fold 3 $+0.002323$, fold 4 $-0.000883$.\end{minipage}
+\end{table}
+
+\begin{table}[htbp]\centering
+\caption{Pooled, supportive only (all folds), $\tau=0.5$ (sensitivity analysis). Common subject support $|S_\tau|=1344$. DSC does not
+depend on $\tau$, so the DSC rows repeat between tolerances.}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Component & Baseline C0 & Candidate M8 & $\Delta$ \\
+\midrule
+ET DSC & $0.863074$ & $0.864459$ & $+0.001385$ \\
+TC DSC & $0.915057$ & $0.916522$ & $+0.001465$ \\
+WT DSC & $0.926905$ & $0.928091$ & $+0.001186$ \\
+ET NSD & $0.648072$ & $0.652675$ & $+0.004603$ \\
+TC NSD & $0.613378$ & $0.619034$ & $+0.005656$ \\
+WT NSD & $0.565862$ & $0.572505$ & $+0.006643$ \\
+\midrule
+$U_\tau$ / $\Delta U_\tau$ & $0.755391$ & $0.758881$ & $+0.003490$ \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{minipage}{0.92\textwidth}\small Fraction of paired bootstrap resamples with positive $\Delta U_\tau$: $1.0$. 95\% percentile interval $[+0.002199,+0.004709]$. Per-fold $\Delta U_\tau$: fold 0 $+0.002973$, fold 1 $+0.004721$, fold 2 $+0.004818$, fold 3 $+0.003882$, fold 4 $+0.001055$.\end{minipage}
+\end{table}
+
+\section{Complete decision-check matrices}
+
+Check names are the \emph{legacy machine field names} recorded by the audit code, reproduced verbatim
+so the tables can be matched against the published JSON. They are identifiers, not claims: in
+particular \texttt{bootstrap\_probability} names a gate on the \emph{fraction of paired bootstrap
+resamples with a positive difference}, which is a resampling frequency and not a probability. Each
+check is reported exactly as the committed record holds it. The holdout matrix contains three
+checks whose only purpose is to make the audit fail closed --- exact membership, zero evaluator
+errors and independent recomputation agreement --- so that a missing, errored or
+membership-mismatched candidate evaluation is ineligible rather than silently compared on whatever
+subset survived.
+
+
+\begin{table}[htbp]\centering
+\caption{Development subset (folds 0--2): 18 checks --- 17 of 18 passed.}
+\begin{tabular}{@{}lc@{}}
+\toprule
+Check (legacy machine field name) & Outcome \\
+\midrule
+\texttt{dU\_common\_tau1} & pass \\
+\texttt{dU\_common\_tau05} & pass \\
+\texttt{official\_deltas\_positive} & pass \\
+\texttt{all\_components\_nonnegative\_tau1} & pass \\
+\texttt{all\_components\_nonnegative\_tau05} & pass \\
+\texttt{bootstrap\_probability} & pass \\
+\texttt{bootstrap\_lower\_bound\_above\_zero} & pass \\
+\texttt{enough\_folds\_nonnegative} & pass \\
+\texttt{no\_fold\_collapses} & pass \\
+\texttt{et\_zero\_dsc\_not\_increased} & pass \\
+\texttt{total\_zero\_dsc\_not\_increased} & pass \\
+\texttt{unique\_subject\_zero\_dsc\_not\_increased} & pass \\
+\texttt{lesion\_fn\_not\_increased} & \textbf{FAIL} \\
+\texttt{lesion\_fp\_within\_limit} & pass \\
+\texttt{no\_denominator\_only\_gain} & pass \\
+\texttt{exact\_membership} & pass \\
+\texttt{zero\_evaluator\_errors} & pass \\
+\texttt{independent\_recompute\_agrees} & pass \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]\centering
+\caption{Policy-selection holdout (folds 3--4): 23 checks --- 15 of 23 passed.}
+\begin{tabular}{@{}lc@{}}
+\toprule
+Check (legacy machine field name) & Outcome \\
+\midrule
+\texttt{dU\_common\_tau1} & \textbf{FAIL} \\
+\texttt{dU\_common\_tau05} & pass \\
+\texttt{bootstrap\_probability} & \textbf{FAIL} \\
+\texttt{bootstrap\_lower\_bound\_above\_zero} & \textbf{FAIL} \\
+\texttt{components\_nonnegative\_tau1} & pass \\
+\texttt{components\_nonnegative\_tau05} & pass \\
+\texttt{official\_deltas\_positive} & pass \\
+\texttt{dsc\_within\_limit} & pass \\
+\texttt{nsd\_within\_limit} & pass \\
+\texttt{fold3\_nonnegative} & pass \\
+\texttt{fold4\_nonnegative} & \textbf{FAIL} \\
+\texttt{et\_zero\_dsc\_not\_increased} & pass \\
+\texttt{total\_zero\_dsc\_not\_increased} & \textbf{FAIL} \\
+\texttt{unique\_subject\_zero\_dsc\_not\_increased} & pass \\
+\texttt{n\_ref\_total\_invariant} & pass \\
+\texttt{miss\_rate\_point\_within\_margin} & \textbf{FAIL} \\
+\texttt{miss\_rate\_upper\_bound\_within\_margin} & \textbf{FAIL} \\
+\texttt{no\_region\_miss\_rate\_regression} & \textbf{FAIL} \\
+\texttt{fp\_pred\_within\_limit} & pass \\
+\texttt{no\_denominator\_only\_gain} & pass \\
+\texttt{exact\_membership} & pass \\
+\texttt{zero\_evaluator\_errors} & pass \\
+\texttt{independent\_recompute\_agrees} & pass \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]\centering
+\caption{Pooled, supportive only: 18 checks --- 14 of 18 passed.}
+\begin{tabular}{@{}lc@{}}
+\toprule
+Check (legacy machine field name) & Outcome \\
+\midrule
+\texttt{dU\_common\_tau1} & pass \\
+\texttt{dU\_common\_tau05} & pass \\
+\texttt{bootstrap\_probability} & \textbf{FAIL} \\
+\texttt{bootstrap\_lower\_bound\_above\_zero} & pass \\
+\texttt{components\_nonnegative\_tau1} & pass \\
+\texttt{components\_nonnegative\_tau05} & pass \\
+\texttt{et\_zero\_dsc\_not\_increased} & pass \\
+\texttt{total\_zero\_dsc\_not\_increased} & pass \\
+\texttt{unique\_subject\_zero\_dsc\_not\_increased} & pass \\
+\texttt{n\_ref\_total\_invariant} & pass \\
+\texttt{miss\_rate\_point\_within\_margin} & \textbf{FAIL} \\
+\texttt{miss\_rate\_upper\_bound\_within\_margin} & \textbf{FAIL} \\
+\texttt{no\_region\_miss\_rate\_regression} & \textbf{FAIL} \\
+\texttt{fp\_pred\_within\_limit} & pass \\
+\texttt{no\_denominator\_only\_gain} & pass \\
+\texttt{exact\_membership} & pass \\
+\texttt{zero\_evaluator\_errors} & pass \\
+\texttt{independent\_recompute\_agrees} & pass \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Lesion-level evidence and its limits}
+
+Components are 26-connected. A reference component counts as missed if no predicted component of the
+same region overlaps it; the denominator therefore depends only on the reference and is
+policy-invariant, which the audit verified.
+
+The counters below are matched components, not voxels, and they live in two different spaces. The
+first two are counted over \emph{predicted} components, the third over \emph{reference} components.
+The committed record labels the prediction-space overlap counter diagnostic only, and this supplement
+keeps that label: it is reported for transparency and never used to override an official metric or a
+safety gate. Prediction-space overlaps and reference-space misses are \emph{not} complementary under
+component matching --- one predicted component may overlap several reference components and one
+reference component may be covered by several predicted components --- so their sum need not equal
+the reference-component total, and here it does not. The safety gate is computed as
+$\mathrm{FN}_{\mathrm{ref}}/N_{\mathrm{ref}}$, the missed fraction of reference components; it is not
+the legacy recall derived from the prediction-space overlap counter.
+
+
+\begin{table}[htbp]\centering
+\caption{Component-level counts and rates under 26-connectivity. Development counts are from the
+development subset; the non-inferiority analysis and its margins apply to the policy-selection
+holdout. The first row of each block is a prediction-space diagnostic counter and is not a
+reference-space true-positive count.}
+\begin{tabular}{@{}lr@{\hspace{1.8em}}r@{}}
+\toprule
+Quantity & \shortstack[r]{Baseline\\C0} & \shortstack[r]{Candidate\\M8} \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Development subset}}\\
+\quad Predicted components overlapping a reference & $3990$ & $4000$ \\
+\quad Predicted components with no reference overlap & $1243$ & $1087$ \\
+\quad Reference components with no predicted overlap & $4103$ & $4116$ \\
+\multicolumn{3}{@{}l}{\emph{Policy-selection holdout}}\\
+\quad Predicted components overlapping a reference & $2698$ & $2640$ \\
+\quad Predicted components with no reference overlap & $864$ & $781$ \\
+\quad Reference components with no predicted overlap & $2726$ & $2764$ \\
+\quad Reference components in total & $5445$ & $5445$ \\
+\quad Missed fraction of reference components & $0.500643$ & $0.507622$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+On the holdout the miss rate rose by $+0.006979$ against a margin of $0.0025$, with a one-sided 95\% upper bound of $+0.012408$ against $0.005$. Per region the increases were ET $+0.006286$, TC $+0.005848$ and WT $+0.008649$, each above the per-region limit of $0.005$. Predicted false-positive components fell, so the $0.05$ relative-increase cap was not breached. The bootstrap used 540 subjects, seed 20260730 and 10000 resamples.
+
+
+\medskip\noindent\textbf{Limits of this aggregate interpretation.} These are counts over a whole
+subset. They establish the \emph{direction} of the change --- fewer predicted false positives, more
+missed reference components --- and nothing about which lesions changed status. We did not stratify
+by lesion size, location, region or cohort, and we did not test any mechanism, so the
+precision--sensitivity reading offered in the main paper is a hypothesis rather than a demonstrated
+cause. The absolute miss rate is high under this definition because every reference component counts
+equally regardless of size. The margins are \emph{operational}: they were fixed in the protocol to be
+strict relative to observed between-fold variation, the committed protocol records no clinical
+derivation for them, and they are not externally validated clinical thresholds.
+
+
+\section{Architecture diagnostic under the ranking metric}
+
+The fold-0 ResEnc-M versus ResEnc-L screen was decided under DSC/HD95, on the values in
+Table~\ref{tab:screen}. Because the challenge ranks DSC and NSD, the same fold-0 predictions were
+rescored under DSC/NSD at $\tau=0.5$ as a diagnostic.
+
+\begin{table}[htbp]\centering
+\caption{The fold-0 screen as decided, under DSC and HD95. Means are over all 271 fold-0 cases.}
+\label{tab:screen}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Model & ET DSC & TC DSC & WT DSC & ET HD95 & TC HD95 & WT HD95 \\
+\midrule
+ResEnc-M (selected) & 0.859 & \textbf{0.914} & \textbf{0.934} & 14.17 & \textbf{5.96} & 3.89 \\
+ResEnc-L            & \textbf{0.861} & 0.912 & 0.932 & \textbf{11.19} & 6.08 & \textbf{4.11} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\medskip\noindent\textbf{Why the two tables differ slightly in ET DSC.} Table~\ref{tab:screen}
+averages over all 271 fold-0 cases, in which a case with an empty reference \emph{and} an empty
+prediction scores $1$. The rescoring below follows the official parser's skip-missing convention,
+which drops those cases from the denominator: one for ResEnc-M and two for ResEnc-L. Excluding them
+reproduces $0.8581$ and $0.8602$ exactly. Both figures are correct under their own stated
+convention, and no other component is affected at the precision reported.
+
+\begin{table}[htbp]\centering
+\caption{Fold-0 architecture diagnostic under the ranked component pair, $\tau=0.5$. Bold marks the
+better value in each column.}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Model & ET DSC & TC DSC & WT DSC & ET NSD & TC NSD & WT NSD \\
+\midrule
+ResEnc-M (selected) & 0.8581 & \textbf{0.9140} & \textbf{0.9336} & 0.6565 & 0.6213 & 0.5759 \\
+ResEnc-L            & \textbf{0.8602} & 0.9117 & 0.9322 & \textbf{0.6679} & \textbf{0.6244} & \textbf{0.5762} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+ResEnc-L is better at the point estimate on four of six DSC/NSD components, so the ordering
+\emph{reverses} relative to the DSC/HD95 screen. On the rank statistic itself, with
+$\Delta R = R(\mathrm{L})-R(\mathrm{M})$ so that negative values favour ResEnc-L, the observed value
+is $\Delta R = R(\mathrm{L})-R(\mathrm{M}) = -0.333$ with a 95\% percentile interval of
+$[-1.000,+0.667]$, which includes zero: no rank advantage is established, and the declared robustness
+requirement was not met. Under the frozen tie rule an unmet advancement criterion retains ResEnc-M.
+
+\medskip\noindent\textbf{Chronology, for the record.} The fold-0 screen completed on 2026-07-23 and
+the organizers' clarification that the final ranking uses DSC/NSD at $\tau=1$ and excludes HD95 was
+received on 2026-07-28, both dated in the committed decision log. That ordering is recorded as fact
+and is \emph{not} offered as justification: the deployed model was still selected under a metric pair
+the challenge does not rank on, and that remains a limitation of this submission.
+
+\medskip\noindent\textbf{Limitations.} The diagnostic is fold-0 only and was computed at $\tau=0.5$
+only; it was never repeated at the official-ranking tolerance $\tau=1$. It scores each architecture's
+own end-of-training validation predictions, not the release path, so it is not comparable to the
+Audit~C rows. The WT NSD difference is $0.0003$, at the edge of what these data resolve. Fold-0
+ResEnc-L weights already existed and are what the diagnostic scores; after the diagnostic no
+five-fold ResEnc-L expansion, architecture change or retraining campaign was undertaken. The
+architecture--metric mismatch is therefore recorded as an open limitation, not a resolved question.
+
+\section{Bounded experiment inventory}
+
+The search was bounded, and is listed rather than implied to be exhaustive. The list mixes
+candidates that were executed and scored with proposals that were screened out \emph{before}
+execution; the outcome column says which is which.
+
+\begin{table}[!ht]\centering
+\caption{Bounded experiment inventory, including executed candidates and proposals screened out
+before execution. Nothing here was adopted; the released policy is unchanged.}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.40\textwidth}>{\raggedright\arraybackslash}p{0.56\textwidth}@{}}
+\toprule
+Item & Outcome \\
+\midrule
+Best-validation checkpoint & No robust improvement; stopped on the development subset. \\
+Mirroring over recorded axes & Executed. Point-positive, but the interval included zero; superseded by Audit~C. \\
+ET connected-component cleanup, three declared volume thresholds & Traded ET overlap against ET boundary distance; an apparent mean gain proved to come from changed ET support. \\
+Weight averaging (two declared per-fold soups of the final and best-validation checkpoints) & All six components moved the wrong way for both soups, monotonically in the amount mixed in. \\
+Eightfold mirroring TTA (candidate M8) & Improved all six components on the development subset; failed the policy-selection holdout on the utility gate and the lesion miss-rate safety gate. \\
+40-epoch fine-tuning screen: tumor-type-mixture, domain-generalization augmentation, and their combination & Failed its frozen gates. Bounded at 40 epochs, so it cannot speak to behaviour trained to convergence. \\
+Dense-overlap variant (tile step $0.5\rightarrow0.25$) & \emph{Not} tested: its baseline gate mixed an augmentation-derived lineage with the no-augmentation release baseline. \\
+Larger ensembles, cascades, cohort routing, alternative thresholds & Not tested. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Runtime, container and repeatability}
+
+\noindent\textbf{Full-cohort run.} The exact release policy processed 451 of 451 official validation
+cases with exit code $0$ and zero inference errors, at a peak framework-reserved VRAM of
+$2.48$\,GiB and a wall time of 3\,h\,35\,m ($28.6$\,s per case) on a single NVIDIA A40. Both figures
+describe that A40 execution. The $2.48$\,GiB is memory reserved by the tensor framework, not total
+device memory, and is neither an A10G measurement nor a statement of A10G headroom.
+
+\medskip\noindent\textbf{Repeatability.} Across two independent 24-case runs, 18 of
+$2.14\times10^{8}$ output voxels differed. The runner is near-deterministic but not bit-exact,
+because deterministic-algorithm enforcement runs in warn-only mode. Every output remained
+label-valid, hierarchy-consistent and geometry-exact. This variation is orders of magnitude smaller
+than the release-path gap discussed in the main paper.
+
+\medskip\noindent\textbf{Container contract.} Linux/AMD64, zero network, all dependencies and all
+five fold checkpoints baked in at build time. \texttt{/input} is read-only, one folder per case;
+\texttt{/output} is flat, one \texttt{.nii.gz} per case. Each output file name is the complete
+validated basename of its input case folder --- no truncation to a fixed-width identifier, no
+hardcoded cohort prefix. Labels are restricted to $\{0,1,2,3\}$ and geometry is preserved exactly.
+Modality discovery fails closed before any output is written. The runner refuses to start without
+five distinct fold checkpoints. The official contract supplies a fresh writable \texttt{/output}; no
+claim is made that the runner refuses to overwrite an existing file.
+
+\medskip\noindent\textbf{Superseded A10G qualification.} An \emph{earlier, superseded}
+pre-correction image was exercised on one NVIDIA A10G using synthetic four-modality volumes. That
+image was executed by the organizers on the hidden test set and failed before writing any
+prediction, because its runner required the input case-folder basename to end in exactly five
+digits. The synthetic fixtures used in that qualification had fixed-width folder names and therefore
+never exercised the variable-length condition that caused the failure. \textbf{The corrected image
+that was finally submitted has never been measured on an A10G.} No organizer execution log, no
+hidden-test result and no rank exists for it, and none is claimed. The historical record is retained
+in the public repository under a filename that marks it as superseded.
+
+
+\section{What this supplement does not contain}
+
+No patient image, segmentation label, model prediction, model weight, case identifier, fold
+membership or per-case metric appears here or in the public repository. No submission identifier,
+image tag or digest, registry path, cloud resource identifier or credential appears here. Every
+quantity above is an aggregate over a named subset, generated directly from the committed audit
+records rather than transcribed by hand.
+
+\end{document}
