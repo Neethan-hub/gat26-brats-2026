@@ -88,11 +88,25 @@ def build(priv: Path) -> dict[str, object]:
             if not tb:
                 continue
             bs = tb.get("bootstrap", {})
+            reported = tb.get("delta_U_common")
+            deltas = tb.get("component_deltas", {})
+            recomputed = sum(deltas[c] for c in COMPONENTS) / 6
+            if abs(recomputed - reported) > 1e-12:
+                raise SystemExit(
+                    f"utility arithmetic mismatch in {label}/{tau_key}: reported "
+                    f"{reported!r} but the mean of the six component deltas is {recomputed!r}"
+                )
             entry[tau] = {
-                "delta_U_common_support": tb.get("delta_U_common"),
+                "role": ("official-ranking-aligned" if tau == "tau_1.0"
+                         else "sensitivity analysis (Panoptica default tolerance)"),
+                "delta_U_common_support": reported,
+                "delta_U_recomputed_as_mean_of_component_deltas": recomputed,
                 "n_common_support": tb.get("n_common") or n_common,
+                # Absent where the committed record holds no bootstrap for this tolerance.
+                # Never inferred or back-filled: null means "not computed", not "zero".
                 "bootstrap_positive_fraction": bs.get("prob_positive"),
                 "bootstrap_ci95_percentile": bs.get("ci95"),
+                "bootstrap_available": bool(bs),
                 "per_fold_delta_U": tb.get("fold_deltas"),
             }
         summary[label] = entry
@@ -141,10 +155,12 @@ def build(priv: Path) -> dict[str, object]:
         "note": (
             "Organizer-reported official validation values for the frozen released ensemble, "
             "from a single submission, exactly as returned. DSC and NSD are the ranked metrics; "
-            "HD95 is diagnostic only. The organizers did not expose the NSD surface tolerance, "
-            "so none is labelled. No rank was exposed and none is inferred. 451 predictions were "
-            "submitted; the participant-visible per-case file contained 450 scored rows, a "
-            "discrepancy whose cause was not disclosed and which is attributed to neither party."
+            "HD95 is diagnostic only. The organizers confirmed that the FINAL RANKING uses NSD "
+            "at tau=1, but did not disclose which tolerance generated these particular "
+            "participant-visible validation values, so no tolerance is attached to them here. "
+            "No rank was exposed and none is inferred. 451 predictions were submitted; the "
+            "participant-visible per-case file contained 450 scored rows, a discrepancy whose "
+            "cause was not disclosed and which is attributed to neither party."
         ),
         "n_predictions_submitted": 451,
         "n_scored_rows_in_participant_visible_file": 450,
@@ -230,13 +246,27 @@ def main() -> int:
             "note": (
                 "Aggregate policy-audit evidence for the mirroring candidate M8 against the "
                 "released baseline C0. Development = folds 0-2; the policy-selection holdout = "
-                "folds 3-4. Comparisons are on common support: a region-case contributes only "
-                "if both policies yield a finite value. Uncertainty is a paired subject-level "
-                "bootstrap, seed 20260730, 10,000 resamples, percentile intervals."
+                "folds 3-4. Comparisons are on common subject support: a subject contributes "
+                "only if all six required components are finite under both policies. "
+                "Uncertainty is a paired subject-level bootstrap, seed 20260730, 10,000 "
+                "resamples, percentile intervals. Where a bootstrap is absent from the "
+                "committed record it is reported as null and is never inferred."
             ),
             "utility": (
-                "U(P) is the unweighted mean of six fractional ranks over ET/TC/WT x DSC/NSD. "
-                "HD95 never enters U. Ties resolve to the baseline."
+                "U_tau(P; S_tau) is the unweighted arithmetic mean of the six RAW component "
+                "means -- ET/TC/WT x DSC/NSD(tau) -- over the common subject set S_tau. "
+                "delta U_tau = U_tau(candidate) - U_tau(baseline), which is identically the "
+                "arithmetic mean of the six component deltas. It is NOT a rank statistic: no "
+                "ranking, fractional ranking or tie-breaking enters it. HD95 never enters "
+                "U_tau. The separate fold-0 architecture screen uses a distinct fractional-rank "
+                "statistic R; R and U_tau are different objects and are never combined."
+            ),
+            "tolerances": (
+                "The organizers confirmed that the final challenge ranking uses DSC and NSD "
+                "with NSD at tau=1, and that HD95 is diagnostic only. tau=1 is therefore the "
+                "official-ranking-aligned analysis. tau=0.5 is Panoptica's default tolerance "
+                "and is reported as a prespecified sensitivity analysis, not as an equally "
+                "official quantity."
             ),
             "subsets": built["summary"],
         },

@@ -118,7 +118,10 @@ def main():
     check("no_superseded_title", not forbid_title)
     check("titlerunning_present", "\\titlerunning{" in MAIN and "\\ownerinput" not in
           MAIN.split("\\titlerunning{")[1].split("}")[0])
-    check("sole_author_named", "\\author{Nathan Chen}" in MAIN)
+    # G92 added an LNCS corresponding-author footnote, so the byline is no longer a bare
+    # \author{Nathan Chen}. Accept the marker but keep pinning a single named author.
+    check("sole_author_named",
+          re.search(r"\\author\{Nathan Chen(\\thanks\{[^}]*\})?\}", MAIN) is not None)
     check("authorrunning_named", "\\authorrunning{N. Chen}" in MAIN)
     check("affiliation_exact",
           "Kang Chiao International School, Xiugang Campus, New Taipei City, Taiwan" in MAIN)
@@ -163,11 +166,16 @@ def main():
         # DSC/HD95 tail percentiles were cut from the manuscript. Values the paper still states must
         # match the evidence exactly; values it no longer states must be genuinely ABSENT rather
         # than replaced by a different number, which is what the second loop enforces.
+        # G92 moved the fold-0 architecture screen values from the main paper to the supplement,
+        # which ships in the same camera-ready package. A stated value must still match the
+        # evidence exactly; it may now live in either document.
+        supp_path = PAPER / "supplement.tex"
+        SUPP = supp_path.read_text() if supp_path.is_file() else ""
         for label, val, fmt in [
             ("M_et_dsc", mc["et_dsc"], r3), ("M_tc_dsc", mc["tc_dsc"], r3), ("M_wt_dsc", mc["wt_dsc"], r3),
             ("L_et_dsc", lc["et_dsc"], r3), ("L_tc_dsc", lc["tc_dsc"], r3), ("L_wt_dsc", lc["wt_dsc"], r3),
         ]:
-            check(f"numeric_matches_evidence::{label}", fmt(val) in MAIN)
+            check(f"numeric_matches_evidence::{label}", fmt(val) in MAIN or fmt(val) in SUPP)
         # the fold-0 screen must not report an HD95 or tail-percentile number at all now
         cut = {"M_et_hd95": r2(mc["et_hd95"]), "M_tc_hd95": r2(mc["tc_hd95"]),
                "M_wt_hd95": r2(mc["wt_hd95"]), "L_et_hd95": r2(lc["et_hd95"]),
@@ -406,9 +414,14 @@ def main():
     check("g87_fresh_output_contract_stated",
           "fresh writable" in flat or "fresh output director" in flat)
 
-    # (6) The official NSD values carry no participant-visible tolerance, so none may be attached.
+    # (6) The organizers DID confirm tau=1 for the final ranking, so "the tolerance was never
+    #     exposed" is false and must not reappear. What stays true is narrower: the tolerance behind
+    #     the returned participant-visible validation values was not disclosed, so none is attached
+    #     to those numbers.
+    forbid("g87_no_tolerance_never_exposed_claim",
+           "never exposed" in flat or "did not expose the surface tolerance" in flat)
     check("g87_official_nsd_tolerance_not_claimed",
-          "did not expose the surface tolerance" in flat)
+          "did not disclose which tolerance" in flat or "which tolerance produced" in flat)
     forbid("g87_no_tolerance_label_on_official_nsd",
            bool(re.search(r"nsd \(ranked\)[^\n]{0,40}tau", low))
            or bool(re.search(r"official[^.\n]{0,60}nsd[^.\n]{0,30}at (the )?(surface )?tolerance", low)))

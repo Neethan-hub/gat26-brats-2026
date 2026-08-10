@@ -19,15 +19,33 @@ no longer implies otherwise. "Pre-registered" is replaced by "commit-frozen befo
 comparison" — there was no external time-stamped preregistration, and the paper no longer suggests
 one. Historical filenames retain their original names.
 
-**Both NSD tolerances, equally.** The selective "about one quarter retained" headline is withdrawn.
-The paper reports ΔU at τ=1 and τ=0.5 side by side for both subsets, and labels the retention ratios
-(28.7 % at τ=1, 59.3 % at τ=0.5) as descriptive, noting neither is the effect size. The official
-tolerance was never exposed to participants.
+**Both NSD tolerances, correctly ranked in authority.** The selective "about one quarter retained"
+headline is withdrawn, and both tolerances are reported. But they are not equally official: the
+organizers confirmed that the final ranking uses DSC and NSD with NSD at **τ=1**, and excludes HD95.
+τ=1 is therefore the official-ranking-aligned analysis and τ=0.5 is a prespecified sensitivity
+analysis, retained because the reviewers asked for both. The earlier claim that the final-ranking
+tolerance "was never exposed" was false and is withdrawn. What remains true is narrower: the
+organizers did not disclose which tolerance produced the returned participant-visible validation
+scores, so none is attached to those particular numbers. Retention ratios (28.7 % at τ=1, 59.3 % at
+τ=0.5) are descriptive; neither is an effect size.
 
-**The decision procedure is now fully specified.** The utility equation, its equal weighting, the
-aggregation level, the common-support rule, empty-region and non-finite handling, the subject-level
-bootstrap unit, seed, 10,000 resamples, percentile interval and baseline-wins-ties rule are all
-stated. A separate paragraph explains the fail-closed rule: a candidate whose expected evaluation is
+**An unsupported bootstrap claim is removed.** The committed record contains no development-subset
+bootstrap at τ=0.5. The earlier table reported a positive fraction of 1.000 there; that entry is now
+"n/a", the interval is unavailable, and "every bootstrap resample was positive" is scoped explicitly
+to τ=1. No value was computed after the fact to fill the gap.
+
+**The decision procedure is now fully specified, and its central equation is corrected.** An earlier
+camera-ready draft defined the Audit C utility as a mean of *fractional ranks*. That was wrong and is
+withdrawn: it is arithmetically incompatible with the reported values, since the candidate improved
+all six components in every analysis and a rank utility would therefore give exactly +1.000
+everywhere, against recorded deltas of order 1e-3. The committed evidence shows the utility is the
+unweighted arithmetic mean of the six **raw** component means on common subject support, so
+delta-U is identically the mean of the six component deltas. The fold-0 architecture screen keeps its
+own, genuinely rank-based statistic *R*; *R* and *U_tau* are different objects and are never
+combined. The equation, equal weighting, aggregation level, common-support rule, empty-region and
+non-finite handling, the subject-level bootstrap unit, seed, 10,000 resamples, percentile interval
+and baseline-wins-ties rule are all stated, and a regression test recomputes every published delta-U
+from its six component deltas. A separate paragraph explains the fail-closed rule: a candidate whose expected evaluation is
 missing, errored or membership-mismatched is ineligible, and common support never conceals an
 incomplete candidate execution.
 

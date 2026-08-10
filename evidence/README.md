@@ -23,19 +23,39 @@ Audits A and B stopped. `policy_selection_holdout_folds_3_4` is the same-corpus 
 mirroring candidate advanced to and failed. `pooled_all_folds` reuses the folds that produced the
 decision, so it is **supportive and post-selection**, never a basis for a decision.
 
-**Utility.** `U(P)` is the unweighted mean of six fractional ranks over ET/TC/WT × DSC/NSD. DSC and
-NSD carry equal weight, no region is up-weighted, and HD95 never enters `U`. Ties resolve to the
-baseline.
+**Utility.** `U_tau(P; S_tau)` is the unweighted arithmetic mean of the six **raw** component means
+— ET/TC/WT × DSC/NSD(tau) — over the common subject set `S_tau`. Therefore
+
+    delta U_tau = U_tau(candidate) - U_tau(baseline)
+                = mean of the six component deltas
+
+which is exactly how `policy_audit_components.csv` reconstructs every `delta_U` in
+`policy_audit_summary.json`; the generator asserts that identity and refuses to write if it fails.
+DSC and NSD carry equal weight, no region is up-weighted, and HD95 never enters `U_tau`.
+
+`U_tau` is **not a rank statistic**: no ranking, fractional ranking or tie-breaking is involved. The
+separate fold-0 architecture screen *does* use a fractional-rank statistic, `R`. `R` and `U_tau` are
+different objects, are never combined, and neither is the challenge's own ranking procedure.
 
 **Common support.** A region-case contributes only if *both* policies yield a finite value, so a
 change in the number of scorable cases cannot by itself manufacture a gain. Common support is a
 comparability device, not an error-tolerance device: a candidate whose expected evaluation is
 missing, errored or membership-mismatched is ineligible outright.
 
-**Both tolerances.** The official NSD surface tolerance was never exposed to participants, so every
-NSD quantity is reported at τ=1 and τ=0.5 with equal standing. The two tell different stories — the
-holdout retained 28.7 % of the development gain at τ=1 and 59.3 % at τ=0.5 — and neither ratio
-should be read as the effect size.
+**Tolerances are not equal.** The organizers confirmed that the final challenge ranking uses DSC and
+NSD, excludes HD95, and computes final-ranking NSD at **τ=1**. τ=1 is therefore the
+official-ranking-aligned analysis. τ=0.5 is Panoptica's default — what our earlier runs used — and is
+reported as a prespecified **sensitivity analysis** at the reviewers' request; it does not carry
+equal official standing. The two tell different stories: the holdout retained 28.7 % of the
+development gain at τ=1 and 59.3 % at τ=0.5. Neither ratio is an effect size.
+
+Separately, and more narrowly: the organizers did **not** disclose which tolerance produced the
+returned participant-visible *validation* scores, so no tolerance is attached to those numbers in
+`official_validation_scores.json`.
+
+**Missing bootstraps are null, never inferred.** The committed record contains no development-subset
+bootstrap at τ=0.5. That entry is `null` with `bootstrap_available: false`, and no value is computed
+after the fact to fill it. A regression test fails if it is ever populated.
 
 **Margins are operational.** The lesion-safety margins were chosen to be strict relative to observed
 between-fold variation of the quantity they bound. They are **not** externally validated clinical

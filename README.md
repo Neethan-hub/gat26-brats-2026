@@ -48,7 +48,10 @@ the organizers under their own access terms** — see [`DATA_PROVENANCE.md`](DAT
   `WT ⊇ TC ⊇ ET`. Outputs restore the exact source geometry and are integer-labeled `{0,1,2,3}`.
 - **Discipline.** The inference decisions we audited — checkpoint choice, mirroring test-time
   augmentation, weight averaging and connected-component post-processing — were each placed behind a
-  candidate, utility and gate set **commit-frozen before the specified comparison** was computed.
+  candidate, utility and gate set **commit-frozen before the specified comparison** was computed. The
+  audit utility is the unweighted arithmetic mean of six **raw** component means (ET/TC/WT × DSC/NSD)
+  on common subject support — not a rank statistic; see [`evidence/`](evidence/). The separate fold-0
+  architecture screen uses its own fractional-rank statistic, which is never combined with it.
   This is not a claim that *every* tunable in the pipeline was audited: the audited set is bounded
   and listed in the paper, and thresholds, tile overlap and ensemble weighting were fixed by default
   rather than selected. Three audits ran; all three **retained the baseline**. A same-corpus policy
@@ -68,6 +71,7 @@ the organizers under their own access terms** — see [`DATA_PROVENANCE.md`](DAT
 | `preflight/` | Static architecture/release contract suite |
 | `paper/` | LaTeX source for the camera-ready paper (the compiled PDF is not committed) |
 | `evidence/` | Sanitized aggregate policy-audit evidence and the exact official validation scores |
+| `paper/supplement.tex` | Supplementary material: per-component tables, the full 18- and 23-check matrices, lesion evidence and the architecture diagnostic |
 | `docs/` | Method and rule documentation |
 
 ## Container contract
@@ -161,8 +165,9 @@ permissive and compatible with distributing this project's code under Apache-2.0
 - **Official validation performance: known.** The frozen released ensemble was submitted once to the
   Task-3 validation-prediction queue and scored DSC 0.772 / 0.824 / 0.879 and NSD 0.540 / 0.500 /
   0.483 for ET / TC / WT. The platform exposed **no rank**, and none is inferred. HD95 is diagnostic
-  only; the organizers did not expose the surface tolerance behind the returned NSD values, so none is
-  attached to them. Full qualifications are in the paper.
+  only. The organizers confirmed that the **final ranking** uses DSC and NSD with NSD at **τ = 1**,
+  and excludes HD95; they did not disclose which tolerance produced these particular
+  participant-visible values, so none is attached to *them*. Full qualifications are in the paper.
 - **Hidden-test performance and final rank: unknown.** The organizers score containers after the
   submission deadline. No hidden-test number exists, and none is reported or projected here.
 - **Official target GPU: the corrected image was never measured on it.** We hold **no** A10G
