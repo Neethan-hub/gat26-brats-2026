@@ -1,0 +1,117 @@
+# === GAT-26 .gitignore ===
+# Never track secrets, protected data, heavy artifacts, or environments.
+# Small sanitized manifests/reports are explicitly re-allowed at the bottom.
+
+# --- Secrets and credentials ---
+.secrets/
+.synapseConfig
+*.synapseConfig
+.netrc
+*.pat
+*.token
+*token*
+*secret*
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+*.p12
+*.pfx
+.docker/
+docker/config.json
+**/.config/gh/hosts.yml
+.env
+.env.*
+*.credentials
+credentials.json
+
+# --- Protected challenge data ---
+# Protected payload trees stay ignored no matter what.
+data/staging/
+data/raw/
+data/prepared/
+# Ignore everything under data/ by default...
+/data/**
+# ...then re-allow the sanitized manifests subtree (parent dirs MUST be re-included
+# first, or nested files can never be un-ignored by git).
+!data/manifests/
+!data/manifests/**/
+!data/manifests/**/*.json
+!data/manifests/**/*.csv
+!data/manifests/**/*.md
+!data/manifests/**/*.sha256
+!data/manifests/.gitkeep
+# Note: only these text extensions under data/manifests/ are allowed. Protected
+# binaries (*.nii/*.nii.gz/*.npy/*.bin/checkpoints) stay ignored even if misplaced
+# here, because they are never re-allowed below.
+
+# --- Model outputs / heavy artifacts ---
+runs/
+checkpoints/
+*.ckpt
+*.pth
+*.pt
+*.onnx
+*.npz
+*.npy
+oof/
+**/oof_probabilities/
+predictions/
+*.nii
+*.nii.gz
+
+# --- Environments / caches ---
+.venv/
+.venv-eval/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+.mypy_cache/
+.pytest_cache/
+.ipynb_checkpoints/
+nnUNet_raw/
+nnUNet_preprocessed/
+nnUNet_results/
+.cache/
+*.log
+tmp/
+temp/
+scratch/
+
+# --- Docker build heavy context ---
+*.tar
+*.tar.gz
+sbom_full/
+
+# --- Re-allow small sanitized manifests, reports, and governance artifacts ---
+!.gitignore
+!.gitkeep
+!**/*.md
+!**/*.csv
+!**/*.sha256
+!artifacts/*.json
+!data/manifests/**/*.json
+!data/manifests/**/*.csv
+!splits/*.json
+# (Protected-data payloads remain ignored above; these re-allows only cover
+#  small text manifests/reports, never image or checkpoint binaries.)
+
+# --- Release container private build artifacts (weights/plans/context stay OUT of git) ---
+configs/release/weights/
+configs/release/plans/
+configs/release/build_context/
+
+# --- Paper: LaTeX build artifacts + Springer LNCS class files (copyright; add at compile time) ---
+paper/llncs.cls
+paper/splncs04.bst
+paper/*.pdf
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.out
+paper/*.toc
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz

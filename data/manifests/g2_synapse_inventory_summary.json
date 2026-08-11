@@ -1,0 +1,98 @@
+{
+  "access": {
+    "canDownload": true,
+    "canEdit": false,
+    "canView": true,
+    "isCertificationRequired": true
+  },
+  "aggregate": {
+    "by_ext_category": {
+      "zip": {
+        "bytes": 43795684010,
+        "count": 3,
+        "missing_size_count": 0
+      }
+    },
+    "by_label": {
+      "labeled": {
+        "bytes": 14836495703,
+        "count": 1,
+        "missing_size_count": 0
+      },
+      "unlabeled": {
+        "bytes": 28959188307,
+        "count": 2,
+        "missing_size_count": 0
+      }
+    },
+    "by_role": {
+      "train_with_gt": {
+        "bytes": 14836495703,
+        "count": 1,
+        "missing_size_count": 0
+      },
+      "train_without_gt": {
+        "bytes": 22201406387,
+        "count": 1,
+        "missing_size_count": 0
+      },
+      "validation": {
+        "bytes": 6757781920,
+        "count": 1,
+        "missing_size_count": 0
+      }
+    },
+    "by_split": {
+      "training": {
+        "bytes": 37037902090,
+        "count": 2,
+        "missing_size_count": 0
+      },
+      "validation": {
+        "bytes": 6757781920,
+        "count": 1,
+        "missing_size_count": 0
+      }
+    },
+    "total": {
+      "bytes": 43795684010,
+      "count": 3,
+      "missing_size_count": 0
+    }
+  },
+  "anomaly_counts": {
+    "ambiguous_split": 0,
+    "cycles": 0,
+    "duplicate_ids": 0,
+    "duplicate_paths": 0,
+    "inaccessible": 0,
+    "missing_size": 0,
+    "unexpected_type": 0
+  },
+  "notes": [
+    "Metadata only; zero file bytes downloaded.",
+    "Per-file entity IDs, filenames, and md5s are in the git-ignored private inventory.",
+    "Cohort/case-level breakdown is NOT resolvable from metadata (payloads are ZIP archives); UNKNOWN until G3 extraction."
+  ],
+  "private_inventory_bytes": 2496,
+  "private_inventory_sha256": "9b49b49de6613f0c094d56a15ac06083c64c9677bafd8221b889fe73422d6921",
+  "retrieved_utc": "2026-07-21T06:32:48Z",
+  "root_chain": [
+    {
+      "id": "syn74488392",
+      "name": "Task 3 - BraTS-GoAT",
+      "type": "Folder"
+    },
+    {
+      "id": "syn74488380",
+      "name": "Data",
+      "type": "Folder"
+    },
+    {
+      "id": "syn74274097",
+      "name": "BraTS 2026 Challenge",
+      "type": "Project"
+    }
+  ],
+  "schema": "gat26.g2.synapse_inventory_summary.v1"
+}

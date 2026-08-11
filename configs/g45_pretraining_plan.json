@@ -1,0 +1,144 @@
+{
+  "trainer_params_from_installed_source": {
+    "num_epochs": 1000,
+    "num_iterations_per_epoch": 250,
+    "num_val_iterations_per_epoch": 50,
+    "save_every": 50,
+    "initial_lr": 0.01,
+    "weight_decay": 3e-05,
+    "oversample_foreground_percent": 0.33
+  },
+  "measured_worker_rtxpro6000": {
+    "M": {
+      "step_mean_s": 0.179,
+      "step_p90_s": 0.205,
+      "train_peak_reserved_gib": 7.32,
+      "infer_peak_reserved_gib": 3.24,
+      "patch": [
+        128,
+        160,
+        112
+      ],
+      "batch": 2
+    },
+    "L": {
+      "step_mean_s": 0.508,
+      "step_p90_s": 0.808,
+      "train_peak_reserved_gib": 22.11,
+      "infer_peak_reserved_gib": 6.08,
+      "patch": [
+        160,
+        192,
+        160
+      ],
+      "batch": 3
+    }
+  },
+  "forecast_single_gpu_serial_safety_1_25": {
+    "M_fold_hours": 17.1,
+    "M_fold_cost_usd": 34.6,
+    "L_fold_hours": 48.5,
+    "L_fold_cost_usd": 98.1,
+    "G5_fold0_M_plus_L_hours": 65.6,
+    "G5_fold0_M_plus_L_cost_usd": 132.7,
+    "G6_fold1_leaders_hours": 65.6,
+    "G6_fold1_leaders_cost_usd": 132.7,
+    "G7_5fold_M_total_hours": 85.5,
+    "G7_5fold_M_total_cost_usd": 172.9,
+    "G7_5fold_L_total_hours": 242.5,
+    "G7_5fold_L_total_cost_usd": 490.6
+  },
+  "preprocessing": {
+    "full_corpus_hours": 0.26,
+    "full_corpus_preproc_gib": 25.0
+  },
+  "budget_guardrails": {
+    "training_ceiling_before_owner_gate_usd": 300,
+    "release_reserve_usd": 120,
+    "emergency_reserve_usd": 50,
+    "hard_ceiling_usd": 650,
+    "max_concurrent_gpus_assumed": 1
+  },
+  "feasibility": {
+    "M_primary_path": "G5 M fold0 + full 5-fold M (~172.9 training, ~85.5h serial) fits $300 ceiling and deadline with reserves",
+    "L_status": "per-fold benchmark valid and fundable for the G5/G6 screen (~98.1/fold); full 5-fold L (~490.6) EXCEEDS the $300 training ceiling on one GPU -> requires a separate owner re-gate; does NOT block M",
+    "four_gpu_parallel": "NOT assumed; base schedule is single existing worker GPU"
+  },
+  "revision": "G4.5-R: forecasts recomputed from sustained two-epoch canary steady-epoch measurements (supersede the step-extrapolation)",
+  "sustained_canary_measurements": {
+    "trainer_only_divergence": "num_epochs=2",
+    "M": {
+      "steady_epoch_wall_s": 40.01,
+      "compile_overhead_s": 6.74,
+      "train_step_mean_s": 0.146,
+      "val_step_mean_s": 0.092,
+      "peak_reserved_gib": 7.32,
+      "loss_grad_params_finite": true,
+      "strict_reload_ok": true
+    },
+    "L": {
+      "steady_epoch_wall_s": 97.71,
+      "compile_overhead_s": 36.43,
+      "train_step_mean_s": 0.366,
+      "val_step_mean_s": 0.279,
+      "peak_reserved_gib": 22.01,
+      "loss_grad_params_finite": true,
+      "strict_reload_ok": true
+    }
+  },
+  "revised_fold_forecast_1000_epochs": {
+    "M_fold": {
+      "point_h": 11.3,
+      "cons_h": 14.0,
+      "ceil_h": 15.7,
+      "cons_cost": 28.4,
+      "ceil_cost": 31.8
+    },
+    "L_fold": {
+      "point_h": 27.3,
+      "cons_h": 34.1,
+      "ceil_h": 38.1,
+      "cons_cost": 68.9,
+      "ceil_cost": 77.2
+    },
+    "5fold_M_cons_cost": 142.0,
+    "5fold_L_cons_cost": 344.7
+  },
+  "deadline_scenarios_absolute_utc": {
+    "now_ref": "2026-07-21T14:02Z",
+    "hard_deadline": "2026-07-30T23:59Z",
+    "single_gpu_serial": true,
+    "scenarioA_M_wins_or_ties": {
+      "path": "G5 M0+L0 screen -> reuse M0 -> G7 M1-4",
+      "serial_h": 104.3,
+      "finish_utc": "2026-07-25T22:19Z",
+      "train_cost_usd": 211.0,
+      "fits_300_and_release_window": true
+    },
+    "scenarioB_L_meaningful_fold0": {
+      "path": "G5 M0+L0 -> G6 M1+L1 confirmation",
+      "if_L_fails_confirmation": {
+        "reuse": "M0,M1",
+        "train": "M2-M4",
+        "finish_utc": "2026-07-27T08:23Z",
+        "fits": true
+      },
+      "if_L_confirms": {
+        "note": "serial full 5-fold L infeasible under current ceiling: finish 2026-07-29T20:30Z, cost ~$401.5 > $300 and leaves no release window",
+        "required_owner_decision": "raise training budget beyond $300 AND/OR add a second GPU for parallel folds AND/OR accept M; no second GPU assumed here"
+      }
+    },
+    "a10g_initial_smoke_no_later_than": "2026-07-25T12:00:00Z (before any G7 expansion)"
+  },
+  "proposed_not_authorized_G5_hard_ceilings": {
+    "M_fold0": {
+      "max_hours": 15.7,
+      "max_usd": 31.8
+    },
+    "L_fold0": {
+      "max_hours": 38.1,
+      "max_usd": 77.2
+    },
+    "note": "proposed hard-stop ceilings; G5 NOT authorized by G4.5-R"
+  }
+}
