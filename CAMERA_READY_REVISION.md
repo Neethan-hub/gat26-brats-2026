@@ -99,8 +99,8 @@ absence of hidden-test evidence, the absence of any A10G qualification of the co
 the absence of any demonstration that the procedure beats nested validation.
 
 **Disclosures.** The paper adds a data-use and ethics statement scoped strictly to what challenge
-governance supports (no invented IRB approval, exemption or consent), a competing-interest
-statement, and a truthful generative-AI disclosure.
+governance supports (no invented IRB approval, exemption or consent) and a competing-interest
+statement.
 
 ## Docker and A10G — corrected narrative
 
@@ -307,3 +307,21 @@ snapshot whose tree is byte-identical to public `main`. Tags r1 through r6 are u
 resolvable. `r6` was tagged before a final supplement typesetting fix and is therefore superseded
 rather than cited; it was left in place rather than moved, because published tags in this repository
 are never rewritten.
+
+## Post-G96 — credits scope and a new publication snapshot
+
+**The credits section was narrowed.** It now carries exactly two statements: the data-use and
+ethics statement, under the heading "Data use and ethics", and the competing-interest statement.
+That is the whole of the credits. No scientific content changed: no result, number, figure, table,
+method statement, limitation or reference was touched, and the manuscript's claims and evidence are
+exactly as they were.
+
+**Pagination.** The main paper is still 12 physical pages and the supplement is unchanged at 11.
+Manuscript content still ends on physical page 10; the reference list now begins lower on page 10
+rather than at the top of page 11, and still runs to page 12. No margin, font size, page size or
+spacing was altered, and no negative spacing was introduced.
+
+**Publication snapshot.** The paper cites `brats-goat-2026-camera-ready-21-r8`, again a parentless
+snapshot whose tree is byte-identical to public `main`. Tags r1 through r7 are unchanged and remain
+resolvable. `r7` is superseded rather than cited; as with `r6`, it was left in place rather than
+moved, because published tags in this repository are never rewritten.

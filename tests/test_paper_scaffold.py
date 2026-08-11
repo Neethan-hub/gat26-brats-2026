@@ -516,9 +516,9 @@ def main():
         not ("we hold no measurement of the container on an nvidia a10g" in flat)
     check("g87r_a10g_claim_backed_by_evidence", (not claims_a10g) or a10g_passed)
 
-    # (8) Publication integrity. The owner removed the voluntary AI-tooling sentence from the
-    # Disclosure of Interests; the binding requirement is unchanged and still enforced -- no software
-    # system may appear as an author or contributor anywhere in the front matter or credits.
+    # (8) Publication integrity. The binding requirement is that no software system may appear as
+    # an author or contributor anywhere in the front matter or credits. It is asserted directly, as
+    # a property of the text, so it does not depend on any particular sentence being present.
     credits_block = MAIN.split("\\begin{credits}")[-1] if "\\begin{credits}" in MAIN else ""
     software_names = r"(claude|chatgpt|gpt-\d|copilot|codex|gemini|llm|language model|ai assistant)"
     check("g87r_no_software_listed_as_author",
