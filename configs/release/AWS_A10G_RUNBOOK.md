@@ -1,5 +1,25 @@
 # AWS g5.4xlarge — genuine A10G validation runbook (two mandatory gates, fail-closed)
 
+> [!IMPORTANT]
+> **HISTORICAL SNAPSHOT — not a current release validator and not current instructions.**
+> This document is a pre-training / pre-submission record from the stage dated in its own header. It is
+> retained unmodified as governance history and is **superseded** for every current claim. Do not
+> follow it as current guidance, and do not read its constants, metric statements or feasibility
+> language as the present contract.
+>
+> Current truth, as of the r11 camera-ready:
+>
+> * Official ranking uses **DSC and NSD at `τ=1`**; **HD95 is diagnostic only** and is not ranked.
+> * Output naming preserves the **complete opaque input case-folder basename**. There is **no
+>   five-digit rule** and no assumed cohort prefix.
+> * Any `[160,160,128]` patch size appearing here is **synthetic / reference-only**; the **final
+>   trained plan is `[128,160,112]`**.
+> * The **corrected** container image was submitted, but **no organizer execution log, no hidden-test
+>   result, no rank and no A10G measurement exist for that corrected image**.
+> * The **camera-ready paper and the current top-level `README.md` are authoritative** wherever they
+>   differ from this document.
+
+
 Owner-executed. RunPod has **no** genuine A10G; the genuine A10G lives in the AWS EC2 **g5** family.
 Every step fails closed — **abort if any check does not pass.**
 
@@ -155,5 +175,5 @@ shred -u build_context/weights/fold_*/checkpoint_final.pth   # remove weights fr
 Record in `COST_LEDGER.csv`: gate (A10G-1 / A10G-2), instance type, region, hourly price, wall hours,
 actual cost, and the verbatim `nvidia-smi` GPU name. Recommended per-gate cost ceiling **≤ $10**.
 
-**All steps here are owner-only and interactive; Claude does not provision, download, build, run, or
-tear down any AWS resource, and does not start G7 or training.**
+**All steps here are owner-only and interactive; no automated agent provisions, downloads, builds,
+runs, or tears down any AWS resource, and none starts G7 or training.**

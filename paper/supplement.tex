@@ -13,6 +13,12 @@
 % Float placement parameters. These govern where LaTeX may put a float; they change no
 % margin, font size, page size or spacing. Loosening them keeps each table on or near the page
 % that discusses it instead of accumulating a backlog that lands on half-empty float pages.
+% This supplement is table-dense: several pages carry two full-width tables and nothing else.
+% Under the class default (\flushbottom) LaTeX stretches vertical glue to force a flush bottom on
+% such a page and reports "Underfull \vbox while \output is active". \raggedbottom lets those
+% pages simply end where their content ends. It changes no font size, margin, page dimension,
+% line spacing or table geometry, and it is not used to obtain any particular page count.
+\raggedbottom
 \setcounter{topnumber}{3}
 \setcounter{bottomnumber}{2}
 \setcounter{totalnumber}{4}
@@ -36,7 +42,7 @@ Inference Selection for Cross-Tumor Brain Tumor Segmentation}
 image, no label, no prediction, no case identifier, no split membership and no per-case metric.
 It supports the main paper; it does not replace its core evidence.}}\end{center}
 
-\section{Two distinct statistics: the architecture rank $R$ and the audit utility $U_\tau$}
+\section{Two Distinct Statistics: The Architecture Rank $R$ and the Audit Utility $U_\tau$}
 
 The paper uses two scalar summaries that must not be conflated, and neither is the challenge's own
 ranking procedure.
@@ -117,7 +123,7 @@ Pooled, supportive only (all folds) & $0.5$ & $+0.003489520$ & $+0.003489520$ & 
 \end{tabular}
 \end{table}
 
-\section{Per-component means and deltas, Audit C (M8 versus C0)}
+\section{Per-Component Means and Deltas, Audit C (M8 Versus C0)}
 
 Each table below carries its own bootstrap summary and per-fold values inside the
 same float, so no cross-referencing between paragraphs is required. ``Fraction of paired bootstrap
@@ -251,7 +257,7 @@ $U_\tau$ / $\Delta U_\tau$ & $0.755391$ & $0.758881$ & $+0.003490$ \\
 \begin{minipage}{0.92\textwidth}\small Fraction of paired bootstrap resamples with positive $\Delta U_\tau$: $1.0$. 95\% percentile interval $[+0.002199,+0.004709]$. Per-fold $\Delta U_\tau$: fold 0 $+0.002973$, fold 1 $+0.004721$, fold 2 $+0.004818$, fold 3 $+0.003882$, fold 4 $+0.001055$.\end{minipage}
 \end{table}
 
-\section{Complete decision-check matrices}
+\section{Complete Decision-Check Matrices}
 
 Check names are the \emph{legacy machine field names} recorded by the audit code, reproduced verbatim
 so the tables can be matched against the published JSON. They are identifiers, not claims: in
@@ -353,7 +359,7 @@ Check (legacy machine field name) & Outcome \\
 \end{tabular}
 \end{table}
 
-\section{Lesion-level evidence and its limits}
+\section{Lesion-Level Evidence and Its Limits}
 
 Components are 26-connected. A reference component counts as missed if no predicted component of the
 same region overlaps it; the denominator therefore depends only on the reference and is
@@ -407,7 +413,7 @@ strict relative to observed between-fold variation, the committed protocol recor
 derivation for them, and they are not externally validated clinical thresholds.
 
 
-\section{Architecture diagnostic under the ranking metric}
+\section{Architecture Diagnostic Under the Ranking Metric}
 
 The fold-0 ResEnc-M versus ResEnc-L screen was decided under DSC/HD95, on the values in
 Table~\ref{tab:screen}. Because the challenge ranks DSC and NSD, the same fold-0 predictions were
@@ -420,8 +426,8 @@ rescored under DSC/NSD at $\tau=0.5$ as a diagnostic.
 \toprule
 Model & ET DSC & TC DSC & WT DSC & ET HD95 & TC HD95 & WT HD95 \\
 \midrule
-ResEnc-M (selected) & 0.859 & \textbf{0.914} & \textbf{0.934} & 14.17 & \textbf{5.96} & 3.89 \\
-ResEnc-L            & \textbf{0.861} & 0.912 & 0.932 & \textbf{11.19} & 6.08 & \textbf{4.11} \\
+ResEnc-M (selected) & 0.859 & \textbf{0.914} & \textbf{0.934} & 14.17 & \textbf{5.96} & \textbf{3.89} \\
+ResEnc-L            & \textbf{0.861} & 0.912 & 0.932 & \textbf{11.19} & 6.08 & 4.11 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -467,32 +473,257 @@ ResEnc-L weights already existed and are what the diagnostic scores; after the d
 five-fold ResEnc-L expansion, architecture change or retraining campaign was undertaken. The
 architecture--metric mismatch is therefore recorded as an open limitation, not a resolved question.
 
-\section{Bounded experiment inventory}
+\section{Per-Component Evidence for the Checkpoint and Weight-Averaging Audits}
+
+Audit~A screened the best-validation checkpoint, mirroring over the recorded axes, both combined,
+and enhancing-tumour connected-component cleanup at three predeclared volume thresholds. Audit~B
+screened two predeclared per-fold weight averages of the final and best-validation checkpoints. The
+main paper reports their outcomes; the per-candidate components are here.
+
+\medskip\noindent\textbf{What these numbers are, exactly.} All rows are the development subset
+($n=811$ subjects, folds 0--2), scored by BraTS-evaluation 0.0.8 GoAT. The policy-selection holdout was never
+opened for these audits, so no folds-3--4 value exists for any of them. Two measurement families
+appear below and are kept apart because they aggregate differently:
+
+\begin{itemize}
+\item the \emph{decision} metrics --- DSC and HD95 over all 811 subjects --- which are the pair
+      these audits were actually ranked on, and
+\item the \emph{official} metrics --- DSC and NSD --- re-scored afterwards from the same preserved
+      predictions once the organizers confirmed the ranking pair. These use the evaluator's skipna
+      rule, so each policy carries its \emph{own} denominators.
+\end{itemize}
+
+\medskip\noindent\textbf{Short codes used in the tables.} C1 is the best-validation checkpoint;
+C2 is mirroring over the recorded axes; C3 is C1 and C2 combined; ET$_{10}$, ET$_{25}$ and
+ET$_{50}$ are enhancing-tumour connected-component cleanup at the three predeclared volume
+thresholds, in mm$^3$; S1 and S2 are the per-fold weight averages $0.75\times$final
+$+\ 0.25\times$best and $0.50\times$final $+\ 0.50\times$best; C0 is the released baseline.
+
+\noindent Because the two families use different aggregation rules they disagree in the third
+decimal, and they are never combined into one column. The official-metric rows are \emph{not} on
+the paired common support used for Audit~C, so they are not line-comparable with the Audit~C tables
+above. Every value here comes from nnU-Net's end-of-training validation lineage, which applies
+eightfold mirroring --- not from the release path. $\tau=1$ is the official-ranking-aligned
+tolerance; $\tau=0.5$ is Panoptica's default and is reported as a prespecified sensitivity analysis
+only. Rendered values are rounded to four decimal places; the machine-readable record in
+\texttt{evidence/supplement\_inputs.json} carries full float precision, and its
+\texttt{provenance} block maps every value in this section back to the frozen record and key path
+it was read from, together with an explicit list of quantities that were never recorded and are
+therefore not shown.
+
+\begin{table}[!htbp]\centering\small
+\caption{Audit~A/B candidates, official-metric component means at $\tau=1$ (official-ranking-aligned), development subset, $n=811$. Denominators are per policy and are given in Table~\ref{tab:abdenom}.}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Policy & ET DSC & TC DSC & WT DSC & ET NSD & TC NSD & WT NSD \\
+\midrule
+C0 & $0.8646$ & $0.9172$ & $0.9282$ & $0.8960$ & $0.8783$ & $0.8664$ \\
+\midrule
+C1 & $0.8620$ & $0.9163$ & $0.9265$ & $0.8937$ & $0.8757$ & $0.8629$ \\
+C2 & $0.8647$ & $0.9172$ & $0.9282$ & $0.8960$ & $0.8784$ & $0.8664$ \\
+C3 & $0.8641$ & $0.9181$ & $0.9280$ & $0.8955$ & $0.8789$ & $0.8658$ \\
+ET$_{10}$ & $0.8656$ & $0.9172$ & $0.9282$ & $0.8966$ & $0.8783$ & $0.8664$ \\
+ET$_{25}$ & $0.8665$ & $0.9172$ & $0.9282$ & $0.8966$ & $0.8783$ & $0.8664$ \\
+ET$_{50}$ & $0.8677$ & $0.9172$ & $0.9282$ & $0.8971$ & $0.8783$ & $0.8664$ \\
+S1 & $0.8632$ & $0.9162$ & $0.9266$ & $0.8942$ & $0.8755$ & $0.8633$ \\
+S2 & $0.8637$ & $0.9169$ & $0.9271$ & $0.8951$ & $0.8768$ & $0.8643$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[!htbp]\centering\small
+\caption{Audit~A/B candidates, official-metric component means at $\tau=0.5$ (sensitivity analysis), development subset, $n=811$. Denominators are per policy and are given in Table~\ref{tab:abdenom}.}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Policy & ET DSC & TC DSC & WT DSC & ET NSD & TC NSD & WT NSD \\
+\midrule
+C0 & $0.8646$ & $0.9172$ & $0.9282$ & $0.6558$ & $0.6215$ & $0.5734$ \\
+\midrule
+C1 & $0.8620$ & $0.9163$ & $0.9265$ & $0.6491$ & $0.6157$ & $0.5659$ \\
+C2 & $0.8647$ & $0.9172$ & $0.9282$ & $0.6558$ & $0.6215$ & $0.5734$ \\
+C3 & $0.8641$ & $0.9181$ & $0.9280$ & $0.6549$ & $0.6229$ & $0.5725$ \\
+ET$_{10}$ & $0.8656$ & $0.9172$ & $0.9282$ & $0.6565$ & $0.6215$ & $0.5734$ \\
+ET$_{25}$ & $0.8665$ & $0.9172$ & $0.9282$ & $0.6570$ & $0.6215$ & $0.5734$ \\
+ET$_{50}$ & $0.8677$ & $0.9172$ & $0.9282$ & $0.6576$ & $0.6215$ & $0.5734$ \\
+S1 & $0.8632$ & $0.9162$ & $0.9266$ & $0.6518$ & $0.6169$ & $0.5677$ \\
+S2 & $0.8637$ & $0.9169$ & $0.9271$ & $0.6524$ & $0.6180$ & $0.5686$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[!htbp]\centering\small
+\caption{Candidate minus C0, official-metric component deltas. A positive value favours the candidate. Development subset, $n=811$.}
+\begin{tabular}{@{}llcccccc@{}}
+\toprule
+Policy & $\tau$ & $\Delta$ET DSC & $\Delta$TC DSC & $\Delta$WT DSC & $\Delta$ET NSD & $\Delta$TC NSD & $\Delta$WT NSD \\
+\midrule
+C1 & $1$ & $-0.0027$ & $-0.0009$ & $-0.0017$ & $-0.0023$ & $-0.0026$ & $-0.0035$ \\
+ & $0.5$ & $-0.0027$ & $-0.0009$ & $-0.0017$ & $-0.0067$ & $-0.0057$ & $-0.0075$ \\
+\addlinespace[2pt]
+C2 & $1$ & $+0.0000$ & $+0.0000$ & $+0.0000$ & $+0.0000$ & $+0.0000$ & $+0.0000$ \\
+ & $0.5$ & $+0.0000$ & $+0.0000$ & $+0.0000$ & $+0.0000$ & $+0.0000$ & $+0.0000$ \\
+\addlinespace[2pt]
+C3 & $1$ & $-0.0005$ & $+0.0009$ & $-0.0002$ & $-0.0005$ & $+0.0006$ & $-0.0006$ \\
+ & $0.5$ & $-0.0005$ & $+0.0009$ & $-0.0002$ & $-0.0009$ & $+0.0014$ & $-0.0009$ \\
+\addlinespace[2pt]
+ET$_{10}$ & $1$ & $+0.0010$ & $+0.0000$ & $+0.0000$ & $+0.0006$ & $+0.0000$ & $+0.0000$ \\
+ & $0.5$ & $+0.0010$ & $+0.0000$ & $+0.0000$ & $+0.0007$ & $+0.0000$ & $+0.0000$ \\
+\addlinespace[2pt]
+ET$_{25}$ & $1$ & $+0.0018$ & $+0.0000$ & $+0.0000$ & $+0.0006$ & $+0.0000$ & $+0.0000$ \\
+ & $0.5$ & $+0.0018$ & $+0.0000$ & $+0.0000$ & $+0.0012$ & $+0.0000$ & $+0.0000$ \\
+\addlinespace[2pt]
+ET$_{50}$ & $1$ & $+0.0030$ & $+0.0000$ & $+0.0000$ & $+0.0011$ & $+0.0000$ & $+0.0000$ \\
+ & $0.5$ & $+0.0030$ & $+0.0000$ & $+0.0000$ & $+0.0018$ & $+0.0000$ & $+0.0000$ \\
+\addlinespace[2pt]
+S1 & $1$ & $-0.0014$ & $-0.0011$ & $-0.0016$ & $-0.0018$ & $-0.0028$ & $-0.0031$ \\
+ & $0.5$ & $-0.0014$ & $-0.0011$ & $-0.0016$ & $-0.0040$ & $-0.0045$ & $-0.0057$ \\
+\addlinespace[2pt]
+S2 & $1$ & $-0.0009$ & $-0.0003$ & $-0.0011$ & $-0.0009$ & $-0.0016$ & $-0.0021$ \\
+ & $0.5$ & $-0.0009$ & $-0.0003$ & $-0.0011$ & $-0.0034$ & $-0.0035$ & $-0.0048$ \\
+\addlinespace[2pt]
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[!htbp]\centering\small
+\caption{The metrics these audits actually decided on: DSC and HD95 over all $n=811$ development subjects. HD95 is in millimetres and lower is better. This is a different aggregation from the official-metric tables above, so the DSC columns differ slightly.}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Policy & ET DSC & TC DSC & WT DSC & ET HD95 & TC HD95 & WT HD95 \\
+\midrule
+C0 & $0.8655$ & $0.9174$ & $0.9282$ & $13.26$ & $5.73$ & $5.86$ \\
+\midrule
+C1 & $0.8627$ & $0.9165$ & $0.9265$ & $13.79$ & $5.86$ & $5.87$ \\
+C2 & $0.8655$ & $0.9174$ & $0.9282$ & $13.26$ & $5.73$ & $5.86$ \\
+C3 & $0.8648$ & $0.9183$ & $0.9280$ & $13.65$ & $5.92$ & $5.61$ \\
+ET$_{10}$ & $0.8666$ & $0.9174$ & $0.9282$ & $13.74$ & $5.73$ & $5.86$ \\
+ET$_{25}$ & $0.8678$ & $0.9174$ & $0.9282$ & $13.71$ & $5.73$ & $5.86$ \\
+ET$_{50}$ & $0.8693$ & $0.9174$ & $0.9282$ & $13.75$ & $5.73$ & $5.86$ \\
+S1 & $0.8641$ & $0.9164$ & $0.9266$ & $13.72$ & $6.26$ & $6.49$ \\
+S2 & $0.8646$ & $0.9171$ & $0.9271$ & $13.42$ & $5.96$ & $5.94$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[!htbp]\centering\small
+\caption{Per-policy denominators (finite scored subjects per component), the frozen advancement statistic against C0 at $\tau=1$, and the advancement outcome. \textbf{Sign convention:} the rank gain is $R(\mathrm{C0})-R(\mathrm{candidate})$, so a \emph{positive} value favours the candidate. The interval is the paired subject-level percentile interval for that same quantity, in the \emph{same} orientation as the point estimate. The frozen record stores the interval in the opposite orientation, as $R(\mathrm{candidate})-R(\mathrm{C0})$; it is negated here (which reverses its endpoints) and retained unmodified in \texttt{evidence/supplement\_inputs.json} under \texttt{bootstrap\_delta\_ci\_candidate\_minus\_C0}. No candidate advanced.}
+\label{tab:abdenom}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Policy & $n$ ET & $n$ TC & $n$ WT & Rank gain & 95\% interval & Advances \\
+\midrule
+C0 & $806$ & $809$ & $811$ & --- & --- & --- \\
+\midrule
+C1 & $807$ & $809$ & $811$ & $-1.000$ & $[-1.000,-0.333]$ & no \\
+C2 & $806$ & $809$ & $811$ & $+1.000$ & $[-0.667,+1.000]$ & no \\
+C3 & $807$ & $809$ & $811$ & $-0.333$ & $[-1.000,+1.000]$ & no \\
+ET$_{10}$ & $805$ & $809$ & $811$ & $+0.333$ & $[-0.333,+0.333]$ & no \\
+ET$_{25}$ & $803$ & $809$ & $811$ & $+0.333$ & $[-0.333,+0.333]$ & no \\
+ET$_{50}$ & $801$ & $809$ & $811$ & $+0.333$ & $[-0.333,+0.333]$ & no \\
+S1 & $806$ & $809$ & $811$ & $-1.000$ & $[-1.000,-0.667]$ & no \\
+S2 & $806$ & $809$ & $811$ & $-1.000$ & $[-1.000,-0.333]$ & no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Outcome.} No candidate advanced at either tolerance: \texttt{G75\_\allowbreak{}RETAIN\_\allowbreak{}BASELINE} for Audit~A, \texttt{G76\_\allowbreak{}RETAIN\_\allowbreak{}C0} for
+Audit~B, and the later official-metric re-scorings returned \texttt{None} and \texttt{G79V\_\allowbreak{}RETAIN\_\allowbreak{}C0\_\allowbreak{}TAU1\_\allowbreak{}SENSITIVITY}. The list of advancing
+candidates is empty and the release policy was not changed. Denominators differ between policies
+because enhancing-tumour cleanup removes small predicted components and can leave a subject with no
+finite ET score; that is precisely why an ET-only mean gain is not evidence of improvement, and why
+the audits' common-support rule exists.
+
+\medskip\noindent\textbf{On the two weight soups.} Both lose to C0 on every component at both
+tolerances, and on all three HD95 diagnostics. The ordering between them is C0 $>$ S2 $>$ S1
+throughout: the soup that mixes \emph{more} of the best-validation checkpoint ($0.50$) is uniformly
+\emph{better} than the one that mixes less ($0.25$). The degradation is therefore consistent in
+direction but \emph{not} monotone in the amount mixed in, and the main paper says so.
+
+
+\medskip\noindent\textbf{The bounded 40-epoch fine-tuning screen.} Three fine-tuning recipes were
+screened for 40 epochs at a learning rate of $0.0005$ (seed $20260730$) on folds 0--2, on a
+common support of $n=806$ subjects, each initialised from a bit-identical copy of the corresponding
+C0 checkpoint. The screen tested exactly one point in the fine-tuning design space -- 40 epochs at 5\% of the original learning rate, from a converged model, on three folds. A bounded run of that size cannot speak to convergence, and it does not establish that fine-tuning cannot help: a longer schedule, a higher learning rate or a different intervention was never tested, because the preregistration made the 40-epoch screen the gate for spending more compute and the screen did not pass. The frozen record stores \emph{deltas} against C0 only: absolute
+per-component means for the candidate arms were never computed and are not reconstructed here, and
+HD95 was excluded by the preregistration, so no HD95 value exists for any arm. Bootstrap, per-fold
+and tail statistics exist at $\tau=1$ only.
+
+\begin{table}[!htbp]\centering\small
+\caption{Bounded 40-epoch fine-tuning screen: component deltas against C0 on the common support ($n=806$). Positive favours the candidate. Aggregate utility changes are given below. The screen selected on $\min(\Delta U_{\tau=1},\Delta U_{\tau=0.5})$; no arm was eligible.}
+\begin{tabular}{@{}llcccccc@{}}
+\toprule
+Arm & $\tau$ & $\Delta$ET DSC & $\Delta$TC DSC & $\Delta$WT DSC & $\Delta$ET NSD & $\Delta$TC NSD & $\Delta$WT NSD \\
+\midrule
+T & $1$ & $-0.00031$ & $-0.00007$ & $-0.00015$ & $-0.00054$ & $-0.00068$ & $-0.00090$ \\
+ & $0.5$ & $-0.00031$ & $-0.00007$ & $-0.00015$ & $-0.00076$ & $-0.00088$ & $-0.00231$ \\
+\addlinespace[2pt]
+DG & $1$ & $+0.00030$ & $+0.00023$ & $-0.00002$ & $+0.00021$ & $+0.00018$ & $-0.00037$ \\
+ & $0.5$ & $+0.00030$ & $+0.00023$ & $-0.00002$ & $-0.00027$ & $-0.00015$ & $-0.00165$ \\
+\addlinespace[2pt]
+TDG & $1$ & $+0.00026$ & $+0.00036$ & $+0.00018$ & $+0.00024$ & $+0.00034$ & $+0.00004$ \\
+ & $0.5$ & $+0.00026$ & $+0.00036$ & $+0.00018$ & $+0.00015$ & $-0.00048$ & $-0.00160$ \\
+\addlinespace[2pt]
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent At $\tau=1$ the aggregate utility change was $-0.000442$ (T), $+0.000087$ (DG) and
+$+0.000237$ (TDG); at $\tau=0.5$ it was $-0.000746$, $-0.000262$ and $-0.000189$. The $\tau=1$ paired
+bootstrap reproduces those point estimates, with positive-resample fractions $0.0714$, $0.5969$ and
+$0.8192$; every interval spans zero. All three arms failed the $\tau=0.5$ utility gate and the total zero-DSC gate, so the
+terminal status was \texttt{G82\_\allowbreak{}RETAIN\_\allowbreak{}C0\_\allowbreak{}NO\_\allowbreak{}SCREEN\_\allowbreak{}ADVANCEMENT} and C0 was retained. Of the ten frozen eligibility gates, T passed
+$5/10$, DG passed $7/10$ and TDG passed $8/10$.
+
+\medskip\noindent\textbf{The dense-overlap variant D25.} D25 differed from C0 in exactly one parameter, the sliding-window tile step ($0.5 \rightarrow 0.25$). It was never run. The prerequisite baseline-reproduction gate failed because the twelve required baseline values are reproducible only by the eightfold mirroring lineage, while the specification defines C0 with mirroring disabled and prohibits test-time augmentation, so the targets cannot be reproduced by any run that complies with the specification. No D25 prediction, DSC, NSD, runtime or utility value exists. This is a specification/lineage mismatch, not evidence that D25 failed; D25 remains scientifically unresolved. An analytic tile-count study was nevertheless computed, without generating any prediction. It found that the step change
+multiplies tiles per volume by $2.25$, $1.33$ and $1.5$ across three representative geometries.
+
+
+\section{Bounded Experiment Inventory}
 
 The search was bounded, and is listed rather than implied to be exhaustive. The list mixes
 candidates that were executed and scored with proposals that were screened out \emph{before}
 execution; the outcome column says which is which.
 
-\begin{table}[!ht]\centering
-\caption{Bounded experiment inventory, including executed candidates and proposals screened out
-before execution. Nothing here was adopted; the released policy is unchanged.}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.40\textwidth}>{\raggedright\arraybackslash}p{0.56\textwidth}@{}}
+{\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}p{0.15\textwidth}>{\raggedright\arraybackslash}p{0.52\textwidth}@{}}
+\caption{Complete bounded experiment inventory. Every candidate the main paper refers to appears here. The status column separates candidates that were executed and scored from proposals that were screened out before any execution. Nothing here was adopted; the released policy is unchanged.}\\
 \toprule
-Item & Outcome \\
+Item & Status & Outcome \\
 \midrule
-Best-validation checkpoint & No robust improvement; stopped on the development subset. \\
-Mirroring over recorded axes & Executed. Point-positive, but the interval included zero; superseded by Audit~C. \\
-ET connected-component cleanup, three declared volume thresholds & Traded ET overlap against ET boundary distance; an apparent mean gain proved to come from changed ET support. \\
-Weight averaging (two declared per-fold soups of the final and best-validation checkpoints) & All six components moved the wrong way for both soups, monotonically in the amount mixed in. \\
-Eightfold mirroring TTA (candidate M8) & Improved all six components on the development subset; failed the policy-selection holdout on the utility gate and the lesion miss-rate safety gate. \\
-40-epoch fine-tuning screen: tumor-type-mixture, domain-generalization augmentation, and their combination & Failed its frozen gates. Bounded at 40 epochs, so it cannot speak to behaviour trained to convergence. \\
-Dense-overlap variant (tile step $0.5\rightarrow0.25$) & \emph{Not} tested: its baseline gate mixed an augmentation-derived lineage with the no-augmentation release baseline. \\
-Larger ensembles, cascades, cohort routing, alternative thresholds & Not tested. \\
+\endfirsthead
+\toprule
+Item & Status & Outcome \\
+\midrule
+\endhead
 \bottomrule
-\end{tabular}
-\end{table}
+\endfoot
+C1 best-validation checkpoint & Executed & Scored on the development subset. No robust improvement; the rank gain against C0 is negative. Stopped. \\
+\addlinespace[2pt]
+C2 mirroring over the recorded axes & Executed & Point-positive on the decision metrics but the interval included zero; superseded by Audit~C. \\
+\addlinespace[2pt]
+C3 best checkpoint $+$ mirroring & Executed & The combined arm. No robust improvement; stopped on the development subset. \\
+\addlinespace[2pt]
+ET connected-component cleanup, $10$\,mm$^3$ & Executed & Raised ET DSC but changed ET support, trading overlap against boundary distance. Stopped. \\
+\addlinespace[2pt]
+ET connected-component cleanup, $25$\,mm$^3$ & Executed & As above, with fewer scored ET subjects. Stopped. \\
+\addlinespace[2pt]
+ET connected-component cleanup, $50$\,mm$^3$ & Executed & As above; the apparent mean gain comes from the changed ET denominator. Stopped. \\
+\addlinespace[2pt]
+S1 weight soup, $0.75$ final $+$ $0.25$ best & Executed & All six components moved the wrong way at both tolerances, and it also failed the HD95 tail gate. \\
+\addlinespace[2pt]
+S2 weight soup, $0.50$ final $+$ $0.50$ best & Executed & All six components moved the wrong way at both tolerances. Uniformly better than S1, so the degradation is not monotone in the amount mixed in. \\
+\addlinespace[2pt]
+M8 eightfold mirroring TTA & Executed & Improved all six components on the development subset but failed the frozen lesion false-negative veto and stopped; a separate folds-3--4 follow-up then failed the utility and miss-rate gates. C0 retained. \\
+\addlinespace[2pt]
+T tail-aware sampling & Executed (bounded screen) & 40-epoch screen. Failed 5 of 10 gates, including both utility gates; ineligible. \\
+\addlinespace[2pt]
+DG appearance transform & Executed (bounded screen) & 40-epoch screen. Failed 3 of 10 gates, including the $\tau=0.5$ utility gate; ineligible. \\
+\addlinespace[2pt]
+TDG (T $+$ DG) & Executed (bounded screen) & 40-epoch screen. Failed 2 of 10 gates, including the $\tau=0.5$ utility gate; ineligible. \\
+\addlinespace[2pt]
+D25 dense overlap, tile step $0.25$ & \textbf{Never executed} & Preregistered and considered, then blocked before any run by an invalid baseline specification: the required baseline values are reproducible only under the mirroring lineage, while the specification defines C0 with mirroring disabled and prohibits test-time augmentation. Zero D25 predictions were generated and no D25 result of any kind exists. This is not evidence that D25 fails. \\
+\addlinespace[2pt]
+\end{longtable}
+}
 
-\section{Runtime, container and repeatability}
+
+\section{Runtime, Container, and Repeatability}
 
 \noindent\textbf{Full-cohort run.} The exact release policy processed 451 of 451 official validation
 cases with exit code $0$ and zero inference errors, at a peak framework-reserved VRAM of
@@ -526,7 +757,7 @@ hidden-test result and no rank exists for it, and none is claimed. The historica
 in the public repository under a filename that marks it as superseded.
 
 
-\section{What this supplement does not contain}
+\section{What This Supplement Does Not Contain}
 
 No patient image, segmentation label, model prediction, model weight, case identifier, fold
 membership or per-case metric appears here or in the public repository. No submission identifier,

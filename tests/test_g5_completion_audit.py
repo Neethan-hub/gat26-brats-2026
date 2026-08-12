@@ -31,7 +31,10 @@ def check(name, cond):
 
 
 def manifest(tag, plans, of=None):
-    of = of or f"/workspace/runs/nnUNet_results/{R.DATASET}/nnUNetTrainer__{plans}__3d_fullres/fold_0"
+    # nnU-Net's conventional results layout, rooted at nnUNet_results (or a temp dir) rather than
+    # at a machine-absolute path, so the fixture is portable.
+    root = os.environ.get("nnUNet_results") or os.path.join(tempfile.gettempdir(), "nnUNet_results")
+    of = of or f"{root}/{R.DATASET}/nnUNetTrainer__{plans}__3d_fullres/fold_0"
     return {"tag": tag, "recipe": {"plans": plans}, "output_folder": of}
 
 
@@ -88,11 +91,11 @@ def main():
         with tempfile.TemporaryDirectory() as tmp:
             os.environ["nnUNet_preprocessed"] = tmp
             rundir = Path(tmp) / "rundir"; rundir.mkdir()
-            (rundir / "precheck.json").write_text(json.dumps({"source_commit": True}))
+            (rundir / "precheck.json").write_text(json.dumps({"source_commit": True}), encoding="utf-8")
             (rundir / "source_version_at_launch.txt").write_text(
-                f"launch_commit={LC5}\nlaunch_utc_epoch=1\nmarker_at_launch:\ndeployed_commit={LC5}\n")
+                f"launch_commit={LC5}\nlaunch_utc_epoch=1\nmarker_at_launch:\ndeployed_commit={LC5}\n", encoding="utf-8")
             svp = Path(tmp) / "config.json"
-            svp.write_text(f"deployed_commit={LC5}\n")
+            svp.write_text(f"deployed_commit={LC5}\n", encoding="utf-8")
             expect = {
                 "commit": LC5, "source_version_path": str(svp),
                 "config_path": str(svp), "config_sha256": "sha::config.json",
@@ -118,7 +121,7 @@ def main():
     sl = inspect.signature(A.strict_checkpoint_load).parameters["plans_id"]
     check("verify_provenance_plan_arg_required", vp.default is inspect.Parameter.empty)
     check("strict_checkpoint_load_plan_arg_required", sl.default is inspect.Parameter.empty)
-    check("no_R_PLANS_in_source", "R.PLANS" not in (REPO / "scripts" / "g5_completion_audit.py").read_text())
+    check("no_R_PLANS_in_source", "R.PLANS" not in (REPO / "scripts" / "g5_completion_audit.py").read_text(encoding="utf-8"))
 
     # 7. Permitted set is exactly the frozen M/L screen — backward-compatible M identity intact.
     check("permitted_is_exactly_M_L",
@@ -135,14 +138,14 @@ def main():
     def mk(td, snapshot=None, precheck={"source_commit": True}, current=f"deployed_commit={LC}\n",
            expect_commit=LC, snapshot_as_dir=False):
         rd = Path(td)
-        marker = rd / "SOURCE_VERSION.txt"; marker.write_text(current)
+        marker = rd / "SOURCE_VERSION.txt"; marker.write_text(current, encoding="utf-8")
         p = rd / "source_version_at_launch.txt"
         if snapshot_as_dir:
             p.mkdir()
         elif snapshot is not None:
-            p.write_text(snapshot)
+            p.write_text(snapshot, encoding="utf-8")
         if precheck is not None:
-            (rd / "precheck.json").write_text(json.dumps(precheck))
+            (rd / "precheck.json").write_text(json.dumps(precheck), encoding="utf-8")
         return A.verify_launch_provenance(str(rd), {"commit": expect_commit, "source_version_path": str(marker)})
 
     with tempfile.TemporaryDirectory() as td:               # valid, current marker == launch
@@ -184,9 +187,9 @@ def main():
         ok8, i8 = mk(td, snapshot_as_dir=True)
         check("unreadable_snapshot_fails", ok8 is False and i8["launch_evidence"] == "unreadable_launch_snapshot")
     with tempfile.TemporaryDirectory() as td:               # drift reported, snapshot never rewritten
-        rd = Path(td); (rd / "precheck.json").write_text(json.dumps({"source_commit": True}))
-        snap = rd / "source_version_at_launch.txt"; snap.write_text(snaptext())
-        marker = rd / "SOURCE_VERSION.txt"; marker.write_text(f"deployed_commit={OTHER}\n")
+        rd = Path(td); (rd / "precheck.json").write_text(json.dumps({"source_commit": True}), encoding="utf-8")
+        snap = rd / "source_version_at_launch.txt"; snap.write_text(snaptext(), encoding="utf-8")
+        marker = rd / "SOURCE_VERSION.txt"; marker.write_text(f"deployed_commit={OTHER}\n", encoding="utf-8")
         before = snap.read_bytes()
         ok8, i8 = A.verify_launch_provenance(str(rd), {"commit": LC, "source_version_path": str(marker)})
         check("launch_record_never_rewritten", snap.read_bytes() == before and ok8 and i8["deployment_drift"] is True)

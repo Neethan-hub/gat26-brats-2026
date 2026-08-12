@@ -296,14 +296,14 @@ def build_policy():
 
 
 def cmd_emit(args):
-    Path(args.out).write_text(json.dumps(build_policy(), indent=2) + "\n")
+    Path(args.out).write_text(json.dumps(build_policy(), indent=2) + "\n", encoding="utf-8")
     h = hashlib.sha256(Path(args.out).read_bytes()).hexdigest()
     print(json.dumps({"written": args.out, "policy_id": "gat26_g45_selection_policy_v2", "sha256": h}))
     return 0
 
 
 def cmd_validate(args):
-    p = json.loads(Path(args.file).read_text())
+    p = json.loads(Path(args.file).read_text(encoding="utf-8"))
     checks = {
         "v2": p["policy_id"] == "gat26_g45_selection_policy_v2",
         "six_components": len(p["primary_award_utility"]["components"]) == 6,

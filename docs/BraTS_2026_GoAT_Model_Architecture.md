@@ -1,6 +1,26 @@
 # GAT-26
 ## Model architecture and experimental protocol for BraTS 2026 GoAT
 
+> [!IMPORTANT]
+> **HISTORICAL SNAPSHOT — not a current release validator and not current instructions.**
+> This document is a pre-training / pre-submission record from the stage dated in its own header. It is
+> retained unmodified as governance history and is **superseded** for every current claim. Do not
+> follow it as current guidance, and do not read its constants, metric statements or feasibility
+> language as the present contract.
+>
+> Current truth, as of the r11 camera-ready:
+>
+> * Official ranking uses **DSC and NSD at `τ=1`**; **HD95 is diagnostic only** and is not ranked.
+> * Output naming preserves the **complete opaque input case-folder basename**. There is **no
+>   five-digit rule** and no assumed cohort prefix.
+> * Any `[160,160,128]` patch size appearing here is **synthetic / reference-only**; the **final
+>   trained plan is `[128,160,112]`**.
+> * The **corrected** container image was submitted, but **no organizer execution log, no hidden-test
+>   result, no rank and no A10G measurement exist for that corrected image**.
+> * The **camera-ready paper and the current top-level `README.md` are authoritative** wherever they
+>   differ from this document.
+
+
 Scientific design specification, version 1.2. Re-audited against the live challenge pages and pinned primary implementations on 21 July 2026. Target: BraTS 2026 Task 3, pre-operative cross-tumor MRI segmentation.
 
 > [!CRITICAL]

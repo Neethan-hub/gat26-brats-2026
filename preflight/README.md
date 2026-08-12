@@ -1,5 +1,25 @@
 # GAT-26 preflight test package
 
+> [!IMPORTANT]
+> **HISTORICAL SNAPSHOT — not a current release validator and not current instructions.**
+> This document is a pre-training / pre-submission record from the stage dated in its own header. It is
+> retained unmodified as governance history and is **superseded** for every current claim. Do not
+> follow it as current guidance, and do not read its constants, metric statements or feasibility
+> language as the present contract.
+>
+> Current truth, as of the r11 camera-ready:
+>
+> * Official ranking uses **DSC and NSD at `τ=1`**; **HD95 is diagnostic only** and is not ranked.
+> * Output naming preserves the **complete opaque input case-folder basename**. There is **no
+>   five-digit rule** and no assumed cohort prefix.
+> * Any `[160,160,128]` patch size appearing here is **synthetic / reference-only**; the **final
+>   trained plan is `[128,160,112]`**.
+> * The **corrected** container image was submitted, but **no organizer execution log, no hidden-test
+>   result, no rank and no A10G measurement exist for that corrected image**.
+> * The **camera-ready paper and the current top-level `README.md` are authoritative** wherever they
+>   differ from this document.
+
+
 Version 1.2 (21 July 2026). This package checks inexpensive contracts before
 protected-data training. It does **not** prove accuracy, reliability on the
 hidden test set, or likelihood of winning.

@@ -52,7 +52,7 @@ def _synth_split_and_fp(tmp, per_fold_cases=60):
                         seg_small=np.zeros((len(all_cids), 8)), shapes=np.zeros((len(all_cids), 3)),
                         et=np.array(et), tc=np.array(tc), wt=np.array(wt),
                         fg=np.array(nvox), nvox=np.array(nvox))
-    sj = os.path.join(tmp, "split.json"); Path(sj).write_text(json.dumps(splits))
+    sj = os.path.join(tmp, "split.json"); Path(sj).write_text(json.dumps(splits), encoding="utf-8")
     return fpz, sj, all_cids
 
 
@@ -103,7 +103,7 @@ def main():
 
 def _write(tmp, name, obj):
     p = os.path.join(tmp, name + ".json")
-    Path(p).write_text(json.dumps(obj))
+    Path(p).write_text(json.dumps(obj), encoding="utf-8")
     return Path(p)
 
 

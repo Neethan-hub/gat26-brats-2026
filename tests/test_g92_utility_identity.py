@@ -30,7 +30,7 @@ failures: list[str] = []
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
-    print(f"  {'ok  ' if ok else 'FAIL'} {name}{'' if ok else ' — ' + detail}")
+    print(f"  {'ok  ' if ok else 'FAIL'} {name}{'' if ok else ' -- ' + detail}")
     if not ok:
         failures.append(name)
 
@@ -41,12 +41,12 @@ def _subsets() -> list[tuple[str, dict]]:
     g84 = REPO / "artifacts" / "g84_result.json"
     g85 = REPO / "artifacts" / "g85_result.json"
     if g84.is_file():
-        cal = json.loads(g84.read_text())["calibration"]
+        cal = json.loads(g84.read_text(encoding="utf-8"))["calibration"]
         for k in ("tau1", "tau05"):
             if cal.get(k):
                 out.append((f"development/{k}", cal[k]))
     if g85.is_file():
-        d = json.loads(g85.read_text())
+        d = json.loads(g85.read_text(encoding="utf-8"))
         for name, key in (("holdout", "confirmation"), ("pooled", "pooled_all_five_folds")):
             for k in ("t10", "t05"):
                 if d[key].get(k):
@@ -89,7 +89,7 @@ def test_public_json_carries_the_identity() -> None:
     if not path.is_file():
         print("  skip  evidence/policy_audit_summary.json not present in this tree")
         return
-    d = json.loads(path.read_text())
+    d = json.loads(path.read_text(encoding="utf-8"))
     utility = d.get("utility", "").lower()
     check("public summary says raw component means",
           "raw" in utility and "mean" in utility, utility[:90])
@@ -110,11 +110,11 @@ def test_component_csv_reproduces_delta_u() -> None:
     if not (path.is_file() and summary.is_file()):
         print("  skip  public component CSV not present in this tree")
         return
-    rows = list(csv.DictReader(path.open(newline="")))
+    rows = list(csv.DictReader(path.open(newline="", encoding="utf-8")))
     by: dict[tuple[str, str], list[float]] = {}
     for r in rows:
         by.setdefault((r["subset"], r["nsd_tolerance"]), []).append(float(r["delta"]))
-    d = json.loads(summary.read_text())["subsets"]
+    d = json.loads(summary.read_text(encoding="utf-8"))["subsets"]
     for (subset, tau), deltas in by.items():
         check(f"csv has six components [{subset}/{tau}]", len(deltas) == 6, str(len(deltas)))
         entry = d[subset][f"tau_{tau}"]
@@ -134,7 +134,7 @@ def test_no_fractional_rank_description_of_audit_c() -> None:
     for path in targets:
         if not path.is_file():
             continue
-        text = path.read_text()
+        text = path.read_text(encoding="utf-8")
         check(f"no rank-utility wording in {path.name}", not bad.search(text),
               (bad.search(text).group(0) if bad.search(text) else ""))
         # The audit utility must be introduced as a raw-metric mean somewhere in the science text.
@@ -149,7 +149,7 @@ def test_rank_statistic_kept_separate() -> None:
         path = REPO / "paper" / name
         if not path.is_file():
             continue
-        text = path.read_text()
+        text = path.read_text(encoding="utf-8")
         check(f"{name} names the architecture statistic R", re.search(r"\$R\$", text) is not None)
         check(f"{name} separates R from U_tau",
               re.search(r"(different object|never combined|not a rank statistic)", text) is not None)
@@ -160,12 +160,12 @@ def test_development_tau05_bootstrap_is_absent() -> None:
     """The committed record holds no development bootstrap at tau=0.5; nothing may invent one."""
     g84 = REPO / "artifacts" / "g84_result.json"
     if g84.is_file():
-        cal = json.loads(g84.read_text())["calibration"]
+        cal = json.loads(g84.read_text(encoding="utf-8"))["calibration"]
         check("g84 development tau=0.5 has no bootstrap",
               not cal.get("tau05", {}).get("bootstrap"))
     summary = REPO / "evidence" / "policy_audit_summary.json"
     if summary.is_file():
-        dev = json.loads(summary.read_text())["subsets"]["development_folds_0_2"]["tau_0.5"]
+        dev = json.loads(summary.read_text(encoding="utf-8"))["subsets"]["development_folds_0_2"]["tau_0.5"]
         check("public dev tau=0.5 positive fraction is null",
               dev["bootstrap_positive_fraction"] is None, repr(dev["bootstrap_positive_fraction"]))
         check("public dev tau=0.5 interval is null",
@@ -179,7 +179,7 @@ def test_manuscript_does_not_claim_a_dev_tau05_bootstrap() -> None:
         path = REPO / "paper" / name
         if not path.is_file():
             continue
-        text = path.read_text()
+        text = path.read_text(encoding="utf-8")
         check(f"{name} has no '1.000 / 1.000' development fraction",
               "$1.000$ / $1.000$" not in text and "1.000 / 1.000" not in text)
         # An unqualified "every bootstrap resample was positive" would overstate the tau=0.5 case.
@@ -196,7 +196,7 @@ def test_tau1_is_described_as_official_ranking_aligned() -> None:
         path = REPO / "paper" / name
         if not path.is_file():
             continue
-        text = path.read_text().lower()
+        text = path.read_text(encoding="utf-8").lower()
         check(f"{name} names tau=1 as the ranking tolerance",
               "official-ranking" in text or "final ranking uses" in text)
         check(f"{name} calls tau=0.5 a sensitivity analysis", "sensitivity analysis" in text)
@@ -209,7 +209,7 @@ def main() -> int:
     for fn in tests:
         print(f"\n{fn.__name__}")
         fn()
-    print(f"\n{'FAIL' if failures else 'PASS'} — {len(failures)} failing check(s)")
+    print(f"\n{'FAIL' if failures else 'PASS'} -- {len(failures)} failing check(s)")
     if failures:
         for f in failures:
             print(f"  - {f}")

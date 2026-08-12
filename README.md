@@ -42,7 +42,9 @@ the organizers under their own access terms** — see [`DATA_PROVENANCE.md`](DAT
 - **Split.** Deterministic group-level five-fold split with a fixed recorded seed, frozen before any
   training; fold sizes `[271, 270, 270, 270, 270]`; byte-identical across independent runs.
 - **Inference (frozen policy).** Sequential five-checkpoint mean-probability ensemble — one fold
-  model resident at a time, so peak memory is that of a single model — with a fixed `0.5` threshold,
+  model is resident at a time, so simultaneous model residency does not scale with five folds; the
+  running probability accumulator and the current per-region probabilities are also resident, so
+  total process peak memory is **not** that of a bare single-model run — with a fixed `0.5` threshold,
   tile step `0.5`, Gaussian weighting, **no** test-time augmentation, **no** connected-component
   filtering, **no** enhancing-tumor cleanup, and a hierarchy-safe reconstruction enforcing
   `WT ⊇ TC ⊇ ET`. Outputs restore the exact source geometry and are integer-labeled `{0,1,2,3}`.
@@ -64,15 +66,23 @@ the organizers under their own access terms** — see [`DATA_PROVENANCE.md`](DAT
 |---|---|
 | `scripts/release_infer.py` | The release inference runner — the entrypoint of the submission container |
 | `scripts/release_build_preflight.py` | Deterministic build-context preflight (no Docker required) |
-| `configs/release/` | `Dockerfile`, pinned `requirements.lock.txt`, and the release runbook |
+| `configs/release/` | `Dockerfile`, pinned `requirements.lock.txt`, and the release container README. `AWS_A10G_RUNBOOK.md` in the same directory is an **archived historical runbook**, not current instructions |
 | `scripts/` | Split construction, selection policy, training/evaluation drivers, audit tooling |
-| `configs/` | Experiment and selection-policy configuration |
-| `tests/` | Test suite for the above |
-| `preflight/` | Static architecture/release contract suite |
+| `configs/` | Frozen, dated experiment and selection-policy records. **They are evidence, not current contracts** — read `configs/README.md` first for the stage chronology and what supersedes what |
+| `tests/` | Test suite for the above. Some tests deliberately pin **historical** values, to prove a past decision was made as recorded rather than to reassert an obsolete rule |
+| `preflight/` | **Archived** pre-training static contract suite (version 1.2, 21 July 2026). Retained so its historical 24/24 result stays reproducible; **not** a current release validator |
 | `paper/` | LaTeX source for the camera-ready paper (the compiled PDF is not committed) |
 | `evidence/` | Sanitized aggregate policy-audit evidence and the exact official validation scores |
 | `paper/supplement.tex` | Supplementary material: per-component tables, the full 18- and 23-check matrices, lesion evidence and the architecture diagnostic |
-| `docs/` | Method and rule documentation |
+| `docs/` | **Archived** pre-training design and audit memoranda (architecture specification v1.2, preflight audit v2.0), plus method and rule documentation. The design and audit memoranda are historical records, **not** current contracts |
+
+Where an archived record and this README or the camera-ready paper disagree, **the paper and this
+README are authoritative**. Current truth in one place: official ranking uses **DSC and NSD at
+`τ=1`** and **excludes HD95** (diagnostic only); output naming preserves the **complete opaque
+input case-folder basename** with **no five-digit rule**; the final trained plan is
+**`[128,160,112]`** (`[160,160,128]` appears in archived records only, as a synthetic/reference
+figure); and the **corrected** container image was submitted but has **no organizer execution log,
+no hidden-test result, no rank and no A10G measurement**.
 
 ## Container contract
 
@@ -127,6 +137,34 @@ sanitization, publication-state, release-state, page-count and unsupported-claim
 scientific, configuration, candidate-restriction, metric-definition, fold-isolation, bootstrap and
 historical-policy checks. Nothing is stubbed, hardcoded, or approximated in place of a skipped
 check — the subgroup is simply not run.
+
+Those two are the **only** subgroups that may vanish, and each announces itself with a printed
+`SKIP_` token. A check that disappears without saying so is a defect, not a skip: `tests/test_g83_science.py`
+previously read its NSD adapter from a machine-absolute private path behind an `if` guard, so on any
+tree without that path — including every public export — one check silently left the tally while the
+file still reported all checks passed. The adapter now ships as `scripts/g79v_tau_nsd_adapter.py`,
+the test loads it by a repository-relative path, and its absence is a hard failure. That file reports
+**42/42** checks here, and `tests/test_r11_public_docs.py` fails closed if a machine-absolute path
+reappears in any file that ships.
+
+Text reads and writes name UTF-8 explicitly everywhere except the 23 files held byte-frozen by the
+stage immutability guards, which are left exactly as they were audited. The suites give identical
+results under a C locale and a UTF-8 locale.
+
+**Supported environment.** **Linux/AMD64 is the only fully tested and supported environment for the
+complete suite.** Every result quoted here was produced there. **No claim is made that the complete
+suite passes on Windows or macOS** — neither has been run, and neither is supported. Two narrower
+properties do hold generally, because they are mechanical rather than platform-tested: the
+supplement generator writes encoded bytes, so its output cannot pick up platform newline
+translation, and `tests/test_r11_supplement_regeneration.py` asserts byte identity together with the
+absence of CRLF and of bare CR.
+
+Two suites are specific to the r11 revision:
+
+| Test | What it pins |
+|---|---|
+| `tests/test_r11_public_docs.py` | Memory wording, the five historical-snapshot banners, the current official-metric and basename statements, historical-string scoping, absolute paths, worktree exclusion and export hygiene |
+| `tests/test_r11_supplement_regeneration.py` | That `scripts/g92_build_supplement.py` rebuilds `paper/supplement.tex` **byte-for-byte** from `evidence/` alone, with no private input, and fails closed with no input at all |
 
 The skip is deliberately hard to reach: it activates only when this tree's `EXPORT_MANIFEST.json`
 declares the sanitized Apache-2.0 export *and* the corresponding private files are genuinely

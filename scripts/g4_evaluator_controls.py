@@ -42,7 +42,7 @@ def _regions(result: dict):
 
 
 def verify_config() -> dict:
-    txt = Path(be.config_path("GoAT")).read_text()
+    txt = Path(be.config_path("GoAT")).read_text(encoding="utf-8")
     return {
         "et_[3]": "et:" in txt and "[3]" in txt,
         "tc_[1,3]": "[1, 3]" in txt,
@@ -108,10 +108,10 @@ def main() -> int:
     zp = Path(tmp) / "zero_pred.nii.gz"; _write(np.zeros_like(ref), zp)
     zj = Path(tmp) / "zero.json"
     res0 = be.evaluate_single_exam(str(zp), str(rp), "GAT26SMOKE_90001", ev)
-    zj.write_text(json.dumps(parser_json([res0])))
+    zj.write_text(json.dumps(parser_json([res0])), encoding="utf-8")
     zcsv = Path(tmp) / "zero.csv"
     be.parse_seg_results(str(zj), str(zcsv))
-    csvtext = zcsv.read_text()
+    csvtext = zcsv.read_text(encoding="utf-8")
     dsc0 = region_metric(res0, "et", "dsc"); hd0 = region_metric(res0, "et", "hd95")
     out["controls"]["all_zero"] = {
         "et_dsc": dsc0, "et_hd95_raw": (None if hd0 is None else (float(hd0) if np.isfinite(float(hd0)) else "INF")),
@@ -138,7 +138,7 @@ def main() -> int:
     out["controls"]["geometry_mismatch"] = {"wrapper_hard_fail": hf2, "ok": hf2}
 
     # 5. actual one-step outputs (private scores)
-    refmap = json.loads(Path(args.actual_ref_json).read_text())
+    refmap = json.loads(Path(args.actual_ref_json).read_text(encoding="utf-8"))
     actual_json = Path(tmp) / "actual.json"; records = {}
     n_err = 0
     for alias, pr in refmap.items():
@@ -147,10 +147,10 @@ def main() -> int:
             records[alias] = r
         except Exception:
             n_err += 1
-    actual_json.write_text(json.dumps(parser_json(list(records.values()))))
+    actual_json.write_text(json.dumps(parser_json(list(records.values()))), encoding="utf-8")
     actual_csv = Path(tmp) / "actual.csv"
     be.parse_seg_results(str(actual_json), str(actual_csv))
-    ctext = actual_csv.read_text().lower()
+    ctext = actual_csv.read_text(encoding="utf-8").lower()
     six = all(f"global_{m}_{reg}" in ctext
               for reg in ("et", "tc", "wt") for m in ("dsc", "hd95"))
     out["actual"] = {
@@ -159,7 +159,7 @@ def main() -> int:
         "six_global_columns_present": six,
         "ok": (len(records) == len(refmap) and n_err == 0 and six)}
 
-    Path(args.out).write_text(json.dumps(out, indent=2) + "\n")
+    Path(args.out).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
     # sanitized (no numeric actual scores)
     san = {"config": out["config"],
            "controls": {k: {kk: vv for kk, vv in v.items() if kk in ("ok", "parser_maps_373", "wrapper_hard_fail")}

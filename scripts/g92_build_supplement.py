@@ -33,6 +33,12 @@ HEADER = r"""\documentclass[runningheads]{llncs}
 % Float placement parameters. These govern where LaTeX may put a float; they change no
 % margin, font size, page size or spacing. Loosening them keeps each table on or near the page
 % that discusses it instead of accumulating a backlog that lands on half-empty float pages.
+% This supplement is table-dense: several pages carry two full-width tables and nothing else.
+% Under the class default (\flushbottom) LaTeX stretches vertical glue to force a flush bottom on
+% such a page and reports "Underfull \vbox while \output is active". \raggedbottom lets those
+% pages simply end where their content ends. It changes no font size, margin, page dimension,
+% line spacing or table geometry, and it is not used to obtain any particular page count.
+\raggedbottom
 \setcounter{topnumber}{3}
 \setcounter{bottomnumber}{2}
 \setcounter{totalnumber}{4}
@@ -56,7 +62,7 @@ Inference Selection for Cross-Tumor Brain Tumor Segmentation}
 image, no label, no prediction, no case identifier, no split membership and no per-case metric.
 It supports the main paper; it does not replace its core evidence.}}\end{center}
 
-\section{Two distinct statistics: the architecture rank $R$ and the audit utility $U_\tau$}
+\section{Two Distinct Statistics: The Architecture Rank $R$ and the Audit Utility $U_\tau$}
 
 The paper uses two scalar summaries that must not be conflated, and neither is the challenge's own
 ranking procedure.
@@ -118,7 +124,7 @@ carry equal official standing.
 """
 
 FOOTER = r"""
-\section{What this supplement does not contain}
+\section{What This Supplement Does Not Contain}
 
 No patient image, segmentation label, model prediction, model weight, case identifier, fold
 membership or per-case metric appears here or in the public repository. No submission identifier,
@@ -134,14 +140,399 @@ def f(x, nd=6):
     return "---" if x is None else f"{x:+.{nd}f}" if isinstance(x, float) else str(x)
 
 
+
+
+AB_ORDER = ("C0", "C1", "C2", "C3", "C0_et10", "C0_et25", "C0_et50", "S1", "S2")
+AB_LABEL = {
+    "C0": r"C0 (released baseline)",
+    "C1": r"C1 best-validation checkpoint",
+    "C2": r"C2 recorded-axis mirroring",
+    "C3": r"C3 best checkpoint $+$ mirroring",
+    "C0_et10": r"ET cleanup, $10$\,mm$^3$",
+    "C0_et25": r"ET cleanup, $25$\,mm$^3$",
+    "C0_et50": r"ET cleanup, $50$\,mm$^3$",
+    "S1": r"S1 soup, $0.75$ final $+$ $0.25$ best",
+    "S2": r"S2 soup, $0.50$ final $+$ $0.50$ best",
+}
+AB_COMPS = ("DSC_ET", "DSC_TC", "DSC_WT", "NSD_ET", "NSD_TC", "NSD_WT")
+# Short codes for the numeric tables; the full definitions are given once, in prose, above them.
+AB_SHORT = {
+    "C0": "C0", "C1": "C1", "C2": "C2", "C3": "C3",
+    "C0_et10": r"ET$_{10}$", "C0_et25": r"ET$_{25}$", "C0_et50": r"ET$_{50}$",
+    "S1": "S1", "S2": "S2",
+}
+
+
+def _tt(identifier: str) -> str:
+    """Render a frozen status identifier verbatim, with LaTeX-safe underscores."""
+    # \allowbreak after each underscore: these frozen status strings are long single
+    # words and would otherwise overflow the measure as an unbreakable \texttt run.
+    return r"\texttt{" + str(identifier).replace("_", r"\_\allowbreak{}") + "}"
+
+
+AB_INTRO = r"""
+Audit~A screened the best-validation checkpoint, mirroring over the recorded axes, both combined,
+and enhancing-tumour connected-component cleanup at three predeclared volume thresholds. Audit~B
+screened two predeclared per-fold weight averages of the final and best-validation checkpoints. The
+main paper reports their outcomes; the per-candidate components are here.
+
+\medskip\noindent\textbf{What these numbers are, exactly.} All rows are the development subset
+($n=@N@$ subjects, folds @F0@--@F1@), scored by @EVAL@. The policy-selection holdout was never
+opened for these audits, so no folds-3--4 value exists for any of them. Two measurement families
+appear below and are kept apart because they aggregate differently:
+
+\begin{itemize}
+\item the \emph{decision} metrics --- DSC and HD95 over all @N@ subjects --- which are the pair
+      these audits were actually ranked on, and
+\item the \emph{official} metrics --- DSC and NSD --- re-scored afterwards from the same preserved
+      predictions once the organizers confirmed the ranking pair. These use the evaluator's skipna
+      rule, so each policy carries its \emph{own} denominators.
+\end{itemize}
+
+\medskip\noindent\textbf{Short codes used in the tables.} C1 is the best-validation checkpoint;
+C2 is mirroring over the recorded axes; C3 is C1 and C2 combined; ET$_{10}$, ET$_{25}$ and
+ET$_{50}$ are enhancing-tumour connected-component cleanup at the three predeclared volume
+thresholds, in mm$^3$; S1 and S2 are the per-fold weight averages $0.75\times$final
+$+\ 0.25\times$best and $0.50\times$final $+\ 0.50\times$best; C0 is the released baseline.
+
+\noindent Because the two families use different aggregation rules they disagree in the third
+decimal, and they are never combined into one column. The official-metric rows are \emph{not} on
+the paired common support used for Audit~C, so they are not line-comparable with the Audit~C tables
+above. Every value here comes from nnU-Net's end-of-training validation lineage, which applies
+eightfold mirroring --- not from the release path. $\tau=1$ is the official-ranking-aligned
+tolerance; $\tau=0.5$ is Panoptica's default and is reported as a prespecified sensitivity analysis
+only. Rendered values are rounded to four decimal places; the machine-readable record in
+\texttt{evidence/supplement\_inputs.json} carries full float precision, and its
+\texttt{provenance} block maps every value in this section back to the frozen record and key path
+it was read from, together with an explicit list of quantities that were never recorded and are
+therefore not shown.
+"""
+
+AB_OUTCOME = r"""
+\noindent\textbf{Outcome.} No candidate advanced at either tolerance: @G75@ for Audit~A, @G76@ for
+Audit~B, and the later official-metric re-scorings returned @G77@ and @G79V@. The list of advancing
+candidates is empty and the release policy was not changed. Denominators differ between policies
+because enhancing-tumour cleanup removes small predicted components and can leave a subject with no
+finite ET score; that is precisely why an ET-only mean gain is not evidence of improvement, and why
+the audits' common-support rule exists.
+
+\medskip\noindent\textbf{On the two weight soups.} Both lose to C0 on every component at both
+tolerances, and on all three HD95 diagnostics. The ordering between them is C0 $>$ S2 $>$ S1
+throughout: the soup that mixes \emph{more} of the best-validation checkpoint ($0.50$) is uniformly
+\emph{better} than the one that mixes less ($0.25$). The degradation is therefore consistent in
+direction but \emph{not} monotone in the amount mixed in, and the main paper says so.
+"""
+
+SCREEN_INTRO = r"""
+\medskip\noindent\textbf{The bounded 40-epoch fine-tuning screen.} Three fine-tuning recipes were
+screened for @EP@ epochs at a learning rate of $@LR@$ (seed $@SEED@$) on folds @SF0@--@SF1@, on a
+common support of $n=@SN@$ subjects, each initialised from a bit-identical copy of the corresponding
+C0 checkpoint. @CAVEAT@ The frozen record stores \emph{deltas} against C0 only: absolute
+per-component means for the candidate arms were never computed and are not reconstructed here, and
+HD95 was excluded by the preregistration, so no HD95 value exists for any arm. Bootstrap, per-fold
+and tail statistics exist at $\tau=1$ only.
+"""
+
+SCREEN_OUTCOME = r"""
+\noindent At $\tau=1$ the aggregate utility change was $@UT1@$ (T), $@UDG1@$ (DG) and
+$@UTDG1@$ (TDG); at $\tau=0.5$ it was $@UT05@$, $@UDG05@$ and $@UTDG05@$. The $\tau=1$ paired
+bootstrap reproduces those point estimates, with positive-resample fractions $@FT@$, $@FDG@$ and
+$@FTDG@$; every interval spans zero. All three arms failed the $\tau=0.5$ utility gate and the total zero-DSC gate, so the
+terminal status was @STATUS@ and C0 was retained. Of the ten frozen eligibility gates, T passed
+@GT@, DG passed @GDG@ and TDG passed @GTDG@.
+
+\medskip\noindent\textbf{The dense-overlap variant D25.} @D25NOTE@ It found that the step change
+multiplies tiles per volume by $@M1@$, $@M2@$ and $@M3@$ across three representative geometries.
+"""
+
+
+def _fill(template: str, mapping: dict) -> str:
+    for k, v in mapping.items():
+        template = template.replace(k, str(v))
+    return template
+
+
+def _gates(screen: dict, arm: str) -> str:
+    g = screen["arms"][arm]["gates"]
+    return "$%d/%d$" % (sum(1 for v in g.values() if v), len(g))
+
+
+def _ab_section(ab: dict, screen: dict, d25: dict) -> str:
+    """Reviewer-requested per-component evidence for Audits A and B, and the bounded screen."""
+    sub, off, dec = ab["subset"], ab["official_metrics"], ab["decision_metrics_dsc_hd95"]
+    stats, out = ab["statistics_tau_1.0"], ab["outcomes"]
+    n = sub["n_subjects"]
+    L = [r"\section{Per-Component Evidence for the Checkpoint and Weight-Averaging Audits}"]
+    L.append(_fill(AB_INTRO, {"@N@": n, "@F0@": sub["folds"][0], "@F1@": sub["folds"][-1],
+                              "@EVAL@": sub["evaluator"]}))
+
+    for tau_key, tau_tex, role in (("tau_1.0", r"\tau=1", "official-ranking-aligned"),
+                                   ("tau_0.5", r"\tau=0.5", "sensitivity analysis")):
+        L.append(r"\begin{table}[!htbp]\centering\small")
+        L.append(r"\caption{Audit~A/B candidates, official-metric component means at $" + tau_tex +
+                 r"$ (" + role + r"), development subset, $n=" + str(n) + r"$. Denominators are "
+                 r"per policy and are given in Table~\ref{tab:abdenom}.}")
+        L.append(r"\begin{tabular}{@{}l" + "c" * 6 + r"@{}}")
+        L.append(r"\toprule")
+        L.append(r"Policy & ET DSC & TC DSC & WT DSC & ET NSD & TC NSD & WT NSD \\")
+        L.append(r"\midrule")
+        for name in AB_ORDER:
+            a = off[tau_key][name]["aggregates"]
+            L.append(AB_SHORT[name] + " & " +
+                     " & ".join("$%.4f$" % a[c] for c in AB_COMPS) + r" \\")
+            if name == "C0":
+                L.append(r"\midrule")
+        L += [r"\bottomrule", r"\end{tabular}", r"\end{table}"]
+
+    L.append(r"\begin{table}[!htbp]\centering\small")
+    L.append(r"\caption{Candidate minus C0, official-metric component deltas. A positive value "
+             r"favours the candidate. Development subset, $n=" + str(n) + r"$.}")
+    L.append(r"\begin{tabular}{@{}ll" + "c" * 6 + r"@{}}")
+    L.append(r"\toprule")
+    L.append(r"Policy & $\tau$ & $\Delta$ET DSC & $\Delta$TC DSC & $\Delta$WT DSC & "
+             r"$\Delta$ET NSD & $\Delta$TC NSD & $\Delta$WT NSD \\")
+    L.append(r"\midrule")
+    for name in AB_ORDER:
+        if name == "C0":
+            continue
+        for tau_key, tau_tex in (("tau_1.0", "1"), ("tau_0.5", "0.5")):
+            base = off[tau_key]["C0"]["aggregates"]
+            cand = off[tau_key][name]["aggregates"]
+            lab = AB_SHORT[name] if tau_key == "tau_1.0" else ""
+            L.append(lab + r" & $" + tau_tex + r"$ & " +
+                     " & ".join("$%+.4f$" % (cand[c] - base[c]) for c in AB_COMPS) + r" \\")
+        L.append(r"\addlinespace[2pt]")
+    L += [r"\bottomrule", r"\end{tabular}", r"\end{table}"]
+
+    L.append(r"\begin{table}[!htbp]\centering\small")
+    L.append(r"\caption{The metrics these audits actually decided on: DSC and HD95 over all $n=" +
+             str(n) + r"$ development subjects. HD95 is in millimetres and lower is better. This is "
+             r"a different aggregation from the official-metric tables above, so the DSC columns "
+             r"differ slightly.}")
+    L.append(r"\begin{tabular}{@{}l" + "c" * 6 + r"@{}}")
+    L.append(r"\toprule")
+    L.append(r"Policy & ET DSC & TC DSC & WT DSC & ET HD95 & TC HD95 & WT HD95 \\")
+    L.append(r"\midrule")
+    for name in AB_ORDER:
+        d = dec[name]
+        cells = " & ".join(["$%.4f$" % d[k] for k in ("et_dsc", "tc_dsc", "wt_dsc")] +
+                           ["$%.2f$" % d[k] for k in ("et_hd95", "tc_hd95", "wt_hd95")])
+        L.append(AB_SHORT[name] + " & " + cells + r" \\")
+        if name == "C0":
+            L.append(r"\midrule")
+    L += [r"\bottomrule", r"\end{tabular}", r"\end{table}"]
+
+    L.append(r"\begin{table}[!htbp]\centering\small")
+    L.append(r"\caption{Per-policy denominators (finite scored subjects per component), the frozen "
+             r"advancement statistic against C0 at $\tau=1$, and the advancement outcome. "
+             r"\textbf{Sign convention:} the rank gain is $R(\mathrm{C0})-R(\mathrm{candidate})$, "
+             r"so a \emph{positive} value favours the candidate. The interval is the paired "
+             r"subject-level percentile interval for that same quantity, in the \emph{same} "
+             r"orientation as the point estimate. The frozen record stores the interval in the "
+             r"opposite orientation, as $R(\mathrm{candidate})-R(\mathrm{C0})$; it is negated here "
+             r"(which reverses its endpoints) and retained unmodified in "
+             r"\texttt{evidence/supplement\_inputs.json} under "
+             r"\texttt{bootstrap\_delta\_ci\_candidate\_minus\_C0}. No candidate advanced.}")
+    L.append(r"\label{tab:abdenom}")
+    L.append(r"\begin{tabular}{@{}lcccccc@{}}")
+    L.append(r"\toprule")
+    L.append(r"Policy & $n$ ET & $n$ TC & $n$ WT & Rank gain & 95\% interval & Advances \\")
+    L.append(r"\midrule")
+    for name in AB_ORDER:
+        den = off["tau_1.0"][name]["denominators"]
+        st = stats.get(name)
+        if st is None:
+            rg = ci = adv = "---"
+        else:
+            rg = "$%+.3f$" % st["rank_gain_over_C0"]
+            # Same orientation as the point estimate; see the caption and the sign-convention
+            # block in evidence/supplement_inputs.json.
+            ci = "$[%+.3f,%+.3f]$" % (st["rank_gain_ci"][0], st["rank_gain_ci"][1])
+            adv = "no" if not st["advances"] else r"\textbf{yes}"
+        L.append(AB_SHORT[name] + r" & $%d$ & $%d$ & $%d$ & " % (
+            den["DSC_ET"], den["DSC_TC"], den["DSC_WT"]) + rg + " & " + ci + " & " + adv + r" \\")
+        if name == "C0":
+            L.append(r"\midrule")
+    L += [r"\bottomrule", r"\end{tabular}", r"\end{table}"]
+
+    L.append(_fill(AB_OUTCOME, {"@G75@": _tt(out["g75"]), "@G76@": _tt(out["g76"]),
+                                "@G77@": _tt(out["g77"]), "@G79V@": _tt(out["g79v"])}))
+
+    d = screen["design"]
+    L.append(_fill(SCREEN_INTRO, {"@EP@": d["epochs"], "@LR@": d["finetune_lr"],
+                                  "@SEED@": d["seed"], "@SF0@": d["folds"][0],
+                                  "@SF1@": d["folds"][-1], "@SN@": d["n_common_support"],
+                                  "@CAVEAT@": screen["convergence_caveat"]}))
+    L.append(r"\begin{table}[!htbp]\centering\small")
+    L.append(r"\caption{Bounded " + str(d["epochs"]) + r"-epoch fine-tuning screen: component "
+             r"deltas against C0 on the common support ($n=" + str(d["n_common_support"]) +
+             r"$). Positive favours the candidate. Aggregate utility changes are given below. The screen "
+             r"selected on $\min(\Delta U_{\tau=1},\Delta U_{\tau=0.5})$; no arm was eligible.}")
+    L.append(r"\begin{tabular}{@{}ll" + "c" * 6 + r"@{}}")
+    L.append(r"\toprule")
+    L.append(r"Arm & $\tau$ & $\Delta$ET DSC & $\Delta$TC DSC & $\Delta$WT DSC & $\Delta$ET NSD & "
+             r"$\Delta$TC NSD & $\Delta$WT NSD \\")
+    L.append(r"\midrule")
+    SC = ("ET_DSC", "TC_DSC", "WT_DSC", "ET_NSD", "TC_NSD", "WT_NSD")
+    for arm in ("T", "DG", "TDG"):
+        a = screen["arms"][arm]
+        npass = sum(1 for v in a["gates"].values() if v)
+        ntot = len(a["gates"])
+        for tau_key, tau_tex in (("tau_1.0", "1"), ("tau_0.5", "0.5")):
+            cd = a["component_deltas_" + tau_key]
+            lab = arm if tau_key == "tau_1.0" else ""
+            L.append(lab + r" & $" + tau_tex + r"$ & " +
+                     " & ".join("$%+.5f$" % cd[c] for c in SC) + r" \\")
+        L.append(r"\addlinespace[2pt]")
+    L += [r"\bottomrule", r"\end{tabular}", r"\end{table}"]
+
+    tb = {a: screen["arms"][a]["bootstrap_tau_1.0"] for a in ("T", "DG", "TDG")}
+    tm = d25["tile_multiplier_analysis"]["tiles"]
+    keys = list(tm)
+    L.append(_fill(SCREEN_OUTCOME, {
+        "@PT@": "%+.6f" % tb["T"]["point"], "@PDG@": "%+.6f" % tb["DG"]["point"],
+        "@PTDG@": "%+.6f" % tb["TDG"]["point"],
+        "@FT@": "%.4f" % tb["T"]["prob_positive"], "@FDG@": "%.4f" % tb["DG"]["prob_positive"],
+        "@FTDG@": "%.4f" % tb["TDG"]["prob_positive"],
+        "@STATUS@": _tt(screen["terminal_status"]), "@D25NOTE@": d25["note"],
+        "@GT@": _gates(screen, "T"), "@GDG@": _gates(screen, "DG"),
+        "@GTDG@": _gates(screen, "TDG"),
+        "@UT1@": "%+.6f" % screen["arms"]["T"]["delta_U_common_tau_1.0"],
+        "@UDG1@": "%+.6f" % screen["arms"]["DG"]["delta_U_common_tau_1.0"],
+        "@UTDG1@": "%+.6f" % screen["arms"]["TDG"]["delta_U_common_tau_1.0"],
+        "@UT05@": "%+.6f" % screen["arms"]["T"]["delta_U_common_tau_0.5"],
+        "@UDG05@": "%+.6f" % screen["arms"]["DG"]["delta_U_common_tau_0.5"],
+        "@UTDG05@": "%+.6f" % screen["arms"]["TDG"]["delta_U_common_tau_0.5"],
+        "@M1@": tm[keys[0]]["multiplier"], "@M2@": tm[keys[1]]["multiplier"],
+        "@M3@": tm[keys[2]]["multiplier"]}))
+    return "\n".join(L) + "\n"
+
+
+INVENTORY_ROWS = (
+    ("C1 best-validation checkpoint", "Executed",
+     "Scored on the development subset. No robust improvement; the rank gain against C0 is negative. Stopped."),
+    ("C2 mirroring over the recorded axes", "Executed",
+     "Point-positive on the decision metrics but the interval included zero; superseded by Audit~C."),
+    (r"C3 best checkpoint $+$ mirroring", "Executed",
+     "The combined arm. No robust improvement; stopped on the development subset."),
+    (r"ET connected-component cleanup, $10$\,mm$^3$", "Executed",
+     "Raised ET DSC but changed ET support, trading overlap against boundary distance. Stopped."),
+    (r"ET connected-component cleanup, $25$\,mm$^3$", "Executed",
+     "As above, with fewer scored ET subjects. Stopped."),
+    (r"ET connected-component cleanup, $50$\,mm$^3$", "Executed",
+     "As above; the apparent mean gain comes from the changed ET denominator. Stopped."),
+    (r"S1 weight soup, $0.75$ final $+$ $0.25$ best", "Executed",
+     "All six components moved the wrong way at both tolerances, and it also failed the HD95 tail gate."),
+    (r"S2 weight soup, $0.50$ final $+$ $0.50$ best", "Executed",
+     "All six components moved the wrong way at both tolerances. Uniformly better than S1, so the degradation is not monotone in the amount mixed in."),
+    ("M8 eightfold mirroring TTA", "Executed",
+     "Improved all six components on the development subset but failed the frozen lesion false-negative veto and stopped; a separate folds-3--4 follow-up then failed the utility and miss-rate gates. C0 retained."),
+    ("T tail-aware sampling", "Executed (bounded screen)",
+     "40-epoch screen. Failed 5 of 10 gates, including both utility gates; ineligible."),
+    ("DG appearance transform", "Executed (bounded screen)",
+     r"40-epoch screen. Failed 3 of 10 gates, including the $\tau=0.5$ utility gate; ineligible."),
+    (r"TDG (T $+$ DG)", "Executed (bounded screen)",
+     r"40-epoch screen. Failed 2 of 10 gates, including the $\tau=0.5$ utility gate; ineligible."),
+    (r"D25 dense overlap, tile step $0.25$", r"\textbf{Never executed}",
+     "Preregistered and considered, then blocked before any run by an invalid baseline specification: the required baseline values are reproducible only under the mirroring lineage, while the specification defines C0 with mirroring disabled and prohibits test-time augmentation. Zero D25 predictions were generated and no D25 result of any kind exists. This is not evidence that D25 fails."),
+)
+
+
+def _inventory_table() -> str:
+    """The complete bounded inventory: every item the main paper refers to, with a status column."""
+    # A longtable, not a float: at thirteen prose rows this inventory is taller than one page, and
+    # as a float it would overflow and strand a short page. longtable breaks across pages cleanly
+    # and keeps the header on each one. No font, margin or spacing is changed.
+    L = [r"\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.25\textwidth}"
+         r">{\raggedright\arraybackslash}p{0.15\textwidth}"
+         r">{\raggedright\arraybackslash}p{0.52\textwidth}@{}}",
+         r"\caption{Complete bounded experiment inventory. Every candidate the main paper refers "
+         r"to appears here. The status column separates candidates that were executed and scored "
+         r"from proposals that were screened out before any execution. Nothing here was adopted; "
+         r"the released policy is unchanged.}\\",
+         r"\toprule", r"Item & Status & Outcome \\", r"\midrule", r"\endfirsthead",
+         r"\toprule", r"Item & Status & Outcome \\", r"\midrule", r"\endhead",
+         r"\bottomrule", r"\endfoot"]
+    for item, status, outcome in INVENTORY_ROWS:
+        L.append(item + " & " + status + " & " + outcome + r" \\")
+        L.append(r"\addlinespace[2pt]")
+    L += [r"\end{longtable}"]
+    return "{\\small\n" + "\n".join(L) + "\n}\n"
+
+
+def load_inputs(repo: Path) -> tuple[dict, dict, dict, str]:
+    """Return (g84, g85, source_description), from private artifacts or public evidence.
+
+    Two input paths, in priority order, both fail-closed:
+
+      1. ``artifacts/g84_result.json`` + ``artifacts/g85_result.json`` -- the frozen private audit
+         records. Authoritative, and used whenever they are present.
+      2. ``evidence/supplement_inputs.json`` -- the sanitized aggregate projection published by
+         ``scripts/g91_public_evidence.py``. It carries exactly the fields read below, at full
+         float precision, so a public regeneration reproduces this file byte-for-byte.
+
+    If neither is present the generator stops with an explicit diagnostic. It never proceeds on
+    partial input and never substitutes a default for a missing measurement.
+    """
+    a84 = repo / "artifacts" / "g84_result.json"
+    a85 = repo / "artifacts" / "g85_result.json"
+    if a84.is_file() and a85.is_file():
+        # The reviewer-requested Audit A/B, bounded-screen and D25 blocks are assembled by the
+        # public-evidence generator, which is the single place that whitelists them. Reusing it
+        # here keeps the private and public paths on one definition instead of two.
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import g91_public_evidence as EV
+
+        extra = {
+            "audit_ab": EV._audit_ab(
+                json.loads((repo / "artifacts" / "g75_inference_policy_decision.json")
+                           .read_text(encoding="utf-8")),
+                json.loads((repo / "artifacts" / "g76_checkpoint_soup_decision.json")
+                           .read_text(encoding="utf-8")),
+                json.loads((repo / "artifacts" / "g77_official_metric_decision.json")
+                           .read_text(encoding="utf-8")),
+                json.loads((repo / "artifacts" / "g79v_tau1_sensitivity_results.json")
+                           .read_text(encoding="utf-8"))),
+            "screen_g82": EV._screen_g82(
+                json.loads((repo / "artifacts" / "g82_result.json").read_text(encoding="utf-8")),
+                json.loads((repo / "configs" / "g82_preregistration.json")
+                           .read_text(encoding="utf-8"))),
+            "d25": EV._d25(json.loads((repo / "artifacts" / "g83_result.json")
+                                      .read_text(encoding="utf-8"))),
+        }
+        return (json.loads(a84.read_text(encoding="utf-8")),
+                json.loads(a85.read_text(encoding="utf-8")),
+                extra,
+                "private audit artifacts (artifacts/g84_result.json, artifacts/g85_result.json)")
+
+    pub = repo / "evidence" / "supplement_inputs.json"
+    if pub.is_file():
+        payload = json.loads(pub.read_text(encoding="utf-8"))
+        try:
+            extra = {k: payload[k] for k in ("audit_ab", "screen_g82", "d25")}
+            return payload["g84"], payload["g85"], extra, f"public aggregate evidence ({pub})"
+        except KeyError as exc:
+            raise SystemExit(
+                f"{pub} is malformed: missing top-level key {exc}. Regenerate it with "
+                "scripts/g91_public_evidence.py."
+            ) from None
+
+    raise SystemExit(
+        "no supplement inputs found. Provide either the private audit records\n"
+        f"  {a84}\n  {a85}\n"
+        "or the sanitized public aggregate\n"
+        f"  {pub}\n"
+        "The latter is produced by: python3 scripts/g91_public_evidence.py <private_repo> <out>"
+    )
+
+
 def main() -> int:
     if len(sys.argv) != 3:
         print(__doc__)
         return 2
     repo, out = Path(sys.argv[1]), Path(sys.argv[2])
-    A = repo / "artifacts"
-    g84 = json.loads((A / "g84_result.json").read_text())
-    g85 = json.loads((A / "g85_result.json").read_text())
+    g84, g85, extra, source = load_inputs(repo)
+    print(f"inputs: {source}")
 
     subsets = [
         ("Development (folds 0--2)", g84["calibration"], "tau1", "tau05", g84["common_support"]),
@@ -179,7 +570,7 @@ Subset & $\tau$ & Recorded $\Delta U_\tau$ & Mean of six deltas & $|$difference$
 """)
 
     # ---- per-component means, each with its own adjacent bootstrap summary --------
-    L.append(r"\section{Per-component means and deltas, Audit C (M8 versus C0)}" + "\n")
+    L.append(r"\section{Per-Component Means and Deltas, Audit C (M8 Versus C0)}" + "\n")
     L.append(r"""Each table below carries its own bootstrap summary and per-fold values inside the
 same float, so no cross-referencing between paragraphs is required. ``Fraction of paired bootstrap
 resamples with positive $\Delta U_\tau$'' is exactly that -- a resampling frequency, not a
@@ -229,7 +620,7 @@ Component & Baseline C0 & Candidate M8 & $\Delta$ \\
 
     # ---- decision matrices ---------------------------------------------------------
     L.append(r"""
-\section{Complete decision-check matrices}
+\section{Complete Decision-Check Matrices}
 
 Check names are the \emph{legacy machine field names} recorded by the audit code, reproduced verbatim
 so the tables can be matched against the published JSON. They are identifiers, not claims: in
@@ -270,7 +661,7 @@ Check (legacy machine field name) & Outcome \\
     rd = ln["region_deltas"]
     mg = ln["margins"]
     L.append(r"""
-\section{Lesion-level evidence and its limits}
+\section{Lesion-Level Evidence and Its Limits}
 
 Components are 26-connected. A reference component counts as missed if no predicted component of the
 same region overlaps it; the denominator therefore depends only on the reference and is
@@ -344,7 +735,7 @@ derivation for them, and they are not externally validated clinical thresholds.
 
     # ---- architecture diagnostic ---------------------------------------------------
     L.append(r"""
-\section{Architecture diagnostic under the ranking metric}
+\section{Architecture Diagnostic Under the Ranking Metric}
 
 The fold-0 ResEnc-M versus ResEnc-L screen was decided under DSC/HD95, on the values in
 Table~\ref{tab:screen}. Because the challenge ranks DSC and NSD, the same fold-0 predictions were
@@ -357,8 +748,8 @@ rescored under DSC/NSD at $\tau=0.5$ as a diagnostic.
 \toprule
 Model & ET DSC & TC DSC & WT DSC & ET HD95 & TC HD95 & WT HD95 \\
 \midrule
-ResEnc-M (selected) & 0.859 & \textbf{0.914} & \textbf{0.934} & 14.17 & \textbf{5.96} & 3.89 \\
-ResEnc-L            & \textbf{0.861} & 0.912 & 0.932 & \textbf{11.19} & 6.08 & \textbf{4.11} \\
+ResEnc-M (selected) & 0.859 & \textbf{0.914} & \textbf{0.934} & 14.17 & \textbf{5.96} & \textbf{3.89} \\
+ResEnc-L            & \textbf{0.861} & 0.912 & 0.932 & \textbf{11.19} & 6.08 & 4.11 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -404,32 +795,16 @@ ResEnc-L weights already existed and are what the diagnostic scores; after the d
 five-fold ResEnc-L expansion, architecture change or retraining campaign was undertaken. The
 architecture--metric mismatch is therefore recorded as an open limitation, not a resolved question.
 
-\section{Bounded experiment inventory}
+@@AB_SECTION@@
+\section{Bounded Experiment Inventory}
 
 The search was bounded, and is listed rather than implied to be exhaustive. The list mixes
 candidates that were executed and scored with proposals that were screened out \emph{before}
 execution; the outcome column says which is which.
 
-\begin{table}[!ht]\centering
-\caption{Bounded experiment inventory, including executed candidates and proposals screened out
-before execution. Nothing here was adopted; the released policy is unchanged.}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.40\textwidth}>{\raggedright\arraybackslash}p{0.56\textwidth}@{}}
-\toprule
-Item & Outcome \\
-\midrule
-Best-validation checkpoint & No robust improvement; stopped on the development subset. \\
-Mirroring over recorded axes & Executed. Point-positive, but the interval included zero; superseded by Audit~C. \\
-ET connected-component cleanup, three declared volume thresholds & Traded ET overlap against ET boundary distance; an apparent mean gain proved to come from changed ET support. \\
-Weight averaging (two declared per-fold soups of the final and best-validation checkpoints) & All six components moved the wrong way for both soups, monotonically in the amount mixed in. \\
-Eightfold mirroring TTA (candidate M8) & Improved all six components on the development subset; failed the policy-selection holdout on the utility gate and the lesion miss-rate safety gate. \\
-40-epoch fine-tuning screen: tumor-type-mixture, domain-generalization augmentation, and their combination & Failed its frozen gates. Bounded at 40 epochs, so it cannot speak to behaviour trained to convergence. \\
-Dense-overlap variant (tile step $0.5\rightarrow0.25$) & \emph{Not} tested: its baseline gate mixed an augmentation-derived lineage with the no-augmentation release baseline. \\
-Larger ensembles, cascades, cohort routing, alternative thresholds & Not tested. \\
-\bottomrule
-\end{tabular}
-\end{table}
+@@INVENTORY@@
 
-\section{Runtime, container and repeatability}
+\section{Runtime, Container, and Repeatability}
 
 \noindent\textbf{Full-cohort run.} The exact release policy processed 451 of 451 official validation
 cases with exit code $0$ and zero inference errors, at a peak framework-reserved VRAM of
@@ -463,8 +838,20 @@ hidden-test result and no rank exists for it, and none is claimed. The historica
 in the public repository under a filename that marks it as superseded.
 """)
 
+    body = "\n".join(L)
+    # r11: reviewer-requested per-component evidence for Audits A/B and the bounded screen, and the
+    # completed inventory. Both are rendered from the same input record as everything else.
+    body = body.replace("@@AB_SECTION@@",
+                        _ab_section(extra["audit_ab"], extra["screen_g82"], extra["d25"]))
+    body = body.replace("@@INVENTORY@@", _inventory_table())
+    assert "@@" not in body, "unfilled supplement placeholder remains"
+    L = [body]
     L.append(FOOTER)
-    out.write_text("\n".join(L))
+    # Byte-deterministic across operating systems: encode UTF-8 explicitly and write BYTES, so no
+    # platform newline translation can occur. Path.write_text() opens in text mode, which on Windows
+    # rewrites every "\n" to "\r\n" and would make the generated file differ, on that platform
+    # alone, from the committed one.
+    out.write_bytes("\n".join(L).encode("utf-8"))
     print(f"wrote {out} ({len(''.join(L).split())} words)")
     return 0
 

@@ -41,12 +41,30 @@ with pdfTeX 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) and BibTeX 0.99d.
 
 ## Regenerating the supplement
 
-Every number in the supplement is read from the committed audit artifacts at build time, and the
-generator asserts the utility identity before writing:
+`supplement.tex` is generated, never hand-edited. Every reported measurement or result in it is
+read from a committed record at build time -- none is typed in -- and the generator re-derives and
+asserts the utility identity before writing anything. Quantities the supplement presents as
+*derived* rather than measured are labelled as such where they appear, and the `provenance` block of
+`evidence/supplement_inputs.json` records, per value, the frozen source field and any derivation
+formula:
 
 ```
 python3 scripts/g92_build_supplement.py . paper/supplement.tex
 ```
+
+That command works in **both** trees, and reproduces the committed `paper/supplement.tex`
+byte-for-byte in each:
+
+| Tree | Input the generator reads |
+|---|---|
+| This public repository | `evidence/supplement_inputs.json` -- a whitelisted aggregate projection of the two frozen audit records, published at full float precision by `scripts/g91_public_evidence.py`. It carries no per-case value, case identifier, fold membership, prediction or path. |
+| The private development repository | `artifacts/g84_result.json` and `artifacts/g85_result.json` -- the frozen audit records themselves, which take priority when present. |
+
+With neither input available the generator stops with an explicit diagnostic naming both accepted
+paths; it never emits a partial document and never substitutes a default for a missing measurement.
+`tests/test_r11_supplement_regeneration.py` exercises exactly this: it rebuilds the supplement from
+a tree containing only `evidence/` and `scripts/`, and fails unless the result is byte-identical to
+the committed file.
 
 ## Third-party files
 

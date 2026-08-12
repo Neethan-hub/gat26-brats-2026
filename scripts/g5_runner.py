@@ -46,7 +46,7 @@ STATES = ["PRECHECK", "TRAINING", "VALIDATING", "OUTPUT_VALIDATION", "OFFICIAL_E
 def atomic_write(path, text):
     p = Path(path)
     tmp = p.with_suffix(p.suffix + ".tmp")
-    tmp.write_text(text)
+    tmp.write_text(text, encoding="utf-8")
     os.replace(tmp, p)
 
 
@@ -54,7 +54,13 @@ def set_state(rundir, state):
     atomic_write(Path(rundir) / "state.txt", state + "\n")
 
 
-def project_free_gib(mount="/workspace/data"):
+def project_free_gib(mount=None):
+    """Disk usage of the project data mount.
+
+    The mount is resolved from GAT26_DATA_MOUNT, falling back to the repository root, so the
+    function carries no machine-absolute default.
+    """
+    mount = mount or os.environ.get("GAT26_DATA_MOUNT") or str(Path(__file__).resolve().parent.parent)
     used = int(subprocess.run(["du", "-sb", mount], capture_output=True, text=True).stdout.split()[0])
     return (QUOTA_TOTAL_BYTES - used) / 2**30
 
@@ -86,7 +92,7 @@ def output_folder(plans=PLANS, fold=FOLD):
 # ------------------------------ exact fold-membership equality (C2) ------------------------------
 def fold_validation_stems(splits_final_path, fold=FOLD):
     """Return the exact set of fold-`fold` validation case stems from the frozen split."""
-    data = json.loads(Path(splits_final_path).read_text())
+    data = json.loads(Path(splits_final_path).read_text(encoding="utf-8"))
     return set(data[fold]["val"])
 
 
@@ -106,7 +112,7 @@ def precheck(expect, plans=PLANS, disk_floor_gib=DISK_FLOOR_GIB, fold=FOLD):
     """expect: dict of expected hashes/commit. Returns (ok, checks)."""
     pp = Path(os.environ["nnUNet_preprocessed"]) / DATASET
     checks = {}
-    checks["source_commit"] = expect["commit"] in Path(expect["source_version_path"]).read_text()
+    checks["source_commit"] = expect["commit"] in Path(expect["source_version_path"]).read_text(encoding="utf-8")
     checks["public_config_hash"] = sha(expect["config_path"]) == expect["config_sha256"]
     checks["split_full_hash"] = sha(pp / "splits_final.json") == expect["split_sha256"]
     checks["plan_hash"] = sha(pp / f"{plans}.json") == expect["plan_sha256"]
@@ -161,7 +167,7 @@ def parse_latest_epoch(log_dir):
         return -1, 0.0
     latest = logs[-1]
     epoch = -1
-    for line in latest.read_text(errors="ignore").splitlines():
+    for line in latest.read_text(errors="ignore", encoding="utf-8").splitlines():
         if "Epoch " in line:
             try:
                 epoch = max(epoch, int(line.split("Epoch ")[1].split()[0]))
@@ -182,7 +188,7 @@ def _gpu_mem_gib():
 def run(args):
     fold = args.fold
     rundir = Path(args.rundir); rundir.mkdir(parents=True, exist_ok=True)
-    expect = json.loads(Path(args.expect).read_text())
+    expect = json.loads(Path(args.expect).read_text(encoding="utf-8"))
     plans = args.plans
     hard_ceiling_s = int(round(args.hard_ceiling_hours * 3600))
     disk_floor = args.disk_floor_gib
@@ -199,7 +205,7 @@ def run(args):
     # binding BEFORE training. The current worker marker is mutable (advances on later redeploys);
     # this frozen record is what the completion audit verifies launch provenance against.
     try:
-        marker_text = Path(expect["source_version_path"]).read_text()
+        marker_text = Path(expect["source_version_path"]).read_text(encoding="utf-8")
     except Exception:
         marker_text = ""
     atomic_write(rundir / "source_version_at_launch.txt",
@@ -219,7 +225,7 @@ def run(args):
     set_state(rundir, "TRAINING")
     of = output_folder(plans, fold)
     train_cmd = ["nnUNetv2_train", "501", CONFIG, str(fold), "-tr", TRAINER, "-p", plans]
-    tlog = open(rundir / "train.stdout.log", "w")
+    tlog = open(rundir / "train.stdout.log", "w", encoding="utf-8")
     proc = subprocess.Popen(train_cmd, stdout=tlog, stderr=subprocess.STDOUT,
                             start_new_session=True)  # own process group
     atomic_write(rundir / "train.pid", str(proc.pid) + "\n")
@@ -237,7 +243,7 @@ def run(args):
             launch_ts + (elapsed / max(last_epoch + 1, 1)) * EXPECT_EPOCHS)) if last_epoch >= 0 else "n/a"
         heartbeat(rundir, "TRAINING", last_epoch, launch_ts, last_progress, _gpu_mem_gib(), proc.pid, eta)
         # nonfinite / OOM / worker death detection
-        tail = Path(rundir / "train.stdout.log").read_text(errors="ignore")[-4000:]
+        tail = Path(rundir / "train.stdout.log").read_text(errors="ignore", encoding="utf-8")[-4000:]
         if any(k in tail for k in ("out of memory", "CUDA out of memory")):
             fail_state = "FAILED_TRAINING_OOM"; break
         if "no longer alive" in tail:
@@ -267,7 +273,7 @@ def run(args):
     set_state(rundir, "VALIDATING")
     heartbeat(rundir, "VALIDATING", last_epoch, launch_ts, time.time(), _gpu_mem_gib(), os.getpid(), "n/a")
     val_cmd = ["nnUNetv2_train", "501", CONFIG, str(fold), "-tr", TRAINER, "-p", plans, "--val"]
-    vlog = open(rundir / "val.stdout.log", "w")
+    vlog = open(rundir / "val.stdout.log", "w", encoding="utf-8")
     vrc = subprocess.run(val_cmd, stdout=vlog, stderr=subprocess.STDOUT).returncode
     val_dir = os.path.join(of, "validation")
     preds = sorted(p for p in Path(val_dir).glob("*.nii.gz")) if os.path.isdir(val_dir) else []
@@ -321,7 +327,7 @@ def run(args):
     # C3: detect an evaluator-returned error dict, not only a raised exception / nonzero exit
     eval_error_dict = True
     try:
-        j = json.loads(eval_out.read_text())
+        j = json.loads(eval_out.read_text(encoding="utf-8"))
         eval_error_dict = bool(j.get("errors"))          # non-empty errors list => failure
     except Exception:
         eval_error_dict = True                            # unreadable => fail closed

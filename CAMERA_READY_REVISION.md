@@ -325,3 +325,200 @@ spacing was altered, and no negative spacing was introduced.
 snapshot whose tree is byte-identical to public `main`. Tags r1 through r7 are unchanged and remain
 resolvable. `r7` is superseded rather than cited; as with `r6`, it was left in place rather than
 moved, because published tags in this repository are never rewritten.
+
+## Post-r8 — vendor-neutral operational documentation
+
+**Historical operational documentation was rewritten into vendor-neutral wording.** Several
+passages in the release runbook, the pre-training audit memorandum and one supervisor script header
+described the operator tooling used to drive the work by product name. Those passages now describe
+the same facts without naming any product. Every hardware, cost, safety, scheduling and execution
+claim they carry is unchanged, and the sanitized export now fails closed if a named software-system
+reference appears anywhere outside two adjudicated occurrences: the title of a cited third-party
+paper, and the detector pattern that enforces that no software system is credited as an author.
+
+No scientific content changed. No result, number, figure, table, method statement, limitation or
+reference was touched, and the manuscript's claims and evidence are exactly as they were.
+
+**Publication snapshot.** This revision was prepared as the `brats-goat-2026-camera-ready-21-r9`
+candidate. That candidate was never tagged or published; see the r10 entry below. Tags r1 through
+r8 are unchanged and remain resolvable, and none was moved, because published tags in this
+repository are never rewritten.
+
+## r10 — protocol-provenance, scope and editorial corrections
+
+The r9 candidate was withdrawn before publication after an independent local audit of the
+camera-ready artifacts. It was never tagged and never pushed; nothing was published under it. This
+entry is appended, and no earlier entry has been rewritten.
+
+**Protocol provenance of the mirroring work is now stated correctly.** Audit C improved all six
+components on the development subset but failed its frozen lesion false-negative count veto and
+stopped there; the baseline was retained. Its candidate-side phases were conditional on advancement
+and were never reached, which is an unreached branch of a frozen protocol rather than an omitted
+step, and is unrelated to the separately documented official-validation submission of the retained
+baseline. The folds-3--4 holdout analysis was a separately commit-frozen follow-up of the same frozen
+candidate, designed after the development outcome was seen and frozen before those folds were opened.
+It is development-informed rather than globally result-blind, and it is not advancement under Audit
+C's failed gate. All of the holdout evidence -- both tolerances, the bootstrap and fold-heterogeneity
+findings, the lesion-miss results and the retention of the baseline -- is retained unchanged; only
+the provenance narrative changed, and comparisons between the two are labelled descriptive
+cross-analyses.
+
+**The headline scope is narrower.** The abstract no longer says the shipped inference policy is the
+object under test. It states that candidate inference modifications were executed end-to-end through
+the release machinery on excluded-fold predictions. The conclusion no longer says the five-fold
+ensemble was evaluated under commit-frozen rules; it says its release policy was selected and
+released following them. The single-excluded-fold-checkpoint limitation is retained.
+
+**Corrections of record.** Supplementary Table S12 now bolds the better WT HD95 value, 3.89, rather
+than 4.11; lower HD95 is better and neither value nor the four-of-six conclusion changed. Statements
+about hidden-test evidence are scoped to what is defensible: no hidden-test performance result or
+rank for the corrected image, and no organizer execution log for it. Three frozen C0 details are
+added: sliding-window tile step 0.5, Gaussian importance weighting, and SGD weight decay
+3e-5. The memory sentence is corrected: only one fold model is resident at a time, so simultaneous
+model residency does not scale with the five folds, but process peak is not that of a bare
+single-model run because the running accumulator and current probabilities are also held.
+
+**Editorial.** Source comments no longer point at files absent from the archive, an internal stage
+label was removed from the bibliography comments, and headings were normalised.
+
+No scientific content changed: no result, number, interval, denominator, threshold, gate outcome,
+candidate decision or release decision was touched.
+
+**Publication snapshot.** The paper cites `brats-goat-2026-camera-ready-21-r10`. That tag does not
+yet exist; creating it is a separately authorized publication step.
+
+## r11 — pagination, restored qualifications and current-versus-historical documentation
+
+r10 was **never tagged, never pushed and never submitted**. It failed a *local* validation of its
+own camera-ready artifacts: the strict page-limit criterion and the licence-form page count. It was
+**not** rejected by the venue or by OpenReview, and the paper's conditional acceptance is unaffected.
+r11 corrects what that local validation found.
+
+**Erratum against the r10 entry above.** That entry closes with "No scientific content changed."
+That wording is too broad and is withdrawn: r10 *did* correct scientific qualifications — the S12
+bolding, the hidden-test scoping and the memory sentence. The accurate statement, for r10 and for
+r11, is the narrower one used below. Everything else in the r10 entry stands, and no earlier entry
+has been altered.
+
+**The page-limit criterion is now met strictly, and was not before.** The requirement is that all
+non-reference manuscript content end on physical page 10 and that `References` be the first
+substantive text on page 11. Earlier revisions were recorded as satisfying a 10-content-page limit
+on the looser reading that `References` merely *appears* on page 11; measured strictly, r10 still
+carried 183 body tokens onto page 11. The r11 manuscript carries **zero**. The space was recovered
+by condensing genuine repetition — introductory background, workflow narration duplicated with
+Fig. 1, out-of-fold procedural enumeration, low-level container and runtime prose, the opening of
+the Discussion, the Conclusion, the bounded-inventory paragraph, the architecture-rescoring tail,
+the advancement mechanics and the Decision Procedure's connective prose. **No** template, class,
+page-size, margin, font, spacing, float, bibliography-format or figure-scale change was made, and no
+required content was moved to the supplement.
+
+**Restored and corrected wording.** The abstract now says the development-subset benefit "does not
+transfer *consistently*" to a same-corpus policy-selection holdout, and that "the holdout bootstrap
+*intervals* spanned zero *across tolerances*"; the Audit C subsection title matches. Ten prose
+qualifications that an earlier, rejected r11 patch had weakened are verified present **inside their
+required sections**, together with a further twenty-six section-scoped safeguards: the Conclusion
+carries "same-corpus policy-selection holdout", "official-ranking-aligned τ=1" and "both intervals
+spanned zero"; the Audit C subsection carries the unreached conditional phases, the separate
+development-informed G85 provenance and the "*possible* precision–sensitivity trade-off … remains
+only a hypothesis" hedge; Official Validation carries "Per-case cohort labels were not derivable",
+"we attribute the discrepancy to neither party" and "One component of the difference"; Runtime
+Evidence carries the repaired synthetic-fixture antecedent; and the Fig. 1 caption carries all four
+provenance qualifiers. The qualitative failure analysis, the acknowledgment, the organizer-mandated
+Synapse sentence, the data-use and ethics statement and the disclosure of interests are unchanged.
+
+**Supplement.** Section headings are now consistently title-cased in both the generator and the
+generated file, and the generator still reproduces `paper/supplement.tex` exactly. The supplement
+remains 11 physical pages; every table, value, caption, qualification and inventory outcome is
+unchanged, and Table S12 still bolds the better WT HD95 value, 3.89.
+
+**Current versus historical documentation.** The public tree now says plainly which records are
+current contracts and which are dated evidence. Conspicuous historical-snapshot banners were added
+to `preflight/README.md`, `preflight/run_static_preflight.py`,
+`docs/BraTS_2026_GoAT_Model_Architecture.md`, `docs/BraTS_2026_GAT26_Preflight_Audit.md` and
+`configs/release/AWS_A10G_RUNBOOK.md`; a new `configs/README.md` gives the stage and freeze
+chronology, records that `g77_official_metric_alignment.json` supersedes the earlier metric
+understanding used by the architecture screen, and states the current position — C0, patch size
+`[128,160,112]`, opaque basename, DSC and NSD at τ=1 with HD95 diagnostic, and no corrected-image
+A10G, execution-log, hidden-test or rank evidence. `configs/release/README.md` now separates the
+failed pre-correction image from the corrected submitted image, records that organizer execution
+status for the corrected image is unknown, and marks the retained A10G-1/A10G-2 wording as
+historical design that did not qualify the corrected image. The top-level README's repository map no
+longer presents archived design and audit artifacts as current contracts. **No frozen historical
+constant, JSON record or historical result was rewritten** — only its context is now labelled.
+
+**Memory wording.** The overbroad claims in the top-level README and in `scripts/release_infer.py`
+("peak memory is that of a single model", "peak VRAM is a single model, not five", "memory-safe")
+are replaced by the accurate statement: one fold model is resident at a time, so simultaneous model
+residency does not scale with five folds; the running probability accumulator and the current
+per-region probabilities are also resident, so total process peak memory is not that of a bare
+single-model run.
+
+**Regression tests.** A new fail-closed public-documentation suite pins the memory wording, the
+presence of every required historical banner, the current official-metric and basename statements,
+the scoping of historical strings to labelled archival records, exclusion of the bridge and any
+nested worktree, and the absence of any harness-directory member from the export. It does not ban
+legitimate historical DSC/HD95, five-digit, provider or A10G strings inside clearly labelled
+archival records.
+
+No numerical result, interval, threshold, gate outcome, candidate decision, model artifact,
+prediction or release decision changed.
+
+**Reviewer-requested per-component evidence is now actually present.** The main paper said the
+Audit A/B per-component values were in the supplement; they were not. The supplement now carries
+them for every executed candidate --- the best-validation checkpoint, recorded-axis mirroring, the
+two combined, enhancing-tumour cleanup at all three declared thresholds, and both weight soups ---
+as ET/TC/WT DSC and NSD means and candidate-minus-C0 deltas at the official-ranking `τ=1` and at the
+`τ=0.5` sensitivity tolerance, alongside the DSC/HD95 pair the audits actually decided on, the
+per-policy denominators, the rank gain with its bootstrap interval, and the outcome. The bounded
+40-epoch T/DG/TDG screen is reported as the deltas the frozen record actually holds, and the
+supplement states plainly that absolute per-component candidate means and HD95 were never computed
+for those arms rather than reconstructing them. `evidence/supplement_inputs.json` carries a
+`provenance` block mapping every rendered value to its source record and key path, together with an
+explicit list of quantities that do not exist. The bounded inventory is now complete, with a status
+column separating executed candidates from proposals screened out before execution, and D25 is
+recorded unambiguously as preregistered but never executed, with zero predictions.
+
+**A correction the new evidence forced.** Publishing the soup components exposed a false statement
+in the r10 text, which said the six components moved the wrong way "monotonically in the amount
+mixed in". They did not: on all six components at both tolerances, and on all three HD95
+diagnostics, the ordering is C0 > S2 > S1, so the soup mixing **more** of the best-validation
+checkpoint is uniformly **better** than the one mixing less. The source audit record's own
+parenthetical already said so. The main paper and the supplement now state that the degradation is
+consistent in direction but not monotone. No number, interval, threshold, gate outcome, candidate
+decision or release decision changed; the main PDF was rebuilt for this wording alone.
+
+**The documented supplement regeneration now works in this repository.** `scripts/g92_build_supplement.py`
+read two records under `artifacts/`, which is never exported, so the documented command failed in
+any public tree and the committed `supplement.tex` shipped unreproducible. The public-evidence
+generator now also emits `evidence/supplement_inputs.json`, a whitelisted aggregate projection at
+full float precision, and the generator reads it when the private records are absent, failing closed
+with an explicit diagnostic when neither is available. From a tree containing only `evidence/` and
+`scripts/` the documented command reproduces the committed file byte-for-byte, and
+`tests/test_r11_supplement_regeneration.py` enforces exactly that.
+
+**A test that silently stopped testing.** `tests/test_g83_science.py` read its NSD adapter from a
+machine-absolute private path behind a conditional, so on every public export one check left the
+tally without any failure and the file still reported all checks passed. The adapter now ships,
+sanitized, as `scripts/g79v_tau_nsd_adapter.py`; the test loads it by a repository-relative path and
+fails closed if it is missing. Operational machine-absolute paths were removed from
+`scripts/g84_eval.py`, `scripts/g85_eval.py`, `scripts/g5_runner.py`,
+`scripts/g3_acquire_labeled_archive.py` and two tests; every remaining occurrence in a file that
+ships is either inside a banner-marked historical record or an allowlisted rule literal, and a new
+fail-closed check pins that.
+
+**Encoding, and what was deliberately left alone.** Text reads and writes now name UTF-8
+explicitly: 236 of the 319 call sites were converted. The remaining 83 sit in the 23 files that the
+G82/G83/G84 and G79-V immutability guards hold byte-frozen, and they were reverted rather than
+touched --- a frozen stage record is evidence of what was executed, and a cosmetic edit would
+destroy the proof it exists to provide. Three frozen files were changed anyway, because the r11
+correction required it: `tests/test_g83_science.py`, `scripts/g79v_tau_nsd_adapter.py` and
+`scripts/g84_eval.py`. Each change is a publication or fail-closed correction, none touches a
+recorded result, and each is now enumerated as an authorized exception inside the guard that covers
+it, so the guard still fails closed on anything else. Both suites give identical results under a C
+locale and a UTF-8 locale.
+
+**Publication snapshot.** `brats-goat-2026-camera-ready-21-r11` is the intended immutable release
+name for this revision, and it is the tag the paper cites. Creating it is a separately authorized
+publication step. Publication is complete only when the anonymous, unauthenticated URL for that tag
+resolves; until it does, the citation must not be recorded as a passing link check. Tags r1 through
+r8 are unchanged and remain resolvable. r9 and r10 were never published.

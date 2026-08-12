@@ -17,8 +17,8 @@ from pathlib import Path
 def _build(plans_json, dataset_json, config, fold, out_dir, num_epochs):
     import torch
     from nnunetv2.training.nnUNetTrainer.nnUNetTrainer import nnUNetTrainer
-    plans = json.loads(Path(plans_json).read_text())
-    dj = json.loads(Path(dataset_json).read_text())
+    plans = json.loads(Path(plans_json).read_text(encoding="utf-8"))
+    dj = json.loads(Path(dataset_json).read_text(encoding="utf-8"))
     pt = dict(plans); pt["continue_training"] = False
     t = nnUNetTrainer(plans=pt, configuration=config, fold=fold, dataset_json=dj,
                       device=torch.device("cuda"))
@@ -95,7 +95,7 @@ def main():
           and out["lr_finite"] and out["new_checkpoint_produced"])
     out["drill_pass"] = bool(ok)
     print(json.dumps(out))
-    Path(args.result).write_text(json.dumps(out, indent=2) + "\n")
+    Path(args.result).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
     return 0 if ok else 1
 
 

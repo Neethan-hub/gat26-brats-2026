@@ -121,8 +121,8 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
 
-    spec = json.load(open(a.spec))
-    ev = json.load(open(a.eval))
+    spec = json.load(open(a.spec, encoding="utf-8"))
+    ev = json.load(open(a.eval, encoding="utf-8"))
     if a.phase == "confirmation":
         g = dict(spec["confirmation"]["primary_gates_all_required"])
         g.update(spec["corrected_lesion_analysis"]["margins_frozen_before_confirmation"])
@@ -142,7 +142,7 @@ def main() -> int:
                                  else "POOLED_PASSED") if report["passes"] else fail)
 
     tmp = a.out + ".tmp"
-    with open(tmp, "w") as f:
+    with open(tmp, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=1)
         f.flush()
         os.fsync(f.fileno())

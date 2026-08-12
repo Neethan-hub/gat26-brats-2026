@@ -14,8 +14,8 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 PAPER = REPO / "paper"
-MAIN = (PAPER / "main.tex").read_text()
-BIB = (PAPER / "references.bib").read_text()
+MAIN = (PAPER / "main.tex").read_text(encoding="utf-8")
+BIB = (PAPER / "references.bib").read_text(encoding="utf-8")
 FAILS = 0
 
 # --- private aggregate evidence -------------------------------------------------------------
@@ -44,7 +44,7 @@ def public_export_mode(required_private) -> bool:
     stays a hard failure everywhere except a real export.
     """
     try:
-        man = json.loads((REPO / "EXPORT_MANIFEST.json").read_text())
+        man = json.loads((REPO / "EXPORT_MANIFEST.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return False
     if man.get("declared_license") != "Apache-2.0":
@@ -154,13 +154,13 @@ def main():
     #    missing file is a hard failure. Only inside a validated sanitized public export are they
     #    skipped, and nothing is hardcoded, approximated or fabricated in their place.
     if public_export_mode(PRIVATE_EVIDENCE):
-        print(f"  {SKIP_MESSAGE} — numeric-evidence comparisons require the private fold-0 "
+        print(f"  {SKIP_MESSAGE} -- numeric-evidence comparisons require the private fold-0 "
               f"aggregate summaries, which are not redistributed. All structure, bibliography, "
               f"placeholder, sanitization, publication-state, A10G-state, page-count and "
               f"unsupported-claim guards still ran.")
     else:
-        m = json.loads((REPO / "artifacts" / "g5_m_fold0_official_eval_summary.json").read_text())
-        l = json.loads((REPO / "artifacts" / "g5_l_fold0_official_eval_summary.json").read_text())
+        m = json.loads((REPO / "artifacts" / "g5_m_fold0_official_eval_summary.json").read_text(encoding="utf-8"))
+        l = json.loads((REPO / "artifacts" / "g5_l_fold0_official_eval_summary.json").read_text(encoding="utf-8"))
         mc, lc = m["components_mean"], l["components_mean"]
         # G87 compressed the fold-0 screen to the six DSC values; the fold-0 HD95 values and the
         # DSC/HD95 tail percentiles were cut from the manuscript. Values the paper still states must
@@ -170,7 +170,7 @@ def main():
         # which ships in the same camera-ready package. A stated value must still match the
         # evidence exactly; it may now live in either document.
         supp_path = PAPER / "supplement.tex"
-        SUPP = supp_path.read_text() if supp_path.is_file() else ""
+        SUPP = supp_path.read_text(encoding="utf-8") if supp_path.is_file() else ""
         for label, val, fmt in [
             ("M_et_dsc", mc["et_dsc"], r3), ("M_tc_dsc", mc["tc_dsc"], r3), ("M_wt_dsc", mc["wt_dsc"], r3),
             ("L_et_dsc", lc["et_dsc"], r3), ("L_tc_dsc", lc["tc_dsc"], r3), ("L_wt_dsc", lc["wt_dsc"], r3),
@@ -186,7 +186,7 @@ def main():
         check("cut_fold0_values_not_misreported",
               not [k for k, v in cut.items() if v in screen])
         check("val_count_271_matches", str(m["n"]) == "271" and "271" in MAIN)
-        sel = json.loads((REPO / "artifacts" / "g5_fold0_selection_decision.json").read_text())
+        sel = json.loads((REPO / "artifacts" / "g5_fold0_selection_decision.json").read_text(encoding="utf-8"))
         check("selection_select_M",
               sel["decision"] == "select_M"
               and ("selects ResEnc-M" in MAIN or "selected ResEnc-M" in MAIN))
@@ -352,8 +352,8 @@ def main():
     # checklist. That checklist carried an obsolete deadline plus evaluation-queue and
     # submission-view identifiers and has been removed from the public source, and the
     # scaffold wording with it. The replacements below check the state that is now true.
-    ledger = (PAPER / "CITATION_LEDGER.md").read_text().lower()
-    readme = (PAPER / "README.md").read_text().lower()
+    ledger = (PAPER / "CITATION_LEDGER.md").read_text(encoding="utf-8").lower()
+    readme = (PAPER / "README.md").read_text(encoding="utf-8").lower()
     check("bibliography_provenance_recorded",
           "primary" in ledger and "no invented references" in ledger)
     check("build_toolchain_recorded", "pdftex" in readme and "bibtex" in readme)
@@ -408,7 +408,8 @@ def main():
     check("g87_protocol_honesty",
           "not globally result-blind" in flat
           and ("calibration-informed" in flat
-               or "designed after seeing the development outcome" in flat))
+               or "development-informed" in flat
+               or "designed after seeing" in flat))
 
     # (5) The submitted runner does NOT fail closed on an output collision (G86 measured
     #     exit_code 0, failed_closed false), so no rejection may be claimed anywhere in paper/.
@@ -507,7 +508,7 @@ def main():
     a10g_passed = False
     if a10g_evidence.exists():
         try:
-            a10g_passed = bool(json.loads(a10g_evidence.read_text()).get("overall_pass"))
+            a10g_passed = bool(json.loads(a10g_evidence.read_text(encoding="utf-8")).get("overall_pass"))
         except ValueError:
             a10g_passed = False
     elif public_export_mode(("artifacts/g87r_a10g_qualification.json",)):
@@ -528,6 +529,66 @@ def main():
                         credits_block, re.I) is None)
     check("g87r_competing_interests_present",
           "declares no competing interests" in flat)
+
+    # (9) r10 invariants. The r9 candidate misstated the G84/G85 protocol provenance and overstated
+    # the headline scope. These are semantic checks on properties, not on exact sentences, so the
+    # prose may be reworded freely as long as the corrected facts survive.
+    SUPP10 = (PAPER / "supplement.tex").read_text(encoding="utf-8") if (PAPER / "supplement.tex").is_file() else ""
+    BIB10 = (PAPER / "references.bib").read_text(encoding="utf-8") if (PAPER / "references.bib").is_file() else ""
+    sflat = re.sub(r"\s+", " ", SUPP10.lower())
+
+    # G84 stopped under its own frozen veto; G85 is a separate development-informed follow-up whose
+    # holdout evidence must still be present. Both halves matter: do not over- or under-correct.
+    check("r10_auditc_stopped_on_frozen_veto",
+          "stopped" in flat and "false-negative" in flat and "veto" in flat)
+    check("r10_followup_separate_and_development_informed",
+          "separately commit-frozen" in flat and "development-informed" in flat)
+    check("r10_no_advancement_under_auditc", "not continuation or advancement" in flat)
+    check("r10_unreached_phases_not_omitted_steps",
+          "were never reached" in flat and "unreached branches" in flat)
+    check("r10_holdout_evidence_retained",
+          all(v in flat for v in ("+0.00073", "+0.00253", "+0.00247", "+0.00417"))
+          and "changed sign" in flat and "miss rate regressed" in flat)
+    check("r10_supplement_inventory_records_the_stop",
+          "false-negative veto and stopped" in sflat)
+    check("r10_supplement_matrices_complete",
+          "18 checks" in sflat and "23 checks" in sflat)
+
+    # Headline scope: no claim that the shipped policy itself was the object under test, and the
+    # single-excluded-fold-checkpoint limitation survives.
+    check("r10_no_shipped_policy_object_under_test", "object under test" not in flat)
+    check("r10_all_five_limitation_retained",
+          "does not directly measure mirroring on the deployed five-model" in flat)
+    check("r10_conclusion_selected_not_evaluated_under", "selected and released following" in flat)
+
+    # Frozen C0 details and the bounded memory statement.
+    check("r10_frozen_c0_details_present",
+          "sliding window at step" in flat and "gaussian importance weighting" in flat
+          and "weight decay" in flat)
+    check("r10_model_residency_bounded_not_overclaimed",
+          "simultaneous model residency does not scale" in flat
+          and "not that of a bare single-model run" in flat)
+
+    # Hidden-test claims scoped to the corrected image.
+    check("r10_hidden_test_scoped", "no hidden-test performance result or rank" in flat)
+
+    # Submitted source must not point at files absent from the archive, or carry internal labels.
+    check("r10_no_absent_file_pointers",
+          "paper/README.md" not in MAIN and "CITATION_LEDGER" not in MAIN
+          and "CITATION_LEDGER" not in BIB10)
+    check("r10_no_internal_stage_label_in_bib", "G87 additions" not in BIB10)
+    check("r10_s12_bolds_the_better_wt_hd95",
+          r"\textbf{3.89}" in SUPP10 and r"\textbf{4.11}" not in SUPP10)
+
+    # Reviewer-response anti-regression.
+    check("r10_development_holdout_terminology",
+          "development subset" in flat and "policy-selection holdout" in flat
+          and "calibration" not in flat)
+    check("r10_tolerance_authority_hierarchy",
+          "official-ranking" in flat and "sensitivity analysis" in flat)
+    check("r10_no_a10g_feasibility_claim", "no feasibility claim" in flat)
+    check("r10_official_gap_not_attributed",
+          "without attributing" in flat or "cannot be separated" in flat)
 
     print("RESULT:", "PASS" if not FAILS else f"FAIL {FAILS}")
     return 1 if FAILS else 0

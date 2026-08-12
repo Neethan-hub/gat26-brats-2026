@@ -77,7 +77,7 @@ def main():
             print(f"       {o}")
 
     # 2. the G88 corrected-image record carries the unambiguous structure
-    ci = json.loads((REPO / "artifacts" / "g88_corrected_image.json").read_text())
+    ci = json.loads((REPO / "artifacts" / "g88_corrected_image.json").read_text(encoding="utf-8"))
     ccf = ci["frozen_policy_verified_inside_the_image"]["connected_component_filtering"]
     check("component_filtering_is_structured", isinstance(ccf, dict))
     check("component_filtering_enabled_is_false", isinstance(ccf, dict) and ccf.get("enabled") is False)
@@ -85,16 +85,16 @@ def main():
           isinstance(ccf, dict) and ccf.get("verification_passed") is True)
 
     # 3. the release freeze still says the policy is none, and the runner still reports it off
-    frz = json.loads((REPO / "artifacts" / "g86_release_freeze.json").read_text())
+    frz = json.loads((REPO / "artifacts" / "g86_release_freeze.json").read_text(encoding="utf-8"))
     check("release_freeze_policy_is_none",
           frz["policy"]["connected_component_filtering"] == "none")
-    runner = (REPO / "scripts" / "release_infer.py").read_text()
+    runner = (REPO / "scripts" / "release_infer.py").read_text(encoding="utf-8")
     check("runner_reports_cc_filtering_false", '"cc_filtering": False' in runner)
     check("runner_has_no_component_filtering_code",
           not re.search(r"label\(|connected_components|remove_small_objects|cc3d", runner))
 
     # 4. the G88 image's qualification claim is scoped, not bare
-    res = json.loads((REPO / "artifacts" / "g88_result.json").read_text())
+    res = json.loads((REPO / "artifacts" / "g88_result.json").read_text(encoding="utf-8"))
     q = res["corrected_image"]["qualified"]
     check("g88_qualified_claim_is_scoped", isinstance(q, dict))
     if isinstance(q, dict):

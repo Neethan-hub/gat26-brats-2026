@@ -33,7 +33,7 @@ failures: list[str] = []
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
-    print(f"  {'ok  ' if ok else 'FAIL'} {name}{'' if ok else ' — ' + detail}")
+    print(f"  {'ok  ' if ok else 'FAIL'} {name}{'' if ok else ' -- ' + detail}")
     if not ok:
         failures.append(name)
 
@@ -128,7 +128,7 @@ def test_delta_r_sign_and_interval_are_stated_consistently() -> None:
     want_point = "DeltaR=R(L)-R(M)=-0.333"
     want_ci = "[-1.000,+0.667]"
     for path in _definition_sites() + _revision_records():
-        text = _norm(path.read_text())
+        text = _norm(path.read_text(encoding="utf-8"))
         rel = path.relative_to(REPO)
         check(f"{rel} states the signed point estimate", want_point in text)
         check(f"{rel} states the percentile interval", want_ci in text)
@@ -156,7 +156,7 @@ def test_stale_rank_wording_is_rejected() -> None:
     """The two withdrawn formulations must not reappear where $R$ is defined or restated."""
     stale = ("rank gain is $R=+0.333", "ties resolved to the smaller model")
     for path in _definition_sites():
-        text = path.read_text()
+        text = path.read_text(encoding="utf-8")
         for phrase in stale:
             check(f"{path.relative_to(REPO)} is free of {phrase!r}", phrase not in text)
 
@@ -167,7 +167,7 @@ def test_the_two_tie_conventions_are_distinguished_in_the_supplement() -> None:
     if not path.is_file():
         print("  skip  paper/supplement.tex not present in this tree")
         return
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     check("supplement states the averaged tied positions",
           "average of the tied positions" in text)
     check("supplement states the separate selection tie rule",
@@ -203,7 +203,7 @@ def main() -> int:
     for fn in tests:
         print(f"\n{fn.__name__}")
         fn()
-    print(f"\n{'FAIL' if failures else 'PASS'} — {len(failures)} failing check(s)")
+    print(f"\n{'FAIL' if failures else 'PASS'} -- {len(failures)} failing check(s)")
     for f in failures:
         print(f"  - {f}")
     return 1 if failures else 0

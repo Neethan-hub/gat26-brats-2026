@@ -39,8 +39,8 @@ except ImportError:
 
 SPEC_PATH = os.path.join(ROOT, "configs", "g85_confirmation_preregistration.json")
 FREEZE_PATH = os.path.join(ROOT, "artifacts", "g85_candidate_freeze.json")
-SPEC = json.load(open(SPEC_PATH))
-FREEZE = json.load(open(FREEZE_PATH)) if os.path.exists(FREEZE_PATH) else None
+SPEC = json.load(open(SPEC_PATH, encoding="utf-8"))
+FREEZE = json.load(open(FREEZE_PATH, encoding="utf-8")) if os.path.exists(FREEZE_PATH) else None
 PRIVATE_ONLY = ("artifacts/g85_candidate_freeze.json",)
 RESULTS = []
 
@@ -52,7 +52,7 @@ def _validated_public_export() -> bool:
     the development tree can never activate this.
     """
     try:
-        man = json.load(open(os.path.join(ROOT, "EXPORT_MANIFEST.json")))
+        man = json.load(open(os.path.join(ROOT, "EXPORT_MANIFEST.json"), encoding="utf-8"))
     except (OSError, ValueError):
         return False
     if man.get("declared_license") != "Apache-2.0":
@@ -256,6 +256,28 @@ def t_freeze_manifest_holds():
           and FREEZE["policy"]["use_mirroring"] is True)
 
 
+# --- r11 authorized exceptions -----------------------------------------------------------------
+# These guards exist so a frozen stage's committed files cannot drift after its audit. The r11
+# correction pass was explicitly instructed to change three of them, and each change is a
+# publication or fail-closed correction, never a scientific one: no recorded result, metric, count,
+# interval, threshold, gate outcome, candidate decision or release decision is touched by any of
+# them. They are enumerated here so the guard keeps failing closed on anything else.
+R11_AUTHORIZED_CHANGES = {
+    "tests/test_g83_science.py":
+        "r11: check 8e loaded the NSD adapter from a machine-absolute private path behind a "
+        "conditional, so on every public export the check left the tally with no failure while the "
+        "file still reported all checks passed. The load is now repository-relative and fail-closed.",
+    "scripts/g79v_tau_nsd_adapter.py":
+        "r11: published, so check 8e can execute in a public tree. The only edit is removal of a "
+        "machine-absolute worker path default, which is now resolved from the environment.",
+    "scripts/g84_eval.py":
+        "r11: the script root defaulted to a machine-absolute path that shadowed the module's own "
+        "directory on any other checkout. It is now repository-relative.",
+    "tests/test_g84_science.py":
+        "r11: this file carries the same authorized-exception list, for the same three changes.",
+}
+
+
 def t_g84_files_untouched_in_this_branch():
     changed = subprocess.run(
         ["git", "-C", ROOT, "diff", "--name-only",
@@ -263,7 +285,10 @@ def t_g84_files_untouched_in_this_branch():
         capture_output=True, text=True).stdout.split()
     touched = [f for f in changed
                if re.search(r"(^|/)(g8[234]|G8[234]|test_g8[234])", f)]
-    check("5 g82_g83_g84_committed_files_unmodified", not touched, str(touched))
+    unauthorized = [f for f in touched if f not in R11_AUTHORIZED_CHANGES]
+    check("5 g82_g83_g84_committed_files_unmodified", not unauthorized, str(unauthorized))
+    for f in sorted(set(touched) & set(R11_AUTHORIZED_CHANGES)):
+        print(f"  ..   authorized r11 change, still guarded elsewhere: {f}")
 
 
 def t_sealed_folds():
@@ -368,7 +393,7 @@ def t_c0_immutable_and_no_identifiers():
         d = os.path.join(ROOT, sub)
         for fn in sorted(os.listdir(d)):
             if fn.startswith(("g85", "test_g85")) and fn.endswith(".py"):
-                src += open(os.path.join(d, fn)).read()
+                src += open(os.path.join(d, fn), encoding="utf-8").read()
     markers = ["build_" + "context/weights", "shutil." + "rmtree", "os." + "remove("]
     check("10 g85_never_writes_or_deletes_c0", not [m for m in markers if m in src])
     # scanner-patterns-begin
@@ -412,7 +437,7 @@ def t_resources_and_disclosure():
     check("11b evaluator_caps", rp["max_evaluator_processes"] == 48
           and rp["prohibited_evaluator_process_counts"] == [80, 88])
     check("11c no_broad_pgrep_in_g85_code",
-          all("pgrep -f" not in open(os.path.join(ROOT, "scripts", f)).read()
+          all("pgrep -f" not in open(os.path.join(ROOT, "scripts", f), encoding="utf-8").read()
               for f in os.listdir(os.path.join(ROOT, "scripts")) if f.startswith("g85")))
     import g85_eval as EV
     check("11d evaluator_refuses_more_than_48", EV.MAX_PROCS == 48)
@@ -427,7 +452,7 @@ def t_resources_and_disclosure():
 def t_preregistration_immutable():
     stamp = os.path.join(ROOT, "artifacts", "g85_preregistration_digest.json")
     if os.path.exists(stamp):
-        rec = json.load(open(stamp))
+        rec = json.load(open(stamp, encoding="utf-8"))
         check("12 preregistration_byte_identical", rec["spec_sha256"] == sha(SPEC_PATH))
         check("12b freeze_manifest_byte_identical", rec["freeze_sha256"] == sha(FREEZE_PATH))
     else:

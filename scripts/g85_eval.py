@@ -38,8 +38,10 @@ MAX_PROCS = 48
 RAW = os.environ["G85_RAW"]
 STORE_C0 = os.environ["G85_STORE_C0"]
 STORE_M8 = os.environ["G85_STORE_M8"]
-SCRIPTS = os.environ.get("G85_SCRIPTS", "/workspace/brats-2026-gat26/scripts")
-sys.path.insert(0, SCRIPTS)
+# Repository-relative by construction (see g84_eval.py). G85_SCRIPTS remains an explicit override.
+# Inserted at the END so it can never shadow this module's own directory, which line 29 put first.
+SCRIPTS = os.environ.get("G85_SCRIPTS") or os.path.dirname(os.path.abspath(__file__))
+sys.path.append(SCRIPTS)
 
 
 class SealedFoldError(RuntimeError):
@@ -248,7 +250,7 @@ def main() -> int:
     folds = [int(x) for x in a.folds.split(",")]
     assert_folds_allowed(folds, a.freeze_artifact)
 
-    splits = json.load(open(a.splits))
+    splits = json.load(open(a.splits, encoding="utf-8"))
     jobs, missing = [], []
     for f in folds:
         for cid in splits[f]["val"]:
@@ -269,13 +271,13 @@ def main() -> int:
     result["exact_membership"] = len(recs) == expected
 
     tmp = a.out + ".tmp"
-    with open(tmp, "w") as f:
+    with open(tmp, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=1)
         f.flush()
         os.fsync(f.fileno())
     os.replace(tmp, a.out)
     if a.records_out:
-        with open(a.records_out, "w") as f:
+        with open(a.records_out, "w", encoding="utf-8") as f:
             json.dump(recs, f)
 
     t1, t05 = result["t10"], result["t05"]

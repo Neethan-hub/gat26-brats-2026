@@ -246,7 +246,7 @@ def cmd_audit(args):
         "selftest": selftest_detector(),
     }
     print(json.dumps(summ))
-    Path(args.summary).write_text(json.dumps(summ, indent=2) + "\n")
+    Path(args.summary).write_text(json.dumps(summ, indent=2) + "\n", encoding="utf-8")
     return 0
 
 
@@ -378,9 +378,9 @@ def cmd_split(args):
     # write PRIVATE split
     payload = json.dumps(splits)
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.out).write_text(payload)
+    Path(args.out).write_text(payload, encoding="utf-8")
     split_hash = H.sha256(payload.encode()).hexdigest()
-    Path(args.hashfile).write_text(split_hash + "\n")
+    Path(args.hashfile).write_text(split_hash + "\n", encoding="utf-8")
 
     summary = {
         "seed": SEED, "nfolds": NFOLDS, "singleton_only": singleton_only,
@@ -392,7 +392,7 @@ def cmd_split(args):
     print(json.dumps({"all_invariants_pass": all_ok, "invariants": inv,
                       "fold_sizes": agg["fold_sizes"],
                       "split_sha256_prefix": split_hash[:12]}))
-    Path(args.summary).write_text(json.dumps(summary, indent=2) + "\n")
+    Path(args.summary).write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     return 0 if all_ok else 1
 
 

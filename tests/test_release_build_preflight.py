@@ -15,7 +15,7 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "scripts"))
 import release_build_preflight as P  # noqa: E402
 
-DOCKER = (REPO / "configs" / "release" / "Dockerfile").read_text()
+DOCKER = (REPO / "configs" / "release" / "Dockerfile").read_text(encoding="utf-8")
 FAILS = 0
 
 
@@ -28,16 +28,16 @@ def check(name, cond):
 
 def make_ctx(td, n_folds=5):
     ctx = Path(td)
-    (ctx / "requirements.lock.txt").write_text("nnunetv2==2.8.1\n")
+    (ctx / "requirements.lock.txt").write_text("nnunetv2==2.8.1\n", encoding="utf-8")
     (ctx / "scripts").mkdir()
     for s in ("release_infer.py", "g4_reconstruct_validate.py", "g3_audit_labeled_archive.py"):
-        (ctx / "scripts" / s).write_text("x")
+        (ctx / "scripts" / s).write_text("x", encoding="utf-8")
     (ctx / "plans").mkdir()
-    (ctx / "plans" / "nnUNetResEncUNetMPlans.json").write_text("{}")
-    (ctx / "plans" / "dataset.json").write_text("{}")
+    (ctx / "plans" / "nnUNetResEncUNetMPlans.json").write_text("{}", encoding="utf-8")
+    (ctx / "plans" / "dataset.json").write_text("{}", encoding="utf-8")
     for i in range(n_folds):
         (ctx / "weights" / f"fold_{i}").mkdir(parents=True)
-        (ctx / "weights" / f"fold_{i}" / "checkpoint_final.pth").write_text(f"ckpt-{i}")
+        (ctx / "weights" / f"fold_{i}" / "checkpoint_final.pth").write_text(f"ckpt-{i}", encoding="utf-8")
     return ctx
 
 
@@ -68,12 +68,12 @@ def main():
 
     # forbidden material anywhere in the context is detected
     for fname, mk in [
-        (".synapseConfig", lambda c: (c / ".synapseConfig").write_text("x")),
-        ("id_ed25519", lambda c: (c / "id_ed25519").write_text("x")),
-        ("secret.pat", lambda c: (c / "secret.pat").write_text("x")),
-        (".bash_history", lambda c: (c / ".bash_history").write_text("x")),
-        ("validation.zip", lambda c: (c / "validation.zip").write_text("x")),
-        ("raw_image.nii.gz", lambda c: (c / "raw_image.nii.gz").write_text("x")),
+        (".synapseConfig", lambda c: (c / ".synapseConfig").write_text("x", encoding="utf-8")),
+        ("id_ed25519", lambda c: (c / "id_ed25519").write_text("x", encoding="utf-8")),
+        ("secret.pat", lambda c: (c / "secret.pat").write_text("x", encoding="utf-8")),
+        (".bash_history", lambda c: (c / ".bash_history").write_text("x", encoding="utf-8")),
+        ("validation.zip", lambda c: (c / "validation.zip").write_text("x", encoding="utf-8")),
+        ("raw_image.nii.gz", lambda c: (c / "raw_image.nii.gz").write_text("x", encoding="utf-8")),
         (".git", lambda c: (c / ".git").mkdir()),
         ("nnUNet_raw", lambda c: (c / "nnUNet_raw").mkdir()),
     ]:

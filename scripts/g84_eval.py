@@ -31,7 +31,9 @@ MAX_PROCS = 48
 
 RAW = os.environ["G84_RAW"]
 CAND = os.environ["G84_CAND_STORE"]
-SCRIPTS = os.environ.get("G84_SCRIPTS", "/workspace/brats-2026-gat26/scripts")
+# r11: repository-relative by construction -- this file lives in scripts/, so its own directory
+# is the script root. G84_SCRIPTS remains an explicit override for out-of-tree layouts.
+SCRIPTS = os.environ.get("G84_SCRIPTS") or os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPTS)
 
 

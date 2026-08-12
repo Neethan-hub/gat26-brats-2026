@@ -149,7 +149,7 @@ def main():
     if out.exists():
         import argparse
         check("emitted_v2_validates", SP.cmd_validate(argparse.Namespace(file=str(out))) == 0)
-        p = json.loads(out.read_text())
+        p = json.loads(out.read_text(encoding="utf-8"))
         check("policy_is_v2", p["policy_id"] == "gat26_g45_selection_policy_v2")
         check("tie_rule_selects_M", p["tie_rule"]["rule"] == "select_M_the_cheaper_simpler_plan")
 

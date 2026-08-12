@@ -34,7 +34,7 @@ BOUNDARY = "0.16666666666666652"    # what the exactly-1/6 rank configuration co
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
-    print(f"  {'ok  ' if ok else 'FAIL'} {name}{'' if ok else ' — ' + detail}")
+    print(f"  {'ok  ' if ok else 'FAIL'} {name}{'' if ok else ' -- ' + detail}")
     if not ok:
         failures.append(name)
 
@@ -78,7 +78,7 @@ def test_the_recorded_decision_was_nowhere_near_the_boundary() -> None:
     if not rs.is_file():
         print("  skip  RUN_STATE.json absent (public export); prose disclosure still checked")
         return
-    hits = re.findall(r'"rank_gain_L_over_M":\s*(-?[\d.]+)', rs.read_text())
+    hits = re.findall(r'"rank_gain_L_over_M":\s*(-?[\d.]+)', rs.read_text(encoding="utf-8"))
     check("a recorded fold-0 rank gain exists", bool(hits), "no rank_gain_L_over_M recorded")
     for v in hits:
         g = float(v)
@@ -92,7 +92,7 @@ def test_supplement_discloses_the_binary64_comparison() -> None:
     if not path.is_file():
         print("  skip  paper/supplement.tex not present in this tree")
         return
-    text = " ".join(path.read_text().split())
+    text = " ".join(path.read_text(encoding="utf-8").split())
     # \allowbreak hints are typesetting-only; drop them before matching the quoted expression.
     flat = " ".join(re.sub(r"\\allowbreak\s*", "", text).split())
     check("supplement names the executable comparison",
@@ -114,7 +114,7 @@ def test_no_document_claims_exact_real_number_equivalence() -> None:
     """No published text may reassert the exact inequality as the gate."""
     bad = re.compile(r"R\(\\?mathrm\{?M\}?\)\s*-\s*R\(\\?mathrm\{?L\}?\)\s*(?:\\ge|>=|≥)\s*1/6")
     for path in _documents():
-        text = " ".join(path.read_text().split())
+        text = " ".join(path.read_text(encoding="utf-8").split())
         rel = path.relative_to(REPO)
         for m in bad.finditer(text):
             window = text[max(0, m.start() - 220):m.end() + 220]
@@ -131,7 +131,7 @@ def main() -> int:
     for fn in tests:
         print(f"\n{fn.__name__}")
         fn()
-    print(f"\n{'FAIL' if failures else 'PASS'} — {len(failures)} failing check(s)")
+    print(f"\n{'FAIL' if failures else 'PASS'} -- {len(failures)} failing check(s)")
     for f in failures:
         print(f"  - {f}")
     return 1 if failures else 0

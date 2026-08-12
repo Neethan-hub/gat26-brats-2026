@@ -91,7 +91,7 @@ def main() -> int:
     ap.add_argument("--context", required=True, help="path to the private docker build context")
     ap.add_argument("--proxy", action="store_true", help="A10G-1 proxy layout (fold_0 only)")
     args = ap.parse_args()
-    problems = check_context(args.context, DOCKERFILE.read_text(), proxy=args.proxy)
+    problems = check_context(args.context, DOCKERFILE.read_text(encoding="utf-8"), proxy=args.proxy)
     mode = "A10G-1_proxy" if args.proxy else "A10G-2_final"
     print(f"build_context_preflight mode={mode} problems={len(problems)}")
     for p in problems:

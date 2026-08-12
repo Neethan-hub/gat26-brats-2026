@@ -147,7 +147,7 @@ def main():                                                          # noqa: C90
         outside = Path(td) / "outside"
         (inp / "BraTS-GoAT-99999-100").mkdir(parents=True)
         (inp / ".hidden-dir").mkdir()
-        (inp / "README.txt").write_text("not a case\n")
+        (inp / "README.txt").write_text("not a case\n", encoding="utf-8")
         outside.mkdir()
         names = [p.name for p in X.list_case_folders(inp)]
         check("hidden_entry_skipped", ".hidden-dir" not in names)
@@ -189,7 +189,7 @@ def main():                                                          # noqa: C90
         _ = np  # silence unused-import linters
 
     # 6. source guard — the production runner must not reintroduce a fixed-digit naming rule
-    src = (REPO / "scripts" / "release_infer.py").read_text()
+    src = (REPO / "scripts" / "release_infer.py").read_text(encoding="utf-8")
     forbidden = {
         "exactly_five_digits_phrase": "EXACTLY 5 digits" in src or "exactly five digits" in src.lower(),
         "fixed_trailing_digit_length_check": ("len(run) != 5" in src or "len(run) == 5" in src
@@ -212,11 +212,11 @@ def main():                                                          # noqa: C90
         with tempfile.TemporaryDirectory() as td:
             import importlib.util
             src_dir = Path(td)
-            (src_dir / "release_infer.py").write_text(fs)
+            (src_dir / "release_infer.py").write_text(fs, encoding="utf-8")
             for rel in ("g4_reconstruct_validate.py", "g3_audit_labeled_archive.py"):
                 (src_dir / rel).write_text(subprocess.run(
                     ["git", "-C", str(REPO), "show", f"6ed2f9f:scripts/{rel}"],
-                    capture_output=True, text=True, check=True).stdout)
+                    capture_output=True, text=True, check=True).stdout, encoding="utf-8")
             sys.path.insert(0, str(src_dir))
             spec = importlib.util.spec_from_file_location("g88_frozen",
                                                           src_dir / "release_infer.py")

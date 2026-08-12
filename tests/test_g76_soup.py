@@ -154,15 +154,15 @@ def main():
     check("forbidden_list_covers_epoch", "current_epoch" in S.FORBIDDEN_CHECKPOINT_KEYS)
 
     # --- strict loading is mandatory in every soup-consuming code path ------------------
-    src = (REPO / "scripts" / "g76_soup.py").read_text()
+    src = (REPO / "scripts" / "g76_soup.py").read_text(encoding="utf-8")
     check("soup_module_never_uses_strict_false", "strict=False" not in src)
-    infer = (REPO / "scripts" / "release_infer.py").read_text()
+    infer = (REPO / "scripts" / "release_infer.py").read_text(encoding="utf-8")
     check("release_runner_never_uses_strict_false", "strict=False" not in infer)
 
     # --- decision record: calibration/confirmation isolation + fail-closed selection ----
     dec_path = REPO / "artifacts" / "g76_checkpoint_soup_decision.json"
     if dec_path.exists():
-        d = json.loads(dec_path.read_text())
+        d = json.loads(dec_path.read_text(encoding="utf-8"))
         design = d.get("design", {})
         check("decision_is_one_of_three",
               d.get("decision") in ("G76_RETAIN_C0", "G76_SELECT_S1", "G76_SELECT_S2"))

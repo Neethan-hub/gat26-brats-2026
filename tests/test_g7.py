@@ -57,7 +57,7 @@ def main():
 
     # 3. no cross-fold checkpoint loading — the train command is the frozen 8-token argv with the
     #    fold, and carries NO pretrained/checkpoint/continue flag (structural guard on the source).
-    src = (REPO / "scripts" / "g5_runner.py").read_text()
+    src = (REPO / "scripts" / "g5_runner.py").read_text(encoding="utf-8")
     check("train_cmd_is_frozen",
           'train_cmd = ["nnUNetv2_train", "501", CONFIG, str(fold), "-tr", TRAINER, "-p", plans]' in src)
     check("no_pretrained_or_continue_flag",
@@ -72,7 +72,7 @@ def main():
         ids = [f"S{i:04d}" for i in range(10)]
         splits = [{"val": ids[2 * k:2 * k + 2],
                    "train": [x for x in ids if x not in ids[2 * k:2 * k + 2]]} for k in range(5)]
-        sp.write_text(json.dumps(splits))
+        sp.write_text(json.dumps(splits), encoding="utf-8")
         vals = {f: R.fold_validation_stems(sp, fold=f) for f in range(5)}
         check("membership_fold_specific", vals[1] == {"S0002", "S0003"} and vals[3] == {"S0006", "S0007"})
         union = set().union(*vals.values())
@@ -100,13 +100,13 @@ def main():
     # 6. stop-on-failure — the supervisor iterates FOLDS 1..4 and returns nonzero on a failed fold
     check("supervisor_folds_are_1234", S.FOLDS == (1, 2, 3, 4))
     check("supervisor_stops_on_fail_source",
-          "if not ok:" in (REPO / "scripts" / "g7_supervisor.py").read_text()
-          and "return 3" in (REPO / "scripts" / "g7_supervisor.py").read_text())
+          "if not ok:" in (REPO / "scripts" / "g7_supervisor.py").read_text(encoding="utf-8")
+          and "return 3" in (REPO / "scripts" / "g7_supervisor.py").read_text(encoding="utf-8"))
 
     # 7. evaluator-denominator fail-closed recovery (G7 fold-1 posthoc fix)
-    src_r = (REPO / "scripts" / "g5_runner.py").read_text()
-    src_e = (REPO / "scripts" / "g5_evaluate.py").read_text()
-    src_a = (REPO / "scripts" / "g5_completion_audit.py").read_text()
+    src_r = (REPO / "scripts" / "g5_runner.py").read_text(encoding="utf-8")
+    src_e = (REPO / "scripts" / "g5_evaluate.py").read_text(encoding="utf-8")
+    src_a = (REPO / "scripts" / "g5_completion_audit.py").read_text(encoding="utf-8")
     # (a) the runner passes a DYNAMICALLY DERIVED denominator, not a constant
     check("runner_passes_expected_n", '"--expected-n", str(expected_n)' in src_r)
     check("runner_expected_n_from_membership",
@@ -142,7 +142,7 @@ def main():
         for sz in sizes:
             val = allids[start:start + sz]; start += sz
             splits.append({"val": val, "train": [x for x in allids if x not in val]})
-        sp.write_text(json.dumps(splits))
+        sp.write_text(json.dumps(splits), encoding="utf-8")
         n = {f: len(R.fold_validation_stems(sp, fold=f)) for f in range(5)}
         check("fold0_denominator_larger", n[0] == 3 and all(n[f] == 2 for f in (1, 2, 3, 4)))
 

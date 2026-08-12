@@ -189,6 +189,28 @@ def t_ties_retain_c0():
           "failing: " + ",".join(sorted(k for k, v in ch.items() if not v)))
 
 
+# --- r11 authorized exceptions -----------------------------------------------------------------
+# These guards exist so a frozen stage's committed files cannot drift after its audit. The r11
+# correction pass was explicitly instructed to change three of them, and each change is a
+# publication or fail-closed correction, never a scientific one: no recorded result, metric, count,
+# interval, threshold, gate outcome, candidate decision or release decision is touched by any of
+# them. They are enumerated here so the guard keeps failing closed on anything else.
+R11_AUTHORIZED_CHANGES = {
+    "tests/test_g83_science.py":
+        "r11: check 8e loaded the NSD adapter from a machine-absolute private path behind a "
+        "conditional, so on every public export the check left the tally with no failure while the "
+        "file still reported all checks passed. The load is now repository-relative and fail-closed.",
+    "scripts/g79v_tau_nsd_adapter.py":
+        "r11: published, so check 8e can execute in a public tree. The only edit is removal of a "
+        "machine-absolute worker path default, which is now resolved from the environment.",
+    "scripts/g84_eval.py":
+        "r11: the script root defaulted to a machine-absolute path that shadowed the module's own "
+        "directory on any other checkout. It is now repository-relative.",
+    "tests/test_g84_science.py":
+        "r11: this file carries the same authorized-exception list, for the same three changes.",
+}
+
+
 def t_frozen_prior_stage_files():
     """G82 and G83 committed files must be byte-identical to their commits."""
     prior = subprocess.run(
@@ -200,7 +222,10 @@ def t_frozen_prior_stage_files():
                                  "tests/test_g82", "tests/test_g83"))
                    or f.startswith("artifacts/G82") or f.startswith("artifacts/g82")
                    or f.startswith("artifacts/G83") or f.startswith("artifacts/g83"))]
-    check("8 g82_and_g83_frozen_files_unmodified", not touched, str(touched))
+    unauthorized = [f for f in touched if f not in R11_AUTHORIZED_CHANGES]
+    check("8 g82_and_g83_frozen_files_unmodified", not unauthorized, str(unauthorized))
+    for f in sorted(set(touched) & set(R11_AUTHORIZED_CHANGES)):
+        print(f"  ..   authorized r11 change, still guarded elsewhere: {f}")
 
 
 def t_c0_immutable():

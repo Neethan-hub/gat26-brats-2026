@@ -188,10 +188,15 @@ def t_tau_explicit():
     check("8d adapter_called_with_explicit_tau",
           "region_components(seg_ref, seg_c, 0.5)" in src
           and "region_components(seg_ref, seg_c, 1.0)" in src)
-    adapter = open("/workspace/brats-2026-gat26/scripts/g79v_tau_nsd_adapter.py").read() \
-        if os.path.exists("/workspace/brats-2026-gat26/scripts/g79v_tau_nsd_adapter.py") else ""
-    if adapter:
-        check("8e adapter_refuses_implicit_tau", "tau must be explicit" in adapter)
+    # r11: repository-relative and FAIL-CLOSED. This previously read a machine-absolute private
+    # path behind an `if adapter:` guard, so on any tree without that path -- including every
+    # public export -- check 8e vanished from the tally while the suite still reported all
+    # checks passed. The adapter now ships, so its absence is a failure, not a reason to skip.
+    adapter_path = os.path.join(ROOT, "scripts", "g79v_tau_nsd_adapter.py")
+    adapter = (open(adapter_path, encoding="utf-8").read()
+               if os.path.isfile(adapter_path) else "")
+    check("8e adapter_present", bool(adapter), adapter_path)
+    check("8e adapter_refuses_implicit_tau", "tau must be explicit" in adapter)
 
 
 # ------------------------------------------------------------ tracked-artifact

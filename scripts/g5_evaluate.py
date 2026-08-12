@@ -252,7 +252,7 @@ def main():
     if errors:
         Path(args.out).write_text(json.dumps(
             {"errors": errors, "n_ok": len(records), "status_histogram": per_status},
-            indent=2) + "\n")
+            indent=2) + "\n", encoding="utf-8")
         print(json.dumps({"error": "hard_failures", "n_errors": len(errors),
                           "n_ok": len(records)}))
         return 3
@@ -262,7 +262,7 @@ def main():
     Path(args.out).write_text(json.dumps({
         "evaluator": "BraTS-evaluation==0.0.8", "config": "GoAT",
         "per_subject_records": records,           # PRIVATE (real ids) -- never committed/printed
-        "errors": [], "status_histogram": per_status, "aggregate": agg}, indent=2) + "\n")
+        "errors": [], "status_histogram": per_status, "aggregate": agg}, indent=2) + "\n", encoding="utf-8")
 
     if args.summary_out:                          # SANITIZED: aggregate + status counts only
         Path(args.summary_out).write_text(json.dumps({
@@ -273,7 +273,7 @@ def main():
             "dsc_p05": agg["dsc_p05"], "hd95_p95": agg["hd95_p95"],
             "smallest_volume_wt_dsc": agg["smallest_volume_wt_dsc"],
             "empty_reference_fp_rate": agg["empty_reference_fp_rate"],
-            "missed_region_rate": agg["missed_region_rate"]}, indent=2) + "\n")
+            "missed_region_rate": agg["missed_region_rate"]}, indent=2) + "\n", encoding="utf-8")
 
     print(json.dumps({"evaluated": len(records), "errors": 0, "aggregate_n": agg["n"],
                       "status_histogram": per_status}))     # sanitized counts only

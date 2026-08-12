@@ -144,10 +144,10 @@ def main() -> int:
     parser.add_argument("--copy", action="store_true")
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
-    mapping = json.loads(Path(args.mapping).read_text())
+    mapping = json.loads(Path(args.mapping).read_text(encoding="utf-8"))
     res = build(mapping, Path(args.raw_root), Path(args.dataset_root), args.dataset_name,
                 link=not args.copy)
-    Path(args.out).write_text(json.dumps(res, indent=2) + "\n")
+    Path(args.out).write_text(json.dumps(res, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"dataset_json_ok": res["dataset_json_ok"], "num_cases": len(mapping),
                       "smoke_only": True}))
     return 0

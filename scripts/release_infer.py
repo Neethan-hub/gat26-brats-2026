@@ -7,8 +7,11 @@ Container entrypoint contract (frozen G5 selection = ResEnc-M):
     case-folder basename, which is treated as an opaque identifier — no case ID is parsed out of
     it, no trailing-digit count is required and no folder prefix is assumed.
   * ResEnc-M plan only; random-init-trained checkpoints only; NO external weights.
-  * SEQUENTIAL five-checkpoint ensemble (mean of region probabilities) — one checkpoint resident at
-    a time, freed before the next, so peak VRAM is a single model, not five.
+  * SEQUENTIAL five-checkpoint ensemble (mean of region probabilities) — one checkpoint is resident
+    at a time, freed before the next, so simultaneous model residency does not scale with the five
+    folds. That bounds model residency only: the running probability accumulator and the current
+    per-region probabilities are also resident, so total process peak memory is NOT that of a bare
+    single-model run.
   * frozen inference rules ONLY: threshold 0.5, hierarchy-safe WT/TC/ET reconstruction, NO TTA
     (mirroring off), NO connected-component filtering, NO presence gate, NO learned threshold or
     learned ensemble weight, primary checkpoint_final.
@@ -238,7 +241,9 @@ def _build_predictor(plans, dataset_json, ckpt_weights):
 
 def infer_case_ensemble(ckpt_paths, plans, dataset_json, ordered_files):
     """Sequential mean-probability ensemble over ckpt_paths. Returns (seg_uint8, props). One model
-    resident at a time; freed before the next (memory-safe)."""
+    is resident at a time, freed before the next, so simultaneous model residency does not scale with
+    the five folds. The running accumulator and the current per-region probabilities are also held,
+    so total process peak memory is not that of a bare single-model run."""
     import torch
     from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
     data, props = SimpleITKIO().read_images(ordered_files)
@@ -310,8 +315,8 @@ def main() -> int:
     import numpy as np
     from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
     enforce_determinism()                                  # bit-exact, reproducible inference
-    plans = json.loads(Path(args.plans_json).read_text())
-    dataset_json = json.loads(Path(args.dataset_json).read_text())
+    plans = json.loads(Path(args.plans_json).read_text(encoding="utf-8"))
+    dataset_json = json.loads(Path(args.dataset_json).read_text(encoding="utf-8"))
     if plans.get("plans_name", PLANS) not in (PLANS,) and PLANS not in json.dumps(plans):
         print(f"FATAL: plans is not the selected {PLANS}", file=sys.stderr); return 3
 
@@ -373,7 +378,7 @@ def main() -> int:
               file=sys.stderr); return 7
     summary["flat_output_ok"] = True
     if args.result_json:
-        Path(args.result_json).write_text(json.dumps(summary, indent=2) + "\n")
+        Path(args.result_json).write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: summary[k] for k in ("plan", "checkpoint_mode", "n_checkpoints", "n_cases",
                                               "written", "peak_reserved_gib", "flat_output_ok")}))
     return 0

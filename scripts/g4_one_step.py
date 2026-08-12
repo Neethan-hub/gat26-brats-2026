@@ -29,8 +29,8 @@ def main() -> int:
 
     out = {"label": "g4_real_data_smoke_only", "no_accuracy_claim": True, "not_A10G_parity": True}
     pp = Path(nnUNet_preprocessed) / args.dataset
-    plans = json.loads((pp / f"{args.plans}.json").read_text())
-    dataset_json = json.loads((pp / "dataset.json").read_text())
+    plans = json.loads((pp / f"{args.plans}.json").read_text(encoding="utf-8"))
+    dataset_json = json.loads((pp / "dataset.json").read_text(encoding="utf-8"))
 
     # ResEnc-M contract sanity from the plan
     arch = plans["configurations"][args.config]["architecture"]
@@ -114,7 +114,7 @@ def main() -> int:
     except Exception:
         pass
 
-    Path(args.out).write_text(json.dumps(out, indent=2) + "\n")
+    Path(args.out).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
     san = {k: v for k, v in out.items()}
     print(json.dumps(san))
     ok = (out["input_finite"] and out["loss_finite"] and out["grad_finite"]

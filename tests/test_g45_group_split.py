@@ -53,7 +53,7 @@ def main():
         import argparse
         az = os.path.join(tmp, "groups.npz"); asum = os.path.join(tmp, "audit.json")
         GS.cmd_audit(argparse.Namespace(fp=fpz, out=az, summary=asum))
-        a = json.load(open(asum))
+        a = json.load(open(asum, encoding="utf-8"))
         check("planted_dup_detected", a["confirmed_same_subject_pairs"] >= 1)
         check("no_unresolved_ambiguous", a["ambiguous_unresolved_pairs"] == 0)
 
@@ -90,7 +90,7 @@ def main():
     for rel in ("RUN_STATE.json", "DECISIONS.md", "RELEASE_CHECKLIST.md", "DATA_PROVENANCE.md",
                 "artifacts/G45_PRETRAINING_AUDIT.md"):
         p = REPO / rel
-        if p.exists() and overclaim.search(p.read_text()):
+        if p.exists() and overclaim.search(p.read_text(encoding="utf-8")):
             offenders.append(rel)
     check("no_distinct_subject_overclaim_in_committed_text", not offenders)
 

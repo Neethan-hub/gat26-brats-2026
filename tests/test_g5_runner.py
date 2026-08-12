@@ -56,7 +56,7 @@ def main():
     # 3. epoch-log parsing
     with tempfile.TemporaryDirectory() as tmp:
         (Path(tmp) / "training_log_2026_1_1_00_00_00.txt").write_text(
-            "2026: Epoch 0\nloss\n2026: Epoch 1\n2026: Epoch 7\n")
+            "2026: Epoch 0\nloss\n2026: Epoch 1\n2026: Epoch 7\n", encoding="utf-8")
         ep, mt = R.parse_latest_epoch(tmp)
         check("parse_latest_epoch", ep == 7 and mt > 0)
         ep2, _ = R.parse_latest_epoch(tempfile.mkdtemp())
@@ -65,7 +65,7 @@ def main():
     # 4. atomic state write
     with tempfile.TemporaryDirectory() as tmp:
         R.set_state(tmp, "TRAINING")
-        check("atomic_state", (Path(tmp) / "state.txt").read_text().strip() == "TRAINING")
+        check("atomic_state", (Path(tmp) / "state.txt").read_text(encoding="utf-8").strip() == "TRAINING")
         check("state_sequence", R.STATES == ["PRECHECK", "TRAINING", "VALIDATING",
                                              "OUTPUT_VALIDATION", "OFFICIAL_EVALUATION", "PASS"])
 
@@ -73,10 +73,10 @@ def main():
     with tempfile.TemporaryDirectory() as tmp:
         pp = Path(tmp) / "pp" / R.DATASET; pp.mkdir(parents=True)
         for fn in ("splits_final.json", f"{R.PLANS}.json", "dataset_fingerprint.json"):
-            (pp / fn).write_text(fn)
+            (pp / fn).write_text(fn, encoding="utf-8")
         def sh(name): return hashlib.sha256(name.encode()).hexdigest()
-        cfg = Path(tmp) / "cfg.json"; cfg.write_text("CFG")
-        sv = Path(tmp) / "sv.txt"; sv.write_text("deployed_commit=ABC123\n")
+        cfg = Path(tmp) / "cfg.json"; cfg.write_text("CFG", encoding="utf-8")
+        sv = Path(tmp) / "sv.txt"; sv.write_text("deployed_commit=ABC123\n", encoding="utf-8")
         os.environ["nnUNet_preprocessed"] = str(Path(tmp) / "pp")
         os.environ["nnUNet_results"] = str(Path(tmp) / "res")
         expect = {"commit": "ABC123", "source_version_path": str(sv),
@@ -85,7 +85,7 @@ def main():
                   "fingerprint_sha256": sh("dataset_fingerprint.json")}
         # exercise only the deterministic file-hash checks (not nvidia-smi)
         checks = {}
-        checks["source_commit"] = expect["commit"] in Path(expect["source_version_path"]).read_text()
+        checks["source_commit"] = expect["commit"] in Path(expect["source_version_path"]).read_text(encoding="utf-8")
         checks["public_config_hash"] = R.sha(expect["config_path"]) == expect["config_sha256"]
         checks["split_full_hash"] = R.sha(pp / "splits_final.json") == expect["split_sha256"]
         checks["plan_hash"] = R.sha(pp / f"{R.PLANS}.json") == expect["plan_sha256"]
@@ -117,7 +117,7 @@ def main():
         sp.write_text(json.dumps([
             {"train": ["S0003"], "val": ["S0001", "S0002"]},
             {"train": ["S0001"], "val": ["S0003", "S0004"]},
-        ]))
+        ]), encoding="utf-8")
         check("fold_validation_stems_fold0", R.fold_validation_stems(sp, 0) == {"S0001", "S0002"})
         check("fold_validation_stems_fold1", R.fold_validation_stems(sp, 1) == {"S0003", "S0004"})
 

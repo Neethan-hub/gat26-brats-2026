@@ -50,7 +50,7 @@ def public_export_mode(required_private) -> bool:
     governance stays a hard failure everywhere except a real export.
     """
     try:
-        man = json.loads((REPO / "EXPORT_MANIFEST.json").read_text())
+        man = json.loads((REPO / "EXPORT_MANIFEST.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return False
     if man.get("declared_license") != "Apache-2.0":
@@ -91,7 +91,7 @@ def raises(fn, *a, **k):
 
 def main():
     print("test_g77_official_metric:")
-    cfg = json.loads(CFG_PATH.read_text())
+    cfg = json.loads(CFG_PATH.read_text(encoding="utf-8"))
 
     # ---- 1. official metric definition ------------------------------------------------
     check("six_official_components", len(G.OFFICIAL_COMPONENTS) == 6)
@@ -106,7 +106,7 @@ def main():
            "global_nsd_et", "global_nsd_tc", "global_nsd_wt"})
 
     # ---- 2. METRIC SUBSTITUTION: HD95 must never enter the selection utility -----------
-    src = (REPO / "scripts" / "g77_official_metric.py").read_text()
+    src = (REPO / "scripts" / "g77_official_metric.py").read_text(encoding="utf-8")
     check("hd95_not_a_component", not any(m == "HD95" for _, m in G.OFFICIAL_COMPONENTS))
     check("hd95_absent_from_direction_table", "HD95" not in G.DIRECTION)
     check("no_hd95_field_in_official_fields",
@@ -266,7 +266,7 @@ def main():
           and "official validation performance or leaderboard rank" in cfg["claims_forbidden"])
 
     # ---- 10. historical DSC+HD95 policy untouched --------------------------------------
-    hist = json.loads((REPO / "configs" / "g45_selection_policy.json").read_text())
+    hist = json.loads((REPO / "configs" / "g45_selection_policy.json").read_text(encoding="utf-8"))
     check("historical_policy_still_v2", hist["policy_id"] == "gat26_g45_selection_policy_v2")
     check("historical_policy_still_frozen", hist["frozen"] is True)
     check("historical_policy_still_dsc_hd95",
@@ -284,7 +284,7 @@ def main():
     # hard failure. Only inside a validated sanitized public export are these sections skipped,
     # and no substitute value is invented for them.
     if public_export_mode(PRIVATE_GOVERNANCE):
-        print(f"  {SKIP_MESSAGE} — current-state consistency and persistence-audit checks require "
+        print(f"  {SKIP_MESSAGE} -- current-state consistency and persistence-audit checks require "
               f"the private governance record, which is not redistributed. All scientific, "
               f"configuration, candidate-restriction, metric-definition, fold-isolation, bootstrap "
               f"and historical-policy checks still ran.")
@@ -292,7 +292,7 @@ def main():
         return 1 if FAILS else 0
 
     # ---- 11. CURRENT-STATE CONSISTENCY: G7.7 complete XOR metric decision pending ----------
-    state = json.loads((REPO / "RUN_STATE.json").read_text())
+    state = json.loads((REPO / "RUN_STATE.json").read_text(encoding="utf-8"))
     g77 = state.get("g77_official_metric_alignment", {})
     if g77.get("status") == "COMPLETE":
         phase = state.get("phase", "").lower()

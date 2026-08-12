@@ -5,6 +5,22 @@ These tests deliberately avoid the protected challenge data and PyTorch. They
 exercise label semantics, hierarchy reconstruction, numerical edge cases,
 filename rules, topology arithmetic, and the separation between award-ranking
 and diagnostic metrics. They are preflight tests, not evidence of accuracy.
+
+HISTORICAL SNAPSHOT -- not a current release validator.
+This script is the pre-training preflight package (version 1.2, 21 July 2026). It is retained
+unmodified so that its historical 24/24 result stays reproducible; it reproduces a historical
+decision rather than reasserting a current rule. It is superseded for every current claim.
+
+Current truth, as of the r11 camera-ready:
+  * Official ranking uses DSC and NSD at tau=1; HD95 is diagnostic only and is not ranked.
+  * Output naming preserves the complete opaque input case-folder basename. There is no
+    five-digit rule and no assumed cohort prefix.
+  * Any [160,160,128] patch size here is synthetic / reference-only; the final trained plan
+    is [128,160,112].
+  * The corrected container image was submitted, but no organizer execution log, no
+    hidden-test result, no rank and no A10G measurement exist for that corrected image.
+  * The camera-ready paper and the current top-level README.md are authoritative wherever
+    they differ from this script.
 """
 
 from __future__ import annotations

@@ -35,7 +35,7 @@ AUX = ("smallest_volume_dsc", "dsc_p05", "hd95_p95", "empty_ref_fp", "missed_reg
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
-    print(f"  {'ok  ' if ok else 'FAIL'} {name}{'' if ok else ' — ' + detail}")
+    print(f"  {'ok  ' if ok else 'FAIL'} {name}{'' if ok else ' -- ' + detail}")
     if not ok:
         failures.append(name)
 
@@ -202,7 +202,7 @@ def test_prose_states_the_rule_the_code_implements() -> None:
     frac = Fraction(SP.MEANINGFUL_RANK_GAIN).limit_denominator(1000)
     threshold = f"{frac.numerator}/{frac.denominator}"          # "1/6", derived from the module
     for path in _documents():
-        text = _norm(path.read_text())
+        text = _norm(path.read_text(encoding="utf-8"))
         rel = path.relative_to(REPO)
         m = re.search(r"could advance from fold 0[^.]*\.", text)
         check(f"{rel} states the advancement rule", m is not None)
@@ -239,7 +239,7 @@ def test_prose_does_not_keep_the_old_incomplete_sentence() -> None:
     stale = "ResEnc-L is preferred only if that interval excludes zero"
     for path in _documents():
         check(f"{path.relative_to(REPO)} drops the incomplete sentence",
-              stale not in " ".join(path.read_text().split()))
+              stale not in " ".join(path.read_text(encoding="utf-8").split()))
 
 
 def main() -> int:
@@ -247,7 +247,7 @@ def main() -> int:
     for fn in tests:
         print(f"\n{fn.__name__}")
         fn()
-    print(f"\n{'FAIL' if failures else 'PASS'} — {len(failures)} failing check(s)")
+    print(f"\n{'FAIL' if failures else 'PASS'} -- {len(failures)} failing check(s)")
     for f in failures:
         print(f"  - {f}")
     return 1 if failures else 0

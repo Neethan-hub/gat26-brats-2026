@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """GAT-26 G7 sequential fold supervisor — ResEnc-M folds 1..4, one at a time.
 
-Durable, worker-side, independent of Claude/Remote-Control: run fold 1 (train -> validate ->
+Durable, worker-side, independent of any interactive operator session: run fold 1 (train -> validate ->
 official eval via g5_runner), then run the strict completion audit; launch the NEXT fold ONLY if the
 current fold reaches an audited PASS. Stop the entire chain on any failure, anomaly, ceiling, or
 ambiguous state. Atomic chain state + heartbeat survive SSH/browser disconnection.
@@ -28,7 +28,7 @@ FOLDS = (1, 2, 3, 4)
 def atomic_write(path, text):
     p = Path(path)
     tmp = p.with_suffix(p.suffix + ".tmp")
-    tmp.write_text(text)
+    tmp.write_text(text, encoding="utf-8")
     os.replace(tmp, p)
 
 
@@ -50,7 +50,7 @@ def chain_heartbeat(g7dir, current_fold, chain_state, start_ts, stop_by_epoch, f
 
 def read_json(p):
     try:
-        return json.loads(Path(p).read_text())
+        return json.loads(Path(p).read_text(encoding="utf-8"))
     except Exception:
         return None
 
@@ -89,7 +89,7 @@ def run_fold(g7dir, fold, eval_python, per_fold_hours, disk_floor, expect_src,
            "--fold", str(fold), "--tag", "M",
            "--hard-ceiling-hours", str(per_fold_hours), "--disk-floor-gib", str(disk_floor),
            "--poll", "30"]
-    log = open(fold_rundir / "runner.stdout.log", "w")
+    log = open(fold_rundir / "runner.stdout.log", "w", encoding="utf-8")
     proc = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
     # poll the runner; refresh chain heartbeat; enforce the OVERALL stop-by ceiling
     while proc.poll() is None:
@@ -103,7 +103,7 @@ def run_fold(g7dir, fold, eval_python, per_fold_hours, disk_floor, expect_src,
                 pass
             return False, f"STOPPED_OVERALL_STOP_BY_FOLD{fold}"
         time.sleep(60)
-    fold_state = (fold_rundir / "state.txt").read_text().strip() if (fold_rundir / "state.txt").exists() else "UNKNOWN"
+    fold_state = (fold_rundir / "state.txt").read_text(encoding="utf-8").strip() if (fold_rundir / "state.txt").exists() else "UNKNOWN"
     if fold_state != "PASS":
         return False, f"FAILED_FOLD{fold}_{fold_state}"
 
@@ -116,8 +116,8 @@ def run_fold(g7dir, fold, eval_python, per_fold_hours, disk_floor, expect_src,
                           "--rundir", str(fold_rundir), "--eval-python", eval_python,
                           "--report-out", str(gates)],
                          capture_output=True, text=True)
-    (fold_rundir / "audit.stdout.log").write_text(aud.stdout or "")
-    (fold_rundir / "audit.stderr.log").write_text(aud.stderr or "")
+    (fold_rundir / "audit.stdout.log").write_text(aud.stdout or "", encoding="utf-8")
+    (fold_rundir / "audit.stderr.log").write_text(aud.stderr or "", encoding="utf-8")
     rep = read_json(gates)
     if aud.returncode != 0 or not audit_is_pass(rep, fold):
         return False, f"FAILED_FOLD{fold}_AUDIT_{(rep or {}).get('verdict')}"

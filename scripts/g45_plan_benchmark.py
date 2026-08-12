@@ -89,7 +89,7 @@ def cmd_build_dataset(args):
         "name": DATASET_NAME,
         "description": "GAT-26 BraTS-GoAT production labeled training view (symlinks; random-init).",
     }
-    (tmp / "dataset.json").write_text(json.dumps(dataset_json, indent=2) + "\n")
+    (tmp / "dataset.json").write_text(json.dumps(dataset_json, indent=2) + "\n", encoding="utf-8")
     # atomic promote
     if dst.exists():
         if args.force:
@@ -109,7 +109,7 @@ def cmd_verify_dataset(args):
     """Verify the production dataset contract without modifying anything."""
     raw_base = os.environ["nnUNet_raw"]
     d = Path(raw_base) / DATASET_NAME
-    dj = json.loads((d / "dataset.json").read_text())
+    dj = json.loads((d / "dataset.json").read_text(encoding="utf-8"))
     imgs = sorted((d / "imagesTr").glob("*.nii.gz"))
     labs = sorted((d / "labelsTr").glob("*.nii.gz"))
     ids = sorted({p.name[:-len("_0000.nii.gz")] for p in imgs})
@@ -136,7 +136,7 @@ def cmd_verify_dataset(args):
 
 
 def _summarize_plan(plans_path: Path, config: str = "3d_fullres"):
-    p = json.loads(plans_path.read_text())
+    p = json.loads(plans_path.read_text(encoding="utf-8"))
     cfg = p["configurations"][config]
     a = cfg["architecture"]
     kw = a.get("arch_kwargs", {})
@@ -158,7 +158,7 @@ def _summarize_plan(plans_path: Path, config: str = "3d_fullres"):
 def cmd_validate_plan(args):
     pp = Path(os.environ["nnUNet_preprocessed"]) / DATASET_NAME
     s = _summarize_plan(pp / f"{args.plans}.json")
-    dj = json.loads((pp / "dataset.json").read_text())
+    dj = json.loads((pp / "dataset.json").read_text(encoding="utf-8"))
     checks = {
         "arch_is_resenc_unet": s["arch_class"].endswith("ResidualEncoderUNet"),
         "three_regions": len(dj["labels"]) - 1 == 3,
@@ -183,7 +183,7 @@ def _load_split_and_feats(fp_npz, split_json):
     cids = [str(c) for c in d["cids"]]
     feat = {c: {"wt": int(d["wt"][i]), "tc": int(d["tc"][i]), "et": int(d["et"][i]),
                 "nvox": int(d["nvox"][i])} for i, c in enumerate(cids)}
-    splits = json.loads(Path(split_json).read_text())
+    splits = json.loads(Path(split_json).read_text(encoding="utf-8"))
     fold_of = {}
     for f, s in enumerate(splits):
         for c in s["val"]:
@@ -227,7 +227,7 @@ def select_bench_cases(fp_npz, split_json, per_fold=8):
 
 def _pm_cm(plans_json_path, config, dataset_json):
     from nnunetv2.utilities.plans_handling.plans_handler import PlansManager
-    plans = json.loads(Path(plans_json_path).read_text())
+    plans = json.loads(Path(plans_json_path).read_text(encoding="utf-8"))
     pm = PlansManager(plans)
     cm = pm.get_configuration(config)
     return plans, pm, cm
@@ -238,11 +238,11 @@ def cmd_preprocess_bench(args):
     from nnunetv2.preprocessing.preprocessors.default_preprocessor import DefaultPreprocessor
     raw_base = os.environ["nnUNet_raw"]
     ddir = Path(raw_base) / DATASET_NAME
-    dataset_json = json.loads((ddir / "dataset.json").read_text())
+    dataset_json = json.loads((ddir / "dataset.json").read_text(encoding="utf-8"))
     pp_base = Path(os.environ["nnUNet_preprocessed"]) / DATASET_NAME
     plans, pm, cm = _pm_cm(pp_base / f"{args.plans}.json", args.config, dataset_json)
     chosen, feat, fold_of, strata = select_bench_cases(args.fp, args.split, args.per_fold)
-    Path(args.priv_list).write_text(json.dumps(chosen))
+    Path(args.priv_list).write_text(json.dumps(chosen), encoding="utf-8")
     outdir = Path(args.bench_out);
     if outdir.exists(): shutil.rmtree(outdir)
     (outdir / "data").mkdir(parents=True)
@@ -291,7 +291,7 @@ def cmd_preprocess_bench(args):
         "strata_coverage": strata,
     })
     print(json.dumps(out))
-    Path(args.result).write_text(json.dumps(out, indent=2) + "\n")
+    Path(args.result).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
     return 0 if src_ok else 1
 
 
@@ -302,7 +302,7 @@ def cmd_build_bench_raw(args):
     import numpy as np
     raw_base = Path(os.environ["nnUNet_raw"]); pp_base = Path(os.environ["nnUNet_preprocessed"])
     prod_raw = raw_base / DATASET_NAME; prod_pp = pp_base / DATASET_NAME
-    chosen = json.loads(Path(args.priv_list).read_text())
+    chosen = json.loads(Path(args.priv_list).read_text(encoding="utf-8"))
     braw = raw_base / args.bench_dataset
     if braw.exists(): shutil.rmtree(braw)
     (braw / "imagesTr").mkdir(parents=True); (braw / "labelsTr").mkdir(parents=True)
@@ -311,22 +311,22 @@ def cmd_build_bench_raw(args):
             src = os.path.realpath(prod_raw / "imagesTr" / f"{cid}_{ch}.nii.gz")
             os.symlink(src, braw / "imagesTr" / f"{cid}_{ch}.nii.gz")
         os.symlink(os.path.realpath(prod_raw / "labelsTr" / f"{cid}.nii.gz"), braw / "labelsTr" / f"{cid}.nii.gz")
-    dj = json.loads((prod_raw / "dataset.json").read_text()); dj["numTraining"] = len(chosen)
-    (braw / "dataset.json").write_text(json.dumps(dj, indent=2))
+    dj = json.loads((prod_raw / "dataset.json").read_text(encoding="utf-8")); dj["numTraining"] = len(chosen)
+    (braw / "dataset.json").write_text(json.dumps(dj, indent=2), encoding="utf-8")
     # seed preprocessed dir with production plan(s) + fingerprint so preprocess uses them verbatim
     bpp = pp_base / args.bench_dataset
     if bpp.exists(): shutil.rmtree(bpp)
     bpp.mkdir(parents=True)
     shutil.copy(prod_pp / "dataset_fingerprint.json", bpp / "dataset_fingerprint.json")
-    (bpp / "dataset.json").write_text(json.dumps(dj, indent=2))
+    (bpp / "dataset.json").write_text(json.dumps(dj, indent=2), encoding="utf-8")
     for plans_name in args.plans_list.split(","):
-        plans = json.loads((prod_pp / f"{plans_name}.json").read_text())
+        plans = json.loads((prod_pp / f"{plans_name}.json").read_text(encoding="utf-8"))
         plans["dataset_name"] = args.bench_dataset
-        (bpp / f"{plans_name}.json").write_text(json.dumps(plans))
+        (bpp / f"{plans_name}.json").write_text(json.dumps(plans), encoding="utf-8")
     # bench split referencing only these cases (fold 0 used for benchmark)
     k = max(1, len(chosen) // 5)
     val = sorted(chosen)[:k]; train = [c for c in sorted(chosen) if c not in val]
-    (bpp / "splits_final.json").write_text(json.dumps([{"train": train, "val": val}] * NFOLDS))
+    (bpp / "splits_final.json").write_text(json.dumps([{"train": train, "val": val}] * NFOLDS), encoding="utf-8")
     print(json.dumps({"bench_dataset": args.bench_dataset, "cases": len(chosen),
                       "train": len(train), "val": len(val), "symlinked_not_copied": True}))
     return 0
@@ -338,8 +338,8 @@ def cmd_step_bench(args):
     import torch, numpy as np, time as _t
     from nnunetv2.training.nnUNetTrainer.nnUNetTrainer import nnUNetTrainer
     pp = Path(os.environ["nnUNet_preprocessed"]) / args.bench_dataset
-    plans = json.loads((pp / f"{args.plans}.json").read_text())
-    dataset_json = json.loads((pp / "dataset.json").read_text())
+    plans = json.loads((pp / f"{args.plans}.json").read_text(encoding="utf-8"))
+    dataset_json = json.loads((pp / "dataset.json").read_text(encoding="utf-8"))
     plans_t = dict(plans); plans_t["continue_training"] = False
     trainer = nnUNetTrainer(plans=plans_t, configuration=args.config, fold=0,
                             dataset_json=dataset_json, device=torch.device("cuda"))
@@ -397,7 +397,7 @@ def cmd_step_bench(args):
     })
     try: trainer.on_train_end()
     except Exception: pass
-    print(json.dumps(out)); Path(args.result).write_text(json.dumps(out, indent=2) + "\n")
+    print(json.dumps(out)); Path(args.result).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
     return 0 if (finite and gfin and pfin and len(times) >= 1) else 1
 
 
@@ -411,13 +411,13 @@ def cmd_infer_proxy(args):
     from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
     raw_base = Path(os.environ["nnUNet_raw"]); pp = Path(os.environ["nnUNet_preprocessed"]) / DATASET_NAME
     ddir = raw_base / DATASET_NAME
-    plans = json.loads((pp / f"{args.plans}.json").read_text())
-    dataset_json = json.loads((pp / "dataset.json").read_text())
+    plans = json.loads((pp / f"{args.plans}.json").read_text(encoding="utf-8"))
+    dataset_json = json.loads((pp / "dataset.json").read_text(encoding="utf-8"))
     pm = PlansManager(plans); cm = pm.get_configuration(args.config); lm = pm.get_label_manager(dataset_json)
     net = get_network_from_plans(cm.network_arch_class_name, cm.network_arch_init_kwargs,
                                  cm.network_arch_init_kwargs_req_import, 4, lm.num_segmentation_heads,
                                  allow_init=True, deep_supervision=False)
-    cases = json.loads(Path(args.cases_json).read_text())  # {"small":cid,"median":cid,"large":cid}
+    cases = json.loads(Path(args.cases_json).read_text(encoding="utf-8"))  # {"small":cid,"median":cid,"large":cid}
     if args.mem_fraction:
         torch.cuda.set_per_process_memory_fraction(args.mem_fraction)
     pred = nnUNetPredictor(tile_step_size=0.5, use_gaussian=True, use_mirroring=False,
@@ -446,7 +446,7 @@ def cmd_infer_proxy(args):
                 "max_peak_reserved_gib": peak, "oom": oom,
                 "under_21gib": (peak < 21.0 and not oom),
                 "under_18gib": (peak < 18.0 and not oom)})
-    print(json.dumps(out)); Path(args.result).write_text(json.dumps(out, indent=2) + "\n")
+    print(json.dumps(out)); Path(args.result).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
     return 0
 
 

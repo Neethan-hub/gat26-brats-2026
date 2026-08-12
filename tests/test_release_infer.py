@@ -109,7 +109,7 @@ def main():
     def _mk(wd, n, content):
         for i in range(n):
             (wd / f"fold_{i}").mkdir()
-            (wd / f"fold_{i}" / "checkpoint_final.pth").write_text(content(i))
+            (wd / f"fold_{i}" / "checkpoint_final.pth").write_text(content(i), encoding="utf-8")
     with tempfile.TemporaryDirectory() as td:                    # five DISTINCT content -> final pass
         wd = Path(td); _mk(wd, 5, lambda i: f"ckpt-content-{i}")
         paths, mode = X.discover_checkpoints(str(wd))
@@ -128,7 +128,7 @@ def main():
         wd = Path(td); _mk(wd, 4, lambda i: f"c{i}"); (wd / "fold_4").mkdir(); (wd / "fold_4" / "checkpoint_final.pth").mkdir()
         check("non_regular_file_fails_final", raises(lambda: X.discover_checkpoints(str(wd))))
     with tempfile.TemporaryDirectory() as td:                    # only fold_0 -> no proxy FAIL; proxy PASS
-        wd = Path(td); (wd / "fold_0").mkdir(); (wd / "fold_0" / "checkpoint_final.pth").write_text("m0")
+        wd = Path(td); (wd / "fold_0").mkdir(); (wd / "fold_0" / "checkpoint_final.pth").write_text("m0", encoding="utf-8")
         check("proxy_disallowed_by_default", raises(lambda: X.discover_checkpoints(str(wd))))
         paths, mode = X.discover_checkpoints(str(wd), allow_duplicate_proxy=True)
         check("duplicate_proxy_five_slots", len(paths) == 5 and mode == "runtime_only_duplicate_weight_proxy")

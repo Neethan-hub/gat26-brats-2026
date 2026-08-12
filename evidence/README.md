@@ -15,6 +15,7 @@ NSD components behind each decision, and the complete decision-check matrices. B
 | `policy_audit_checks.json` | The complete **18-check** development matrix and **23-check** holdout matrix, plus the supportive pooled matrix, each with pass/fail per named check |
 | `lesion_noninferiority.json` | Reference-lesion miss-rate noninferiority on the holdout: counts, rates, per-region deltas, margins and outcome |
 | `official_validation_scores.json` | The six official validation scores at full precision, with denominators and the row-count discrepancy recorded |
+| `supplement_inputs.json` | The whitelisted aggregate projection the supplement generator reads: component means and deltas, common-support sizes, bootstrap summaries, per-fold deltas, the three gate matrices and lesion component **counts**, at full float precision. It exists so `scripts/g92_build_supplement.py` reproduces the committed `paper/supplement.tex` byte-for-byte from this repository alone, with no private input |
 
 ## How to read these
 

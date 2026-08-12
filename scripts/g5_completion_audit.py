@@ -172,7 +172,7 @@ def verify_launch_provenance(rundir, expect):
     info = {"launch_commit_wellformed": _wellformed_commit(lc)}
     # mutable current deployment marker — reported only, never gates
     try:
-        cur = Path(expect.get("source_version_path", "")).read_text()
+        cur = Path(expect.get("source_version_path", "")).read_text(encoding="utf-8")
     except Exception:
         cur = ""
     marker_field = f"deployed_commit={lc}" if _wellformed_commit(lc) else "\x00"
@@ -190,7 +190,7 @@ def verify_launch_provenance(rundir, expect):
     if not snap.exists():
         return done("absent_launch_snapshot_no_boolean_fallback", False)
     try:
-        text = snap.read_text()
+        text = snap.read_text(encoding="utf-8")
     except Exception:
         return done("unreadable_launch_snapshot", False)
     if "marker_at_launch:" not in text:
@@ -202,7 +202,7 @@ def verify_launch_provenance(rundir, expect):
     marker_ok = (len(marker_vals) == 1 and marker_vals[0] == lc)
     pj = Path(rundir) / "precheck.json"
     try:
-        precheck_ok = (json.loads(pj.read_text()).get("source_commit") is True)
+        precheck_ok = (json.loads(pj.read_text(encoding="utf-8")).get("source_commit") is True)
     except Exception:
         precheck_ok = False
     info["exactly_one_launch_commit_eq_expected"] = exactly_one_launch
@@ -250,8 +250,8 @@ def strict_checkpoint_load(report, of, ck, plans_id):
     from nnunetv2.utilities.plans_handling.plans_handler import PlansManager
     from nnunetv2.utilities.get_network_from_plans import get_network_from_plans
     pp = Path(os.environ["nnUNet_preprocessed"]) / R.DATASET
-    plans = json.loads((pp / f"{plans_id}.json").read_text())
-    dataset_json = json.loads((pp / "dataset.json").read_text())
+    plans = json.loads((pp / f"{plans_id}.json").read_text(encoding="utf-8"))
+    dataset_json = json.loads((pp / "dataset.json").read_text(encoding="utf-8"))
     pm = PlansManager(plans)
     cm = pm.get_configuration(R.CONFIG)
     lm = pm.get_label_manager(dataset_json)
@@ -314,13 +314,13 @@ def run_official_evaluator(report, of, eval_python, rundir, expect_val):
                          "--out", str(priv), "--summary-out", str(summ),
                          "--expected-n", str(expect_val)],
                         capture_output=True, text=True)
-    (Path(rundir) / "posthoc_eval.stdout.log").write_text(ev.stdout or "")
-    (Path(rundir) / "posthoc_eval.stderr.log").write_text(ev.stderr or "")
+    (Path(rundir) / "posthoc_eval.stdout.log").write_text(ev.stdout or "", encoding="utf-8")
+    (Path(rundir) / "posthoc_eval.stderr.log").write_text(ev.stderr or "", encoding="utf-8")
     if ev.returncode != 0:
         fail(report, "official_evaluator_run", f"rc={ev.returncode}; {(ev.stderr or '')[-200:]}")
         return None, None
-    priv_data = json.loads(priv.read_text())
-    summ_data = json.loads(summ.read_text())
+    priv_data = json.loads(priv.read_text(encoding="utf-8"))
+    summ_data = json.loads(summ.read_text(encoding="utf-8"))
     n_ok = summ_data.get("n")
     errs = priv_data.get("errors", [])
     good = (n_ok == expect_val) and (len(errs) == 0)
@@ -383,9 +383,9 @@ def main():
     args = ap.parse_args()
 
     rundir = Path(args.rundir)
-    manifest = json.loads((rundir / "launch_manifest.json").read_text())
+    manifest = json.loads((rundir / "launch_manifest.json").read_text(encoding="utf-8"))
     of = manifest["output_folder"]
-    expect = json.loads((rundir / "expect.json").read_text())
+    expect = json.loads((rundir / "expect.json").read_text(encoding="utf-8"))
 
     # fold of THIS run (from the frozen manifest), and the fold's expected validation size derived
     # from the frozen split itself (271 for fold 0, 270 for folds 1-4) — never a module default.
@@ -401,7 +401,7 @@ def main():
         report = {"audit": "g5_fold0_completion", "trains": False, "plans": None, "tag": None,
                   "gates": {"plans_tag_resolution": {"ok": False, "detail": str(e)}}, "training": {},
                   "verdict": "UNKNOWN_COMPLETION_NO_GO"}
-        Path(args.report_out).write_text(json.dumps(report, indent=2) + "\n")
+        Path(args.report_out).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         print(json.dumps({"verdict": report["verdict"], "plans": None, "tag": None,
                           "gates": {"plans_tag_resolution": False}}))
         return 7
@@ -444,7 +444,7 @@ def main():
             "empty_reference_fp_rate": summ_data["empty_reference_fp_rate"],
             "missed_region_rate": summ_data["missed_region_rate"],
             "status_histogram": summ_data["status_histogram"]}
-    Path(args.report_out).write_text(json.dumps(report, indent=2) + "\n")
+    Path(args.report_out).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     # sanitized stdout: verdict/classification + non-private plan/tag identifiers + gate booleans
     print(json.dumps({"verdict": report["verdict"], "classification": report["classification"],
                       "plans": plans_id, "tag": tag,

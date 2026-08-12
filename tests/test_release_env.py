@@ -32,7 +32,7 @@ def check(name, cond, detail=""):
 
 
 def req_lines():
-    return [ln.strip() for ln in REQ.read_text().splitlines()
+    return [ln.strip() for ln in REQ.read_text(encoding="utf-8").splitlines()
             if ln.strip() and not ln.strip().startswith("#")]
 
 
@@ -59,7 +59,7 @@ def main():
         check(f"{p}_pinned", pinned)
 
     # 5. Dockerfile: every pip-installed package is pinned; torch is pinned; no bare installs
-    df = DOCKERFILE.read_text().replace("\\\n", " ").replace("\\\r\n", " ")
+    df = DOCKERFILE.read_text(encoding="utf-8").replace("\\\n", " ").replace("\\\r\n", " ")
     pip_pkgs = []
     for chunk in df.split("pip install")[1:]:
         chunk = chunk.split("\n")[0].split("&&")[0]      # bound to this install command only

@@ -404,12 +404,12 @@ def main() -> int:
         res = safe_extract(Path(args.zip), Path(args.staging), args.free_gib)
         out = {"member_count": res["member_count"], "total_bytes": res["total_bytes"]}
         if args.out:
-            Path(args.out).write_text(json.dumps(res) + "\n")
+            Path(args.out).write_text(json.dumps(res) + "\n", encoding="utf-8")
         print(json.dumps(out))
     elif args.mode == "audit":
         res = audit_extracted(Path(args.root))
         if args.out:
-            Path(args.out).write_text(json.dumps(res, indent=2) + "\n")
+            Path(args.out).write_text(json.dumps(res, indent=2) + "\n", encoding="utf-8")
         san = {k: v for k, v in res.items() if not k.startswith("_")}
         san["pilots"] = {"pilot_case_A": res["pilots"].get("pilot_case_A", {}).get("criteria") if res["pilots"].get("pilot_case_A") else None,
                          "pilot_case_B": res["pilots"].get("pilot_case_B", {}).get("criteria") if res["pilots"].get("pilot_case_B") else None,

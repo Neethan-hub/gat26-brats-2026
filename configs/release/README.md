@@ -1,7 +1,23 @@
 # GAT-26 release container (Task 3 / BraTS-GoAT) — build & test
 
-> **Final status (2026-07-30).** The released container was built from this Dockerfile with the five
-> distinct final fold checkpoints and submitted once to the Task-3 Docker queue. The `torchvision`
+> **Final status.** The released container was built from this Dockerfile with the five
+> distinct final fold checkpoints and submitted once to the Task-3 Docker queue.
+>
+> **Two distinct images — do not conflate them.** An **earlier, pre-correction image** was executed by
+> the organizers and **failed before writing any prediction**, because its runner required the input
+> case-folder basename to end in exactly five digits. That defect was corrected, and a **corrected
+> image** was rebuilt and resubmitted. Everything below describes the corrected contract.
+>
+> **Organizer execution status for the corrected image is unknown.** There is no organizer execution
+> log, no hidden-test result and no rank for it, and none is claimed.
+>
+> **The `A10G-1` / `A10G-2` gate wording retained below is historical.** It describes the original
+> two-gate design. The one A10G exercise that was actually run used **synthetic, fixed-width folder
+> names on the earlier, superseded pre-correction image**; it therefore never exercised the
+> variable-length basename condition the correction addresses and **did not qualify the corrected
+> image**. **No A10G measurement of the corrected image exists.**
+>
+> **Build pins.** The `torchvision`
 > pin and the build-time version assertions in the Dockerfile are load-bearing: without them the
 > lock install resolves `torchvision` from PyPI and upgrades `torch` off the CUDA-12.8 build the rest
 > of the evidence was produced on. The single-checkpoint proxy mode described below is historical and
@@ -54,7 +70,10 @@ material / credentials / validation archive / raw images / `.git` are in the con
   privately); identical copies fail closed unless `--allow-duplicate-proxy` (A10G-1 smoke) is set.
 - Genuine-A10G runs pass `--gpus all` and `-e GAT26_REQUIRE_GPU_NAME="NVIDIA A10G"`; the runner aborts
   before inference unless torch sees exactly one CUDA GPU with that exact name.
-- Sequential five-checkpoint mean-probability ensemble (one model resident at a time).
+- Sequential five-checkpoint mean-probability ensemble: one model is resident at a time, so
+  simultaneous model residency does not scale with the five folds. That bounds model residency
+  only — the running probability accumulator and the current per-region probabilities are also
+  held, so total process peak memory is not that of a bare single-model run.
 - Frozen inference: threshold 0.5, hierarchy-safe WT/TC/ET, **no TTA**, no CC filtering, no
   presence gate, no learned threshold/weight; primary `checkpoint_final`.
 - Strict modality discovery by suffix (order-independent); missing/duplicate/unknown → nonzero

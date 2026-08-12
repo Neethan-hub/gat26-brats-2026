@@ -81,13 +81,13 @@ def main() -> int:
     from nnunetv2.paths import nnUNet_preprocessed
 
     pp = Path(nnUNet_preprocessed) / args.dataset
-    plans = json.loads((pp / f"{args.plans}.json").read_text())
-    dataset_json = json.loads((pp / "dataset.json").read_text())
+    plans = json.loads((pp / f"{args.plans}.json").read_text(encoding="utf-8"))
+    dataset_json = json.loads((pp / "dataset.json").read_text(encoding="utf-8"))
     weights = torch.load(args.ckpt, map_location="cpu", weights_only=True)["network_weights"]
     # torch.compile wraps the module -> strip the _orig_mod. prefix for a plain network.
     weights = {(k[len("_orig_mod."):] if k.startswith("_orig_mod.") else k): v
                for k, v in weights.items()}
-    mapping = json.loads(Path(args.mapping).read_text())
+    mapping = json.loads(Path(args.mapping).read_text(encoding="utf-8"))
 
     pred, lm = build_predictor(plans, dataset_json, args.config, weights)
     out = {"label": "g4_real_data_smoke_only", "no_accuracy_claim": True,
@@ -150,7 +150,7 @@ def main() -> int:
     out["controls"]["missing_modality_no_extra_output"] = (
         len(list(Path(args.out_dir).iterdir())) == n_before)
 
-    Path(args.result_json).write_text(json.dumps(out, indent=2) + "\n")
+    Path(args.result_json).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(out))
     ok = (all(c["validator_ok"] for c in out["cases"].values())
           and out["flat_output_ok"] and out["output_count_eq_case_count"]

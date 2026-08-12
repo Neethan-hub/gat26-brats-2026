@@ -1,7 +1,27 @@
 # GAT-26
 ## Final pre-training architecture and operations audit
 
-Decision memorandum, version 2.0, 21 July 2026. Scope: GAT-26 architecture version 1.2, its execution guide, Claude Code prompt pack, and preflight-test package before protected-data download or model training.
+> [!IMPORTANT]
+> **HISTORICAL SNAPSHOT — not a current release validator and not current instructions.**
+> This document is a pre-training / pre-submission record from the stage dated in its own header. It is
+> retained unmodified as governance history and is **superseded** for every current claim. Do not
+> follow it as current guidance, and do not read its constants, metric statements or feasibility
+> language as the present contract.
+>
+> Current truth, as of the r11 camera-ready:
+>
+> * Official ranking uses **DSC and NSD at `τ=1`**; **HD95 is diagnostic only** and is not ranked.
+> * Output naming preserves the **complete opaque input case-folder basename**. There is **no
+>   five-digit rule** and no assumed cohort prefix.
+> * Any `[160,160,128]` patch size appearing here is **synthetic / reference-only**; the **final
+>   trained plan is `[128,160,112]`**.
+> * The **corrected** container image was submitted, but **no organizer execution log, no hidden-test
+>   result, no rank and no A10G measurement exist for that corrected image**.
+> * The **camera-ready paper and the current top-level `README.md` are authoritative** wherever they
+>   differ from this document.
+
+
+Decision memorandum, version 2.0, 21 July 2026. Scope: GAT-26 architecture version 1.2, its execution guide, operator prompt pack, and preflight-test package before protected-data download or model training.
 
 > [!CRITICAL]
 > **Verdict: GO only for the next evidence gates; NO-GO for immediate full training.** The reviewed design is internally consistent, aligned with the current Task 3 award metrics, and based on a maintained high-performing baseline. It is ready for metadata discovery, environment locking, synthetic CUDA tests, and a two-case end-to-end smoke test. Full-fold and multi-fold spending remains conditional on those gates. No document can guarantee first place or eliminate hidden-test, optimization, deadline, and operational risk.
@@ -18,7 +38,7 @@ The correct funding question is not “can failure be made impossible?” It is:
 |---|---|---:|---|
 | F1 | Candidate selection equally ranked DSC, NSD, and HD95 even though the live Task 3 page says monetary-award ranking uses DSC and HD95. | Critical | Primary utility is now the six global parser columns `ET/TC/WT × DSC/HD95`. NSD and connected-component/sensitivity/specificity/precision results are diagnostics/noninferiority gates unless organizers publish a newer rule. |
 | F2 | MedNeXt was treated as an equally ready nnU-Net-v2 fold-0 candidate. Its official repository says the training pipeline is nnU-Net v1 and v2 preprocessing must be adopted independently. | High | Removed from the funded baseline. It is deferred until ResEnc CV and a release prototype pass, with a separate v2 integration gate. |
-| F3 | The guide and prompts used a superseded workspace root, assumed a network volume, and included an already-completed bootstrap workflow. | Critical operational | Canonical repository is `/workspace/brats-2026-gat26`; Claude Code already runs there by Remote Control on the A40 controller. The 30 GB pod volume is described accurately and data download is blocked until measured sizing and durable training storage exist. |
+| F3 | The guide and prompts used a superseded workspace root, assumed a network volume, and included an already-completed bootstrap workflow. | Critical operational | Canonical repository is `/workspace/brats-2026-gat26`; the operator session already runs there remotely on the A40 controller. The 30 GB pod volume is described accurately and data download is blocked until measured sizing and durable training storage exist. |
 | F4 | Broken scratch-only image directives would fail after download/upload. | High | Removed all nonportable image directives from the Markdown release. |
 | F5 | The GPU harness used a custom Dice+BCE approximation, incorrect deep-supervision weighting, no dynamic gradient scaler, and allocated training objects in inference mode. | Critical test validity | The new harness imports nnU-Net 2.8.1's native `DC_and_BCE_loss` and `MemoryEfficientSoftDiceLoss`, mirrors non-DDP deep supervision, uses autocast plus `GradScaler`, verifies finite tensors/gradients and bitwise checkpoint reload, and keeps inference free of targets/optimizer. |
 | F6 | The 12-test static suite contained tautological/weak checks and did not validate malformed inputs, metric separation, or Task 3 filenames. | High | Replaced by 24 deterministic tests, including 1,000 randomized hierarchy trials, negative tests, exact arithmetic/sentinel checks, award-metric separation, and filename/flat-output rules. |
@@ -95,7 +115,7 @@ The current local audit environment has no CUDA/PyTorch and no protected data. T
 
 - Repository: `/workspace/brats-2026-gat26` on the dedicated A40 controller.
 - Controller volume: 30 GB pod-attached at `/workspace`; it persists across stop/start but is deleted with Pod termination and is probably too small for the full training corpus/cache.
-- The controller is suitable for Claude Code, Git, public-source review, metadata discovery, code, and synthetic tests.
+- The controller is suitable for interactive operator tooling, Git, public-source review, metadata discovery, code, and synthetic tests.
 - No challenge dataset may be downloaded until the metadata-only byte inventory proves capacity and the owner approves durable training storage.
 - Total budget ceiling is $650 and maximum concurrency is four GPUs. Every paid launch needs a pre-run cost estimate, explicit stop condition, and post-run actual cost entry.
 - Existing unrelated RunPod resources are out of scope and must never be queried or mutated.

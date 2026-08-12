@@ -181,7 +181,7 @@ def main():
 
     if a.provenance_out:
         os.makedirs(Path(a.provenance_out).parent, exist_ok=True)
-        with open(a.provenance_out, "w") as fh:
+        with open(a.provenance_out, "w", encoding="utf-8") as fh:
             json.dump(prov, fh, indent=1)
 
     # Sanitized stdout only: never print a hash.

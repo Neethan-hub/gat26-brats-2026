@@ -117,12 +117,12 @@ def main():                                                          # noqa: C90
 
     # 6. the runner exposes no non-finite input contract: this is measured, never gated
     check("no_non_finite_contract_in_runner",
-          "isfinite" not in (REPO / "scripts" / "release_infer.py").read_text())
+          "isfinite" not in (REPO / "scripts" / "release_infer.py").read_text(encoding="utf-8"))
 
     # 7. the mode-0000 INPUT fixture is not a runner gate. The runner does check readability with
     #    os.access, but only on CHECKPOINTS inside discover_checkpoints; no input modality file is
     #    permission-checked, so a root-readable mode-0000 input proves nothing about the runner.
-    src = (REPO / "scripts" / "release_infer.py").read_text()
+    src = (REPO / "scripts" / "release_infer.py").read_text(encoding="utf-8")
     import ast
     tree = ast.parse(src)
     access_scopes = set()

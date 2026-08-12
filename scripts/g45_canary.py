@@ -52,8 +52,8 @@ def main():
     if plan_sha != args.expect_plan_sha256:
         print(json.dumps({"error": "plan_hash_mismatch"})); return 3
 
-    plans = json.loads((pp / f"{args.plans}.json").read_text())
-    dataset_json = json.loads((pp / "dataset.json").read_text())
+    plans = json.loads((pp / f"{args.plans}.json").read_text(encoding="utf-8"))
+    dataset_json = json.loads((pp / "dataset.json").read_text(encoding="utf-8"))
     plans_t = dict(plans); plans_t["continue_training"] = False
     trainer = nnUNetTrainer(plans=plans_t, configuration=args.config, fold=args.fold,
                             dataset_json=dataset_json, device=torch.device("cuda"))
@@ -168,7 +168,7 @@ def main():
     try: trainer.on_train_end()
     except Exception: pass
     print(json.dumps(out))
-    Path(args.result).write_text(json.dumps(out, indent=2) + "\n")
+    Path(args.result).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
     ok = (finite["loss"] and finite["params"] and gfin and out["checkpoint_saved"] and reload_ok)
     return 0 if ok else 1
 

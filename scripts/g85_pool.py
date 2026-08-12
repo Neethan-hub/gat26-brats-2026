@@ -73,8 +73,8 @@ def main() -> int:
     if a.nproc > EV.MAX_PROCS:
         raise SystemExit(f"refusing more than {EV.MAX_PROCS} evaluator processes")
 
-    splits = json.load(open(a.splits))
-    cache = {r["case"]: r for r in json.load(open(CAL_C0_CACHE))}
+    splits = json.load(open(a.splits, encoding="utf-8"))
+    cache = {r["case"]: r for r in json.load(open(CAL_C0_CACHE, encoding="utf-8"))}
     jobs = []
     for f in (0, 1, 2):
         for cid in splits[f]["val"]:
@@ -85,7 +85,7 @@ def main() -> int:
     with ProcessPoolExecutor(a.nproc) as ex:
         cal = list(ex.map(_cal_one, jobs, chunksize=1))
 
-    conf = json.load(open(a.confirmation_records))
+    conf = json.load(open(a.confirmation_records, encoding="utf-8"))
     recs = cal + conf
     folds = [0, 1, 2, 3, 4]
     expected = sum(len(splits[f]["val"]) for f in folds)
@@ -101,7 +101,7 @@ def main() -> int:
         "supportive_only": True}
 
     tmp = a.out + ".tmp"
-    with open(tmp, "w") as f:
+    with open(tmp, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=1)
         f.flush()
         os.fsync(f.fileno())
