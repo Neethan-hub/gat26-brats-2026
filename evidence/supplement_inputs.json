@@ -1,0 +1,1451 @@
+{
+  "note": "Aggregate inputs for scripts/g92_build_supplement.py, projected from the frozen private audit records artifacts/g84_result.json and artifacts/g85_result.json. Only the fields the generator reads are published, at full float precision, so that a public regeneration reproduces paper/supplement.tex byte-for-byte. No per-case value, case identifier, fold membership, prediction or path is included. Lesion figures are component COUNTS over the whole subset, not per-case data.",
+  "g84": {
+    "common_support": 806,
+    "n_gates_total": 18,
+    "n_gates_passed": 17,
+    "gates": {
+      "checks": {
+        "dU_common_tau1": true,
+        "dU_common_tau05": true,
+        "official_deltas_positive": true,
+        "all_components_nonnegative_tau1": true,
+        "all_components_nonnegative_tau05": true,
+        "bootstrap_probability": true,
+        "bootstrap_lower_bound_above_zero": true,
+        "enough_folds_nonnegative": true,
+        "no_fold_collapses": true,
+        "et_zero_dsc_not_increased": true,
+        "total_zero_dsc_not_increased": true,
+        "unique_subject_zero_dsc_not_increased": true,
+        "lesion_fn_not_increased": false,
+        "lesion_fp_within_limit": true,
+        "no_denominator_only_gain": true,
+        "exact_membership": true,
+        "zero_evaluator_errors": true,
+        "independent_recompute_agrees": true
+      }
+    },
+    "calibration": {
+      "tau1": {
+        "delta_U_common": 0.0025323244486669116,
+        "component_deltas": {
+          "ET_DSC": 0.0020019850163272013,
+          "TC_DSC": 0.0018564833867645847,
+          "WT_DSC": 0.0019175942925272471,
+          "ET_NSD": 0.0021199733329958503,
+          "TC_NSD": 0.003678116831261735,
+          "WT_NSD": 0.0036197938321250733
+        },
+        "baseline_means": {
+          "ET_DSC": 0.8626659246742145,
+          "TC_DSC": 0.9167339919267589,
+          "WT_DSC": 0.9277785763483368,
+          "ET_NSD": 0.8939112072084582,
+          "TC_NSD": 0.8764744176976952,
+          "WT_NSD": 0.8651868570882335
+        },
+        "candidate_means": {
+          "ET_DSC": 0.8646679096905417,
+          "TC_DSC": 0.9185904753135234,
+          "WT_DSC": 0.9296961706408641,
+          "ET_NSD": 0.896031180541454,
+          "TC_NSD": 0.8801525345289569,
+          "WT_NSD": 0.8688066509203586
+        },
+        "bootstrap": {
+          "prob_positive": 1.0,
+          "ci95": [
+            0.0012838407331331966,
+            0.004547533089661013
+          ]
+        },
+        "fold_deltas": {
+          "0": 0.0012354965539065343,
+          "1": 0.0038744453283073854,
+          "2": 0.002496709283897114
+        }
+      },
+      "tau05": {
+        "delta_U_common": 0.0041677789721078495,
+        "component_deltas": {
+          "ET_DSC": 0.0020019850163272013,
+          "TC_DSC": 0.0018564833867645847,
+          "WT_DSC": 0.0019175942925272471,
+          "ET_NSD": 0.005376997436828068,
+          "TC_NSD": 0.006556317864241823,
+          "WT_NSD": 0.007297295835958506
+        },
+        "baseline_means": {
+          "ET_DSC": 0.8626659246742145,
+          "TC_DSC": 0.9167339919267589,
+          "WT_DSC": 0.9277785763483368,
+          "ET_NSD": 0.6504683719775504,
+          "TC_NSD": 0.616658693277401,
+          "WT_NSD": 0.5680155702498111
+        },
+        "candidate_means": {
+          "ET_DSC": 0.8646679096905417,
+          "TC_DSC": 0.9185904753135234,
+          "WT_DSC": 0.9296961706408641,
+          "ET_NSD": 0.6558453694143784,
+          "TC_NSD": 0.6232150111416428,
+          "WT_NSD": 0.5753128660857696
+        }
+      }
+    },
+    "lesion": {
+      "baseline": {
+        "TP": 3990,
+        "FP": 1243,
+        "FN": 4103
+      },
+      "candidate": {
+        "TP": 4000,
+        "FP": 1087,
+        "FN": 4116
+      }
+    }
+  },
+  "g85": {
+    "confirmation": {
+      "t10": {
+        "delta_U_common": 0.0007258872103750313,
+        "component_deltas": {
+          "ET_DSC": 0.00046118880987255917,
+          "TC_DSC": 0.0008777188769958366,
+          "WT_DSC": 8.881416674766385e-05,
+          "ET_NSD": 0.0002880098534533415,
+          "TC_NSD": 0.0011873643316023808,
+          "WT_NSD": 0.0014522272235782951
+        },
+        "baseline_means": {
+          "ET_DSC": 0.8636842219416497,
+          "TC_DSC": 0.9125450849505716,
+          "WT_DSC": 0.9255962025074644,
+          "ET_NSD": 0.8900610047993232,
+          "TC_NSD": 0.8724965150300965,
+          "WT_NSD": 0.8601084749486657
+        },
+        "candidate_means": {
+          "ET_DSC": 0.8641454107515223,
+          "TC_DSC": 0.9134228038275675,
+          "WT_DSC": 0.9256850166742121,
+          "ET_NSD": 0.8903490146527765,
+          "TC_NSD": 0.8736838793616989,
+          "WT_NSD": 0.861560702172244
+        },
+        "n_common": 538,
+        "bootstrap": {
+          "prob_positive": 0.7342,
+          "ci95": [
+            -0.0025311355101770593,
+            0.0026331937351914804
+          ]
+        },
+        "fold_deltas": {
+          "3": 0.0023227843713687912,
+          "4": -0.0008829270936113742
+        }
+      },
+      "t05": {
+        "delta_U_common": 0.0024733934523016865,
+        "component_deltas": {
+          "ET_DSC": 0.00046118880987255917,
+          "TC_DSC": 0.0008777188769958366,
+          "WT_DSC": 8.881416674766385e-05,
+          "ET_NSD": 0.003444153181019094,
+          "TC_NSD": 0.004306953199991415,
+          "WT_NSD": 0.005661532479183551
+        },
+        "baseline_means": {
+          "ET_DSC": 0.8636842219416497,
+          "TC_DSC": 0.9125450849505716,
+          "WT_DSC": 0.9255962025074644,
+          "ET_NSD": 0.6444821419493881,
+          "TC_NSD": 0.6084622571038139,
+          "WT_NSD": 0.5626357903481937
+        },
+        "candidate_means": {
+          "ET_DSC": 0.8641454107515223,
+          "TC_DSC": 0.9134228038275675,
+          "WT_DSC": 0.9256850166742121,
+          "ET_NSD": 0.6479262951304072,
+          "TC_NSD": 0.6127692103038053,
+          "WT_NSD": 0.5682973228273772
+        },
+        "n_common": 538,
+        "bootstrap": {
+          "prob_positive": 0.9609,
+          "ci95": [
+            -0.0003126870289108712,
+            0.004167259838778498
+          ]
+        },
+        "fold_deltas": {
+          "3": 0.0038816769586939026,
+          "4": 0.0010546003675034887
+        }
+      },
+      "lesion_noninferiority": {
+        "n_ref_total": [
+          5445,
+          5445
+        ],
+        "miss_rate": [
+          0.5006427915518825,
+          0.5076216712580349
+        ],
+        "region_deltas": {
+          "ET": 0.006286484059272568,
+          "TC": 0.005847953216374269,
+          "WT": 0.008648648648648671
+        },
+        "margins": {
+          "point_max": 0.0025,
+          "upper_bound_max": 0.005,
+          "region_max": 0.005,
+          "fp_max_increase_fraction": 0.05
+        },
+        "bootstrap": {
+          "point_delta": 0.006978879706152408,
+          "upper_95_one_sided": 0.012407923998700558,
+          "n_subjects": 540,
+          "seed": 20260730,
+          "resamples": 10000
+        }
+      },
+      "lesion_diagnostic_only": {
+        "baseline": {
+          "tp_pred_diagnostic": 2698,
+          "fp_pred": 864,
+          "fn_ref": 2726
+        },
+        "candidate": {
+          "tp_pred_diagnostic": 2640,
+          "fp_pred": 781,
+          "fn_ref": 2764
+        }
+      }
+    },
+    "pooled_all_five_folds": {
+      "t10": {
+        "delta_U_common": 0.0018092119232199222,
+        "component_deltas": {
+          "ET_DSC": 0.001385207963445878,
+          "TC_DSC": 0.001464686283895844,
+          "WT_DSC": 0.001185537962416161,
+          "ET_NSD": 0.0013866427139525017,
+          "TC_NSD": 0.0026810745360112964,
+          "WT_NSD": 0.0027521220795967416
+        },
+        "baseline_means": {
+          "ET_DSC": 0.8630735466458517,
+          "TC_DSC": 0.9150571824377791,
+          "WT_DSC": 0.9269049772959639,
+          "ET_NSD": 0.8923699803512302,
+          "TC_NSD": 0.8748820727310521,
+          "WT_NSD": 0.8631539928091505
+        },
+        "candidate_means": {
+          "ET_DSC": 0.8644587546092976,
+          "TC_DSC": 0.916521868721675,
+          "WT_DSC": 0.92809051525838,
+          "ET_NSD": 0.8937566230651827,
+          "TC_NSD": 0.8775631472670634,
+          "WT_NSD": 0.8659061148887472
+        },
+        "n_common": 1344,
+        "bootstrap": {
+          "prob_positive": 0.9875,
+          "ci95": [
+            0.00025551907726655503,
+            0.0033605894686756206
+          ]
+        },
+        "fold_deltas": {
+          "0": 0.0012354965539067564,
+          "1": 0.0038744453283073854,
+          "2": 0.002496709283896892,
+          "3": 0.0023227843713687912,
+          "4": -0.0008829270936112632
+        }
+      },
+      "t05": {
+        "delta_U_common": 0.003489520482780728,
+        "component_deltas": {
+          "ET_DSC": 0.001385207963445878,
+          "TC_DSC": 0.001464686283895844,
+          "WT_DSC": 0.001185537962416161,
+          "ET_NSD": 0.004603284483237879,
+          "TC_NSD": 0.005655902544772551,
+          "WT_NSD": 0.006642503658916055
+        },
+        "baseline_means": {
+          "ET_DSC": 0.8630735466458517,
+          "TC_DSC": 0.9150571824377791,
+          "WT_DSC": 0.9269049772959639,
+          "ET_NSD": 0.6480720983502056,
+          "TC_NSD": 0.6133776793924383,
+          "WT_NSD": 0.5658620571641935
+        },
+        "candidate_means": {
+          "ET_DSC": 0.8644587546092976,
+          "TC_DSC": 0.916521868721675,
+          "WT_DSC": 0.92809051525838,
+          "ET_NSD": 0.6526753828334435,
+          "TC_NSD": 0.6190335819372108,
+          "WT_NSD": 0.5725045608231095
+        },
+        "n_common": 1344,
+        "bootstrap": {
+          "prob_positive": 1.0,
+          "ci95": [
+            0.0021985749999708336,
+            0.004708743004057018
+          ]
+        },
+        "fold_deltas": {
+          "0": 0.002973368655064479,
+          "1": 0.004721365218885887,
+          "2": 0.0048175165522019725,
+          "3": 0.0038816769586941247,
+          "4": 0.0010546003675033777
+        }
+      }
+    },
+    "confirmation_gates": {
+      "checks": {
+        "dU_common_tau1": false,
+        "dU_common_tau05": true,
+        "bootstrap_probability": false,
+        "bootstrap_lower_bound_above_zero": false,
+        "components_nonnegative_tau1": true,
+        "components_nonnegative_tau05": true,
+        "official_deltas_positive": true,
+        "dsc_within_limit": true,
+        "nsd_within_limit": true,
+        "fold3_nonnegative": true,
+        "fold4_nonnegative": false,
+        "et_zero_dsc_not_increased": true,
+        "total_zero_dsc_not_increased": false,
+        "unique_subject_zero_dsc_not_increased": true,
+        "n_ref_total_invariant": true,
+        "miss_rate_point_within_margin": false,
+        "miss_rate_upper_bound_within_margin": false,
+        "no_region_miss_rate_regression": false,
+        "fp_pred_within_limit": true,
+        "no_denominator_only_gain": true,
+        "exact_membership": true,
+        "zero_evaluator_errors": true,
+        "independent_recompute_agrees": true
+      },
+      "n_passed": 15,
+      "n_total": 23
+    },
+    "pooled_gates": {
+      "checks": {
+        "dU_common_tau1": true,
+        "dU_common_tau05": true,
+        "bootstrap_probability": false,
+        "bootstrap_lower_bound_above_zero": true,
+        "components_nonnegative_tau1": true,
+        "components_nonnegative_tau05": true,
+        "et_zero_dsc_not_increased": true,
+        "total_zero_dsc_not_increased": true,
+        "unique_subject_zero_dsc_not_increased": true,
+        "n_ref_total_invariant": true,
+        "miss_rate_point_within_margin": false,
+        "miss_rate_upper_bound_within_margin": false,
+        "no_region_miss_rate_regression": false,
+        "fp_pred_within_limit": true,
+        "no_denominator_only_gain": true,
+        "exact_membership": true,
+        "zero_evaluator_errors": true,
+        "independent_recompute_agrees": true
+      },
+      "n_passed": 14,
+      "n_total": 18
+    }
+  },
+  "audit_ab": {
+    "note": "Audit A (G7.5 inference-policy) and Audit B (G7.6 weight-averaging) candidates. DECISION metrics are DSC and HD95 over all 811 development subjects, the pair the audits were actually ranked on. OFFICIAL metrics are DSC and NSD re-scored post hoc from the same preserved predictions; each policy carries its own skipna denominators, so these are NOT on the paired common support used for Audit C and are not line-comparable with it. All values come from the end-of-training validation lineage, which applies eightfold mirroring, not from the release path.",
+    "subset": {
+      "role": "development subset, folds 0-2",
+      "n_subjects": 811,
+      "folds": [
+        0,
+        1,
+        2
+      ],
+      "evaluator": "BraTS-evaluation 0.0.8 GoAT",
+      "confirmation_folds_opened": false
+    },
+    "definitions": {
+      "C1": "checkpoint_best all folds, else C0",
+      "C2": "checkpoint_final + standard nnU-Net mirroring TTA (axes [0,1,2] from checkpoint metadata)",
+      "C3": "checkpoint_best + same mirroring TTA",
+      "C4_C5_ET_cleanup": "relabel ET connected components below a predeclared physical-volume threshold from 3->1 (preserving TC/WT); thresholds predeclared {10,25,50} mm^3, calibration-selected",
+      "S1": "0.75*checkpoint_final + 0.25*checkpoint_best (per fold)",
+      "S2": "0.50*checkpoint_final + 0.50*checkpoint_best (per fold)"
+    },
+    "decision_metrics_dsc_hd95": {
+      "C0": {
+        "et_dsc": 0.8655,
+        "et_hd95": 13.26,
+        "tc_dsc": 0.9174,
+        "tc_hd95": 5.73,
+        "wt_dsc": 0.9282,
+        "wt_hd95": 5.86
+      },
+      "C1": {
+        "et_dsc": 0.8627,
+        "et_hd95": 13.79,
+        "tc_dsc": 0.9165,
+        "tc_hd95": 5.86,
+        "wt_dsc": 0.9265,
+        "wt_hd95": 5.87
+      },
+      "C2": {
+        "et_dsc": 0.8655,
+        "et_hd95": 13.26,
+        "tc_dsc": 0.9174,
+        "tc_hd95": 5.73,
+        "wt_dsc": 0.9282,
+        "wt_hd95": 5.86
+      },
+      "C3": {
+        "et_dsc": 0.8648,
+        "et_hd95": 13.65,
+        "tc_dsc": 0.9183,
+        "tc_hd95": 5.92,
+        "wt_dsc": 0.928,
+        "wt_hd95": 5.61
+      },
+      "C0_et10": {
+        "et_dsc": 0.8666,
+        "et_hd95": 13.74,
+        "tc_dsc": 0.9174,
+        "tc_hd95": 5.73,
+        "wt_dsc": 0.9282,
+        "wt_hd95": 5.86
+      },
+      "C0_et25": {
+        "et_dsc": 0.8678,
+        "et_hd95": 13.71,
+        "tc_dsc": 0.9174,
+        "tc_hd95": 5.73,
+        "wt_dsc": 0.9282,
+        "wt_hd95": 5.86
+      },
+      "C0_et50": {
+        "et_dsc": 0.8693,
+        "et_hd95": 13.75,
+        "tc_dsc": 0.9174,
+        "tc_hd95": 5.73,
+        "wt_dsc": 0.9282,
+        "wt_hd95": 5.86
+      },
+      "S1": {
+        "et_dsc": 0.864066,
+        "et_hd95": 13.716729,
+        "tc_dsc": 0.916359,
+        "tc_hd95": 6.264094,
+        "wt_dsc": 0.926622,
+        "wt_hd95": 6.486084
+      },
+      "S2": {
+        "et_dsc": 0.864572,
+        "et_hd95": 13.415041,
+        "tc_dsc": 0.91712,
+        "tc_hd95": 5.956926,
+        "wt_dsc": 0.9271,
+        "wt_hd95": 5.93746
+      }
+    },
+    "official_metrics": {
+      "tau_1.0": {
+        "C0": {
+          "aggregates": {
+            "DSC_ET": 0.864632,
+            "DSC_TC": 0.917205,
+            "DSC_WT": 0.928174,
+            "NSD_ET": 0.895995,
+            "NSD_TC": 0.878328,
+            "NSD_WT": 0.86641
+          },
+          "denominators": {
+            "DSC_ET": 806,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 806,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "C1": {
+          "aggregates": {
+            "DSC_ET": 0.86197,
+            "DSC_TC": 0.916305,
+            "DSC_WT": 0.926492,
+            "NSD_ET": 0.893675,
+            "NSD_TC": 0.875692,
+            "NSD_WT": 0.86291
+          },
+          "denominators": {
+            "DSC_ET": 807,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 807,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "C2": {
+          "aggregates": {
+            "DSC_ET": 0.864668,
+            "DSC_TC": 0.917241,
+            "DSC_WT": 0.928207,
+            "NSD_ET": 0.896031,
+            "NSD_TC": 0.878364,
+            "NSD_WT": 0.866441
+          },
+          "denominators": {
+            "DSC_ET": 806,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 806,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "C3": {
+          "aggregates": {
+            "DSC_ET": 0.864105,
+            "DSC_TC": 0.918072,
+            "DSC_WT": 0.928,
+            "NSD_ET": 0.895452,
+            "NSD_TC": 0.878909,
+            "NSD_WT": 0.865796
+          },
+          "denominators": {
+            "DSC_ET": 807,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 807,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "C0_et10": {
+          "aggregates": {
+            "DSC_ET": 0.865626,
+            "DSC_TC": 0.917205,
+            "DSC_WT": 0.928174,
+            "NSD_ET": 0.896628,
+            "NSD_TC": 0.878328,
+            "NSD_WT": 0.86641
+          },
+          "denominators": {
+            "DSC_ET": 805,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 805,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "C0_et25": {
+          "aggregates": {
+            "DSC_ET": 0.866466,
+            "DSC_TC": 0.917205,
+            "DSC_WT": 0.928174,
+            "NSD_ET": 0.896629,
+            "NSD_TC": 0.878328,
+            "NSD_WT": 0.86641
+          },
+          "denominators": {
+            "DSC_ET": 803,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 803,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "C0_et50": {
+          "aggregates": {
+            "DSC_ET": 0.867656,
+            "DSC_TC": 0.917205,
+            "DSC_WT": 0.928174,
+            "NSD_ET": 0.897122,
+            "NSD_TC": 0.878328,
+            "NSD_WT": 0.86641
+          },
+          "denominators": {
+            "DSC_ET": 801,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 801,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "S1": {
+          "aggregates": {
+            "DSC_ET": 0.863222,
+            "DSC_TC": 0.916152,
+            "DSC_WT": 0.926622,
+            "NSD_ET": 0.894189,
+            "NSD_TC": 0.875548,
+            "NSD_WT": 0.86334
+          },
+          "denominators": {
+            "DSC_ET": 806,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 806,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "S2": {
+          "aggregates": {
+            "DSC_ET": 0.863732,
+            "DSC_TC": 0.916915,
+            "DSC_WT": 0.9271,
+            "NSD_ET": 0.895108,
+            "NSD_TC": 0.876774,
+            "NSD_WT": 0.864284
+          },
+          "denominators": {
+            "DSC_ET": 806,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 806,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        }
+      },
+      "tau_0.5": {
+        "C0": {
+          "aggregates": {
+            "DSC_ET": 0.864632,
+            "DSC_TC": 0.917205,
+            "DSC_WT": 0.928174,
+            "NSD_ET": 0.655812,
+            "NSD_TC": 0.621476,
+            "NSD_WT": 0.573399
+          },
+          "denominators": {
+            "DSC_ET": 806,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 806,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "C1": {
+          "aggregates": {
+            "DSC_ET": 0.86197,
+            "DSC_TC": 0.916305,
+            "DSC_WT": 0.926492,
+            "NSD_ET": 0.649084,
+            "NSD_TC": 0.615748,
+            "NSD_WT": 0.565922
+          },
+          "denominators": {
+            "DSC_ET": 807,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 807,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "C2": {
+          "aggregates": {
+            "DSC_ET": 0.864668,
+            "DSC_TC": 0.917241,
+            "DSC_WT": 0.928207,
+            "NSD_ET": 0.655844,
+            "NSD_TC": 0.621511,
+            "NSD_WT": 0.57343
+          },
+          "denominators": {
+            "DSC_ET": 806,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 806,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "C3": {
+          "aggregates": {
+            "DSC_ET": 0.864105,
+            "DSC_TC": 0.918072,
+            "DSC_WT": 0.928,
+            "NSD_ET": 0.654909,
+            "NSD_TC": 0.622857,
+            "NSD_WT": 0.572527
+          },
+          "denominators": {
+            "DSC_ET": 807,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 807,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "C0_et10": {
+          "aggregates": {
+            "DSC_ET": 0.865626,
+            "DSC_TC": 0.917205,
+            "DSC_WT": 0.928174,
+            "NSD_ET": 0.656549,
+            "NSD_TC": 0.621476,
+            "NSD_WT": 0.573399
+          },
+          "denominators": {
+            "DSC_ET": 805,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 805,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "C0_et25": {
+          "aggregates": {
+            "DSC_ET": 0.866466,
+            "DSC_TC": 0.917205,
+            "DSC_WT": 0.928174,
+            "NSD_ET": 0.65704,
+            "NSD_TC": 0.621476,
+            "NSD_WT": 0.573399
+          },
+          "denominators": {
+            "DSC_ET": 803,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 803,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "C0_et50": {
+          "aggregates": {
+            "DSC_ET": 0.867656,
+            "DSC_TC": 0.917205,
+            "DSC_WT": 0.928174,
+            "NSD_ET": 0.657644,
+            "NSD_TC": 0.621476,
+            "NSD_WT": 0.573399
+          },
+          "denominators": {
+            "DSC_ET": 801,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 801,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "S1": {
+          "aggregates": {
+            "DSC_ET": 0.863222,
+            "DSC_TC": 0.916152,
+            "DSC_WT": 0.926622,
+            "NSD_ET": 0.651832,
+            "NSD_TC": 0.616928,
+            "NSD_WT": 0.567689
+          },
+          "denominators": {
+            "DSC_ET": 806,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 806,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        },
+        "S2": {
+          "aggregates": {
+            "DSC_ET": 0.863732,
+            "DSC_TC": 0.916915,
+            "DSC_WT": 0.9271,
+            "NSD_ET": 0.652395,
+            "NSD_TC": 0.617973,
+            "NSD_WT": 0.568582
+          },
+          "denominators": {
+            "DSC_ET": 806,
+            "DSC_TC": 809,
+            "DSC_WT": 811,
+            "NSD_ET": 806,
+            "NSD_TC": 809,
+            "NSD_WT": 811
+          }
+        }
+      }
+    },
+    "statistics_tau_1.0": {
+      "C1": {
+        "rank_gain_over_C0": -1.0,
+        "rank_gain_ci": [
+          -1.0,
+          -0.333333
+        ],
+        "bootstrap_delta_ci_candidate_minus_C0": [
+          0.333333,
+          1.0
+        ],
+        "advances": false
+      },
+      "C2": {
+        "rank_gain_over_C0": 1.0,
+        "rank_gain_ci": [
+          -0.666667,
+          1.0
+        ],
+        "bootstrap_delta_ci_candidate_minus_C0": [
+          -1.0,
+          0.666667
+        ],
+        "advances": false
+      },
+      "C3": {
+        "rank_gain_over_C0": -0.3333333333333333,
+        "rank_gain_ci": [
+          -1.0,
+          1.0
+        ],
+        "bootstrap_delta_ci_candidate_minus_C0": [
+          -1.0,
+          1.0
+        ],
+        "advances": false
+      },
+      "C0_et10": {
+        "rank_gain_over_C0": 0.3333333333333333,
+        "rank_gain_ci": [
+          -0.333333,
+          0.333333
+        ],
+        "bootstrap_delta_ci_candidate_minus_C0": [
+          -0.333333,
+          0.333333
+        ],
+        "advances": false
+      },
+      "C0_et25": {
+        "rank_gain_over_C0": 0.3333333333333333,
+        "rank_gain_ci": [
+          -0.333333,
+          0.333333
+        ],
+        "bootstrap_delta_ci_candidate_minus_C0": [
+          -0.333333,
+          0.333333
+        ],
+        "advances": false
+      },
+      "C0_et50": {
+        "rank_gain_over_C0": 0.3333333333333333,
+        "rank_gain_ci": [
+          -0.333333,
+          0.333333
+        ],
+        "bootstrap_delta_ci_candidate_minus_C0": [
+          -0.333333,
+          0.333333
+        ],
+        "advances": false
+      },
+      "S1": {
+        "rank_gain_over_C0": -1.0,
+        "rank_gain_ci": [
+          -1.0,
+          -0.666667
+        ],
+        "bootstrap_delta_ci_candidate_minus_C0": [
+          0.666667,
+          1.0
+        ],
+        "advances": false
+      },
+      "S2": {
+        "rank_gain_over_C0": -1.0,
+        "rank_gain_ci": [
+          -1.0,
+          -0.333333
+        ],
+        "bootstrap_delta_ci_candidate_minus_C0": [
+          0.333333,
+          1.0
+        ],
+        "advances": false
+      }
+    },
+    "statistics_sign_convention": {
+      "rank_gain_over_C0": "rank(C0) - rank(candidate); POSITIVE favours the candidate",
+      "rank_gain_ci": "the paired subject-level percentile interval for rank_gain_over_C0, in the SAME orientation as the point estimate. Derived as [-hi, -lo] from the frozen bootstrap interval; negating an interval reverses its endpoints.",
+      "bootstrap_delta_ci_candidate_minus_C0": "the frozen interval exactly as stored, in the OPPOSITE orientation: rank(candidate) - rank(C0). Retained unmodified for audit.",
+      "note": "A presentation transform only. No frozen artifact was edited, no experiment recomputed, and no advancement outcome, threshold, candidate decision or release decision changed: every candidate still fails to advance."
+    },
+    "outcomes": {
+      "g75": "G75_RETAIN_BASELINE",
+      "g76": "G76_RETAIN_C0",
+      "g77": null,
+      "g79v": "G79V_RETAIN_C0_TAU1_SENSITIVITY",
+      "advancing_candidates": [],
+      "release_policy_changed": false
+    }
+  },
+  "screen_g82": {
+    "note": "Frozen 40-epoch fine-tuning screen. Only deltas versus the C0 baseline were recorded for the candidate arms: absolute per-component candidate means do not exist in the frozen record and are not reconstructed here. HD95 was excluded by preregistration and no HD95 value exists for any arm. Bootstrap, per-fold deltas and tail statistics exist at tau=1 only; the tau=0.5 block carries deltas alone.",
+    "design": {
+      "epochs": 40,
+      "finetune_lr": 0.0005,
+      "seed": 20260730,
+      "folds": [
+        0,
+        1,
+        2
+      ],
+      "n_common_support": 806,
+      "selection_rule": "maximise min(delta_U_common_tau1, delta_U_common_tau05)",
+      "confirmation_folds_opened": false
+    },
+    "baseline_U_common": {
+      "tau_1.0": 0.8904584958239496,
+      "tau_0.5": 0.757053521409012
+    },
+    "arms": {
+      "T": {
+        "definition": "label-tail-aware subject sampling; native augmentation and native loss",
+        "component_deltas_tau_1.0": {
+          "ET_DSC": -0.00031332289896068843,
+          "TC_DSC": -7.337703437948484e-05,
+          "WT_DSC": -0.00014920481076163838,
+          "ET_NSD": -0.0005416479120360362,
+          "TC_NSD": -0.0006781643558473327,
+          "WT_NSD": -0.0008977089484648593
+        },
+        "component_deltas_tau_0.5": {
+          "ET_DSC": -0.00031332289896068843,
+          "TC_DSC": -7.337703437948484e-05,
+          "WT_DSC": -0.00014920481076163838,
+          "ET_NSD": -0.0007559194427163574,
+          "TC_NSD": -0.0008789584171287057,
+          "WT_NSD": -0.002306061726138897
+        },
+        "delta_U_common_tau_1.0": -0.00044223766007511767,
+        "delta_U_common_tau_0.5": -0.000746140721680888,
+        "delta_U_official_tau_1.0": -0.0004318941720630187,
+        "delta_U_official_tau_0.5": -0.0007311606663032988,
+        "bootstrap_tau_1.0": {
+          "point": -0.00044223766007499006,
+          "prob_positive": 0.0714,
+          "ci95": [
+            -0.001084723323183356,
+            0.00015080065081246165
+          ]
+        },
+        "fold_deltas_tau_1.0": {
+          "0": -0.0008652344792552391,
+          "1": -0.0005636791213157188,
+          "2": 0.00010535731302652174
+        },
+        "zero_dsc_tau_1.0": {
+          "baseline_region_cases": 33,
+          "candidate_region_cases": 34,
+          "baseline_unique_subjects": 24,
+          "candidate_unique_subjects": 25,
+          "baseline_et": 22,
+          "candidate_et": 23
+        },
+        "lesion": {
+          "baseline": {
+            "TP": 3990,
+            "FP": 1243,
+            "FN": 4103
+          },
+          "candidate": {
+            "TP": 3978,
+            "FP": 1226,
+            "FN": 4103
+          },
+          "fn_increase_fraction": 0.0,
+          "fp_increase_fraction": -0.013676588897827836
+        },
+        "gates": {
+          "dU_common_tau1_nonneg": false,
+          "dU_common_tau05_nonneg": false,
+          "dU_official_tau1_nonneg": false,
+          "no_dsc_component_regression_beyond_limit": true,
+          "no_nsd_component_regression_beyond_limit": true,
+          "enough_folds_nonnegative": false,
+          "total_zero_dsc_not_increased": false,
+          "lesion_fn_within_limit": true,
+          "lesion_fp_within_limit": true,
+          "no_evaluator_errors": true
+        },
+        "eligible": false,
+        "score": -0.000746140721680888
+      },
+      "DG": {
+        "definition": "native sampling plus exactly one conservative MRI appearance transform",
+        "component_deltas_tau_1.0": {
+          "ET_DSC": 0.0002964841891194281,
+          "TC_DSC": 0.00022760240433605805,
+          "WT_DSC": -2.2852057720568197e-05,
+          "ET_NSD": 0.00020553967424541408,
+          "TC_NSD": 0.00018427197481385438,
+          "WT_NSD": -0.00036801153145804566
+        },
+        "component_deltas_tau_0.5": {
+          "ET_DSC": 0.0002964841891194281,
+          "TC_DSC": 0.00022760240433605805,
+          "WT_DSC": -2.2852057720568197e-05,
+          "ET_NSD": -0.00027169771471136084,
+          "TC_NSD": -0.00014907848479372987,
+          "WT_NSD": -0.0016495638939698631
+        },
+        "delta_U_common_tau_1.0": 8.71724422225606e-05,
+        "delta_U_common_tau_0.5": -0.00026151759295656163,
+        "delta_U_official_tau_1.0": -0.0002735587537174844,
+        "delta_U_official_tau_0.5": -0.0005770952907009352,
+        "bootstrap_tau_1.0": {
+          "point": 8.717244222266391e-05,
+          "prob_positive": 0.5969,
+          "ci95": [
+            -0.00041687753817543327,
+            0.0007065856356619347
+          ]
+        },
+        "fold_deltas_tau_1.0": {
+          "0": 3.6117138979552266e-05,
+          "1": -0.00039368097968495164,
+          "2": 0.0006194621770988507
+        },
+        "zero_dsc_tau_1.0": {
+          "baseline_region_cases": 33,
+          "candidate_region_cases": 34,
+          "baseline_unique_subjects": 24,
+          "candidate_unique_subjects": 25,
+          "baseline_et": 22,
+          "candidate_et": 22
+        },
+        "lesion": {
+          "baseline": {
+            "TP": 3990,
+            "FP": 1243,
+            "FN": 4103
+          },
+          "candidate": {
+            "TP": 3979,
+            "FP": 1278,
+            "FN": 4118
+          },
+          "fn_increase_fraction": 0.0036558615647087496,
+          "fp_increase_fraction": 0.02815768302493966
+        },
+        "gates": {
+          "dU_common_tau1_nonneg": true,
+          "dU_common_tau05_nonneg": false,
+          "dU_official_tau1_nonneg": false,
+          "no_dsc_component_regression_beyond_limit": true,
+          "no_nsd_component_regression_beyond_limit": true,
+          "enough_folds_nonnegative": true,
+          "total_zero_dsc_not_increased": false,
+          "lesion_fn_within_limit": true,
+          "lesion_fp_within_limit": true,
+          "no_evaluator_errors": true
+        },
+        "eligible": false,
+        "score": -0.00026151759295656163
+      },
+      "TDG": {
+        "definition": "T plus DG",
+        "component_deltas_tau_1.0": {
+          "ET_DSC": 0.0002599986325937387,
+          "TC_DSC": 0.00036417399807786577,
+          "WT_DSC": 0.0001802246812681041,
+          "ET_NSD": 0.0002405660319947378,
+          "TC_NSD": 0.0003410017598307613,
+          "WT_NSD": 3.8948256662618697e-05
+        },
+        "component_deltas_tau_0.5": {
+          "ET_DSC": 0.0002599986325937387,
+          "TC_DSC": 0.00036417399807786577,
+          "WT_DSC": 0.0001802246812681041,
+          "ET_NSD": 0.00014583849037330676,
+          "TC_NSD": -0.00048311893870067735,
+          "WT_NSD": -0.0016020165849975898
+        },
+        "delta_U_common_tau_1.0": 0.00023748556007119337,
+        "delta_U_common_tau_0.5": -0.00018914995356411612,
+        "delta_U_official_tau_1.0": 0.00024558177405831216,
+        "delta_U_official_tau_0.5": -0.00017470668881347517,
+        "bootstrap_tau_1.0": {
+          "point": 0.00023748556007134703,
+          "prob_positive": 0.8192,
+          "ci95": [
+            -0.0002762986569566683,
+            0.0007714242035258622
+          ]
+        },
+        "fold_deltas_tau_1.0": {
+          "0": -0.0003214797357501409,
+          "1": 0.0006961609425472082,
+          "2": 0.0003419468562214645
+        },
+        "zero_dsc_tau_1.0": {
+          "baseline_region_cases": 33,
+          "candidate_region_cases": 34,
+          "baseline_unique_subjects": 24,
+          "candidate_unique_subjects": 25,
+          "baseline_et": 22,
+          "candidate_et": 23
+        },
+        "lesion": {
+          "baseline": {
+            "TP": 3990,
+            "FP": 1243,
+            "FN": 4103
+          },
+          "candidate": {
+            "TP": 3994,
+            "FP": 1285,
+            "FN": 4103
+          },
+          "fn_increase_fraction": 0.0,
+          "fp_increase_fraction": 0.03378921962992759
+        },
+        "gates": {
+          "dU_common_tau1_nonneg": true,
+          "dU_common_tau05_nonneg": false,
+          "dU_official_tau1_nonneg": true,
+          "no_dsc_component_regression_beyond_limit": true,
+          "no_nsd_component_regression_beyond_limit": true,
+          "enough_folds_nonnegative": true,
+          "total_zero_dsc_not_increased": false,
+          "lesion_fn_within_limit": true,
+          "lesion_fp_within_limit": true,
+          "no_evaluator_errors": true
+        },
+        "eligible": false,
+        "score": -0.00018914995356411612
+      }
+    },
+    "terminal_status": "G82_RETAIN_C0_NO_SCREEN_ADVANCEMENT",
+    "convergence_caveat": "The screen tested exactly one point in the fine-tuning design space -- 40 epochs at 5\\% of the original learning rate, from a converged model, on three folds. A bounded run of that size cannot speak to convergence, and it does not establish that fine-tuning cannot help: a longer schedule, a higher learning rate or a different intervention was never tested, because the preregistration made the 40-epoch screen the gate for spending more compute and the screen did not pass."
+  },
+  "d25": {
+    "executed": false,
+    "predictions_generated": 0,
+    "failed_gate": "D. baseline reproduction (prerequisite to any D25 evaluation)",
+    "root_cause": "the required values were produced by nnU-Net's end-of-training validation pass, which records inference_allowed_mirroring_axes (0,1,2), i.e. 8x mirroring TTA; the release path that defines C0 in this specification constructs its predictor with use_mirroring=False",
+    "conflict": "section B defines C0 with use_mirroring false and section K prohibits TTA, so the section D targets cannot be reproduced by any run that complies with the specification",
+    "tile_multiplier_analysis": {
+      "patch_size": [
+        128,
+        160,
+        112
+      ],
+      "median_preprocessed_image_size": [
+        140,
+        171,
+        136
+      ],
+      "tiles": {
+        "155x240x240": {
+          "step0.5": 16,
+          "step0.25": 36,
+          "multiplier": 2.25
+        },
+        "155x200x180": {
+          "step0.5": 12,
+          "step0.25": 16,
+          "multiplier": 1.33
+        },
+        "140x180x150": {
+          "step0.5": 8,
+          "step0.25": 12,
+          "multiplier": 1.5
+        }
+      },
+      "note": "a half-sized step does not cost 8x here; the patch is large relative to a cropped brain"
+    },
+    "note": "D25 differed from C0 in exactly one parameter, the sliding-window tile step ($0.5 \\rightarrow 0.25$). It was never run. The prerequisite baseline-reproduction gate failed because the twelve required baseline values are reproducible only by the eightfold mirroring lineage, while the specification defines C0 with mirroring disabled and prohibits test-time augmentation, so the targets cannot be reproduced by any run that complies with the specification. No D25 prediction, DSC, NSD, runtime or utility value exists. This is a specification/lineage mismatch, not evidence that D25 failed; D25 remains scientifically unresolved. An analytic tile-count study was nevertheless computed, without generating any prediction."
+  },
+  "provenance": {
+    "note": "Provenance for every value rendered in the supplement's Audit A/B, bounded-screen and D25 material. 'source_record' is the frozen private artifact; 'source_key_path' is the exact path within it; 'public_projection_field' is where the same value appears in evidence/supplement_inputs.json, which is what a public regeneration reads. Every value is read directly from its source record EXCEPT two categories, both of which are explicitly marked derived: true in the entries below. (1) The candidate-minus-C0 component deltas, which are differences of two published means. (2) The displayed rank-gain intervals, derived as rank_gain_ci = [-raw_high, -raw_low] from the frozen opposite-orientation bootstrap interval, so that the interval carries the same orientation as the point estimate it accompanies. Nothing else is computed here: no experiment is re-run and no frozen record is edited.",
+    "entries": [
+      {
+        "what": "Audit A/B official-metric component means, tau=1",
+        "policies": [
+          "C0",
+          "C1",
+          "C2",
+          "C3",
+          "C0_et10",
+          "C0_et25",
+          "C0_et50",
+          "S1",
+          "S2"
+        ],
+        "source_record": "artifacts/g79v_tau1_sensitivity_results.json",
+        "source_key_path": "tau10.<policy>.aggregates.{DSC_ET,DSC_TC,DSC_WT,NSD_ET,NSD_TC,NSD_WT}",
+        "public_projection_field": "audit_ab.official_metrics.tau_1.0.<policy>.aggregates",
+        "derived": false
+      },
+      {
+        "what": "Audit A/B official-metric component means, tau=0.5",
+        "policies": [
+          "C0",
+          "C1",
+          "C2",
+          "C3",
+          "C0_et10",
+          "C0_et25",
+          "C0_et50",
+          "S1",
+          "S2"
+        ],
+        "source_record": "artifacts/g79v_tau1_sensitivity_results.json",
+        "source_key_path": "tau05.<policy>.aggregates.{six components}",
+        "public_projection_field": "audit_ab.official_metrics.tau_0.5.<policy>.aggregates",
+        "derived": false
+      },
+      {
+        "what": "Audit A/B candidate-minus-C0 component deltas, both tolerances",
+        "policies": [
+          "C1",
+          "C2",
+          "C3",
+          "C0_et10",
+          "C0_et25",
+          "C0_et50",
+          "S1",
+          "S2"
+        ],
+        "source_record": "artifacts/g79v_tau1_sensitivity_results.json",
+        "source_key_path": "tau{05,10}.<policy>.aggregates MINUS tau{05,10}.C0.aggregates",
+        "public_projection_field": "audit_ab.official_metrics.<tau>.<policy>.aggregates",
+        "derived": true,
+        "derivation": "candidate mean minus baseline C0 mean, component-wise"
+      },
+      {
+        "what": "Audit A/B per-policy denominators",
+        "policies": [
+          "C0",
+          "C1",
+          "C2",
+          "C3",
+          "C0_et10",
+          "C0_et25",
+          "C0_et50",
+          "S1",
+          "S2"
+        ],
+        "source_record": "artifacts/g79v_tau1_sensitivity_results.json",
+        "source_key_path": "tau10.<policy>.denominators.{DSC_ET,DSC_TC,DSC_WT}",
+        "public_projection_field": "audit_ab.official_metrics.tau_1.0.<policy>.denominators",
+        "derived": false
+      },
+      {
+        "what": "Audit A decision metrics (DSC, HD95)",
+        "policies": [
+          "C0",
+          "C1",
+          "C2",
+          "C3",
+          "C0_et10",
+          "C0_et25",
+          "C0_et50"
+        ],
+        "source_record": "artifacts/g75_inference_policy_decision.json",
+        "source_key_path": "calibration_aggregates.<policy>.{et,tc,wt}_{dsc,hd95}",
+        "public_projection_field": "audit_ab.decision_metrics_dsc_hd95.<policy>",
+        "derived": false
+      },
+      {
+        "what": "Audit B decision metrics (DSC, HD95) for the two soups",
+        "policies": [
+          "S1",
+          "S2"
+        ],
+        "source_record": "artifacts/g76_checkpoint_soup_decision.json",
+        "source_key_path": "candidates.<policy>.{et,tc,wt}_{dsc,hd95}",
+        "public_projection_field": "audit_ab.decision_metrics_dsc_hd95.<policy>",
+        "derived": false
+      },
+      {
+        "what": "Rank gain point estimate, the frozen opposite-orientation bootstrap interval, and advancement status, at tau=1",
+        "policies": [
+          "C1",
+          "C2",
+          "C3",
+          "C0_et10",
+          "C0_et25",
+          "C0_et50",
+          "S1",
+          "S2"
+        ],
+        "source_record": "artifacts/g79v_tau1_sensitivity_results.json",
+        "source_key_path": "tau10_statistics.<policy>.{rank_gain_over_C0,bootstrap_ci,advances}",
+        "public_projection_field": "audit_ab.statistics_tau_1.0.<policy>.{rank_gain_over_C0,bootstrap_delta_ci_candidate_minus_C0,advances}",
+        "orientation": {
+          "rank_gain_over_C0": "R(C0) - R(candidate); positive favours the candidate",
+          "bootstrap_delta_ci_candidate_minus_C0": "R(candidate) - R(C0); the OPPOSITE orientation, exactly as frozen"
+        },
+        "derived": false
+      },
+      {
+        "what": "The interval DISPLAYED in supplement Table S18, converted to the point estimate's orientation",
+        "policies": [
+          "C1",
+          "C2",
+          "C3",
+          "C0_et10",
+          "C0_et25",
+          "C0_et50",
+          "S1",
+          "S2"
+        ],
+        "source_record": "artifacts/g79v_tau1_sensitivity_results.json",
+        "source_key_path": "tau10_statistics.<policy>.bootstrap_ci",
+        "public_projection_field": "audit_ab.statistics_tau_1.0.<policy>.rank_gain_ci",
+        "derived": true,
+        "derivation": "rank_gain_ci = [-raw_high, -raw_low]",
+        "derivation_note": "The frozen interval is stored as R(candidate) - R(C0), the opposite orientation to the point estimate. Negating it puts it in the same orientation, and negating an interval reverses its endpoints, which is why high and low swap. No experiment is recomputed and the frozen record is not edited; the unconverted interval remains published beside it."
+      },
+      {
+        "what": "Subset role, n, folds and evaluator",
+        "policies": [
+          "C0",
+          "C1",
+          "C2",
+          "C3",
+          "C0_et10",
+          "C0_et25",
+          "C0_et50",
+          "S1",
+          "S2"
+        ],
+        "source_record": "artifacts/g75_inference_policy_decision.json",
+        "source_key_path": "design.{calibration_n,calibration_folds,evaluator,confirmation_run}",
+        "public_projection_field": "audit_ab.subset",
+        "derived": false
+      },
+      {
+        "what": "Audit outcomes",
+        "policies": [
+          "C0",
+          "C1",
+          "C2",
+          "C3",
+          "C0_et10",
+          "C0_et25",
+          "C0_et50",
+          "S1",
+          "S2"
+        ],
+        "source_record": "artifacts/g75_inference_policy_decision.json, artifacts/g76_checkpoint_soup_decision.json, artifacts/g77_official_metric_decision.json, artifacts/g79v_tau1_sensitivity_results.json",
+        "source_key_path": "decision | decision | outcome | outcome",
+        "public_projection_field": "audit_ab.outcomes",
+        "derived": false
+      },
+      {
+        "what": "Bounded 40-epoch screen component deltas, both tolerances",
+        "policies": [
+          "T",
+          "DG",
+          "TDG"
+        ],
+        "source_record": "artifacts/g82_result.json",
+        "source_key_path": "recipes.<arm>.{tau1,tau05}.component_deltas.{six components}",
+        "public_projection_field": "screen_g82.arms.<arm>.component_deltas_<tau>",
+        "derived": false
+      },
+      {
+        "what": "Bounded screen aggregate utility change and gate tallies",
+        "policies": [
+          "T",
+          "DG",
+          "TDG"
+        ],
+        "source_record": "artifacts/g82_result.json",
+        "source_key_path": "recipes.<arm>.{tau1,tau05}.delta_U_common; screen_decision.recipes.<arm>.checks",
+        "public_projection_field": "screen_g82.arms.<arm>.delta_U_common_<tau>; screen_g82.arms.<arm>.gates",
+        "derived": false
+      },
+      {
+        "what": "Bounded screen bootstrap point estimates and positive fractions (tau=1 only)",
+        "policies": [
+          "T",
+          "DG",
+          "TDG"
+        ],
+        "source_record": "artifacts/g82_result.json",
+        "source_key_path": "recipes.<arm>.tau1.bootstrap.{point,prob_positive,ci95}",
+        "public_projection_field": "screen_g82.arms.<arm>.bootstrap_tau_1.0",
+        "derived": false
+      },
+      {
+        "what": "Bounded screen design, terminal status and convergence caveat",
+        "policies": [
+          "T",
+          "DG",
+          "TDG"
+        ],
+        "source_record": "artifacts/g82_result.json, configs/g82_preregistration.json, artifacts/G82_GENERALIZATION_FINETUNE.md",
+        "source_key_path": "terminal_status; screen.{epochs,seed,selection}; initialization.finetune_lr; section 10 limitation",
+        "public_projection_field": "screen_g82.{design,terminal_status,convergence_caveat}",
+        "derived": false
+      },
+      {
+        "what": "D25 non-execution, cause and analytic tile-count study",
+        "policies": [
+          "D25"
+        ],
+        "source_record": "artifacts/g83_result.json",
+        "source_key_path": "d25_predictions_generated, failed_gate, root_cause, conflict, tile_multiplier_analysis",
+        "public_projection_field": "d25",
+        "derived": false
+      }
+    ],
+    "values_that_do_not_exist": [
+      {
+        "what": "Absolute per-component means for the T, DG and TDG arms",
+        "why": "artifacts/g82_result.json records component_deltas against C0 only; candidate absolutes were never computed. They are reported as deltas and nothing is reconstructed."
+      },
+      {
+        "what": "Any HD95 value for T, DG or TDG",
+        "why": "configs/g82_preregistration.json metric.official_ranking_uses excludes HD95; no HD95 was computed for any screen arm."
+      },
+      {
+        "what": "Bootstrap, per-fold, zero-DSC and tail statistics at tau=0.5 for the screen",
+        "why": "recipes.<arm>.tau05 carries deltas only; those statistics exist at tau=1 only."
+      },
+      {
+        "what": "Any D25 measurement",
+        "why": "d25_predictions_generated = 0. D25 was never executed, so no DSC, NSD, runtime or utility value exists for it."
+      },
+      {
+        "what": "Folds 3-4 values for any Audit A/B candidate or screen arm",
+        "why": "the policy-selection holdout was never opened for these audits (confirmation_run false; confirmation_folds_opened false)."
+      },
+      {
+        "what": "Common-support (paired) figures for Audit A/B candidates",
+        "why": "the frozen records aggregate under the evaluator's per-policy skipna rule; no paired common-support aggregation was computed for these candidates and none is invented here."
+      }
+    ]
+  }
+}

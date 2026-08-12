@@ -1,0 +1,101 @@
+{
+  "note": "Complete decision-check matrices. The development subset carried 18 frozen checks and the policy-selection holdout 23. A candidate whose expected evaluation is missing, errored or membership-mismatched is ineligible: the audit fails closed rather than comparing a surviving subset.",
+  "matrices": {
+    "development_folds_0_2": {
+      "n_total": 18,
+      "n_passed": 17,
+      "failed": [
+        "lesion_fn_not_increased"
+      ],
+      "checks": {
+        "dU_common_tau1": true,
+        "dU_common_tau05": true,
+        "official_deltas_positive": true,
+        "all_components_nonnegative_tau1": true,
+        "all_components_nonnegative_tau05": true,
+        "bootstrap_probability": true,
+        "bootstrap_lower_bound_above_zero": true,
+        "enough_folds_nonnegative": true,
+        "no_fold_collapses": true,
+        "et_zero_dsc_not_increased": true,
+        "total_zero_dsc_not_increased": true,
+        "unique_subject_zero_dsc_not_increased": true,
+        "lesion_fn_not_increased": false,
+        "lesion_fp_within_limit": true,
+        "no_denominator_only_gain": true,
+        "exact_membership": true,
+        "zero_evaluator_errors": true,
+        "independent_recompute_agrees": true
+      }
+    },
+    "policy_selection_holdout_folds_3_4": {
+      "n_total": 23,
+      "n_passed": 15,
+      "failed": [
+        "bootstrap_lower_bound_above_zero",
+        "bootstrap_probability",
+        "dU_common_tau1",
+        "fold4_nonnegative",
+        "miss_rate_point_within_margin",
+        "miss_rate_upper_bound_within_margin",
+        "no_region_miss_rate_regression",
+        "total_zero_dsc_not_increased"
+      ],
+      "checks": {
+        "dU_common_tau1": false,
+        "dU_common_tau05": true,
+        "bootstrap_probability": false,
+        "bootstrap_lower_bound_above_zero": false,
+        "components_nonnegative_tau1": true,
+        "components_nonnegative_tau05": true,
+        "official_deltas_positive": true,
+        "dsc_within_limit": true,
+        "nsd_within_limit": true,
+        "fold3_nonnegative": true,
+        "fold4_nonnegative": false,
+        "et_zero_dsc_not_increased": true,
+        "total_zero_dsc_not_increased": false,
+        "unique_subject_zero_dsc_not_increased": true,
+        "n_ref_total_invariant": true,
+        "miss_rate_point_within_margin": false,
+        "miss_rate_upper_bound_within_margin": false,
+        "no_region_miss_rate_regression": false,
+        "fp_pred_within_limit": true,
+        "no_denominator_only_gain": true,
+        "exact_membership": true,
+        "zero_evaluator_errors": true,
+        "independent_recompute_agrees": true
+      }
+    },
+    "pooled_all_folds_supportive_only": {
+      "n_total": 18,
+      "n_passed": 14,
+      "failed": [
+        "bootstrap_probability",
+        "miss_rate_point_within_margin",
+        "miss_rate_upper_bound_within_margin",
+        "no_region_miss_rate_regression"
+      ],
+      "checks": {
+        "dU_common_tau1": true,
+        "dU_common_tau05": true,
+        "bootstrap_probability": false,
+        "bootstrap_lower_bound_above_zero": true,
+        "components_nonnegative_tau1": true,
+        "components_nonnegative_tau05": true,
+        "et_zero_dsc_not_increased": true,
+        "total_zero_dsc_not_increased": true,
+        "unique_subject_zero_dsc_not_increased": true,
+        "n_ref_total_invariant": true,
+        "miss_rate_point_within_margin": false,
+        "miss_rate_upper_bound_within_margin": false,
+        "no_region_miss_rate_regression": false,
+        "fp_pred_within_limit": true,
+        "no_denominator_only_gain": true,
+        "exact_membership": true,
+        "zero_evaluator_errors": true,
+        "independent_recompute_agrees": true
+      }
+    }
+  }
+}

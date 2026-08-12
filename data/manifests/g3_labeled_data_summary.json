@@ -1,0 +1,121 @@
+{
+  "anomaly_counts": {
+    "affine_mismatch": 0,
+    "illegal_label": 0,
+    "label4": 0,
+    "missing_modality": 0,
+    "nonfinite": 0,
+    "shape_mismatch": 0,
+    "unknown_modality": 0,
+    "unreadable": 0
+  },
+  "archive_role": "train_with_gt",
+  "archive_sha256_computed": true,
+  "case_count": 1351,
+  "cohort": "UNKNOWN (not unambiguously derivable from filenames)",
+  "complete_cases": 1351,
+  "downloaded_bytes": 14836495703,
+  "duplicate_content_files": 0,
+  "empty_region_counts": {
+    "empty_mask": 0,
+    "missing_ET": 33,
+    "missing_TC": 6,
+    "missing_WT": 0
+  },
+  "exhaustive_reaudit": {
+    "anomalies": {
+      "duplicate_modality": 0,
+      "duplicate_seg": 0,
+      "fractional_label": 0,
+      "geometry_mismatch": 0,
+      "illegal_label": 0,
+      "label4": 0,
+      "missing_modality": 0,
+      "modality_nonfinite": 0,
+      "qform_sform_discrepancy": 1,
+      "seg_nonfinite": 0,
+      "unknown_modality": 0
+    },
+    "canonical_file_count": 6755,
+    "case_count": 1351,
+    "complete_cases": 1351,
+    "empty_region_counts": {
+      "empty_mask": 0,
+      "missing_ET": 33,
+      "missing_TC": 6,
+      "missing_WT": 0
+    },
+    "label_set": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "qform_sform_note": "1 case has a qform/sform CODE difference vs its T1n; affine geometry still matches within tolerance (geometry_mismatch=0). Recorded, not a hard failure; headers not rewritten.",
+    "region_nonempty_case_counts": {
+      "ET": 1318,
+      "TC": 1345,
+      "WT": 1351
+    },
+    "schema_note": "G3-R: replaced stride-32 sampling with exhaustive per-voxel finiteness + full geometry + content-hash dedup",
+    "tolerances": {
+      "affine_atol": 0.001,
+      "finiteness": "exhaustive per-voxel (full-array load per volume)",
+      "spacing_atol": 0.001
+    },
+    "valid_cases": 1351,
+    "voxel_content_duplicate_count": 0,
+    "wall_seconds": 760
+  },
+  "expected_bytes": 14836495703,
+  "incomplete_cases": 0,
+  "label_set": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "label_voxel_totals": {
+    "0": 11936682074,
+    "1": 18090256,
+    "2": 78847949,
+    "3": 28107721
+  },
+  "md5_verified": true,
+  "member_count": 6755,
+  "modality_convention": "brats-goat-t1n/t1c/t2w/t2f/seg",
+  "notes": [
+    "Metadata/aggregate only. No case IDs, filenames, entity IDs, MD5s, or per-case records.",
+    "Only the train_with_gt archive was downloaded; train_without_gt and validation were NOT downloaded.",
+    "No preprocessing, nnU-Net conversion, training, or evaluation performed.",
+    "G3-R exhaustive re-audit (760s) confirms every voxel finite, full geometry consistent, 0 content duplicates; 1 qform/sform code discrepancy recorded."
+  ],
+  "pilots": {
+    "fallback_used": false,
+    "pilot_case_A": "median WT burden among complete valid labeled cases",
+    "pilot_case_B": "smallest positive ET burden among remaining complete valid cases"
+  },
+  "region_definitions": {
+    "ET": "label 3",
+    "TC": "labels 1,3",
+    "WT": "labels 1,2,3"
+  },
+  "region_nonempty_case_counts": {
+    "ET": 1318,
+    "TC": 1345,
+    "WT": 1351
+  },
+  "schema": "gat26.g3.labeled_data_summary.v1",
+  "state": "downloaded",
+  "storage": {
+    "logical_used_gib_approx": 28.7,
+    "quota_free_gib_approx": 271.3,
+    "volume_quota_gib": 300
+  },
+  "timings": {
+    "download_seconds": 113.9,
+    "download_throughput_mib_s": 124.2
+  },
+  "total_extracted_bytes": 15102119170,
+  "valid_cases": 1351
+}

@@ -1,0 +1,252 @@
+{
+  "suite": "GAT-26 static architecture and release contracts",
+  "suite_version": "1.2",
+  "status": "PASS",
+  "passed": 24,
+  "total": 24,
+  "checks": [
+    {
+      "name": "exhaustive legal label-region round trip",
+      "passed": true,
+      "detail": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "name": "random legal round trips",
+      "passed": true,
+      "detail": "200 arrays"
+    },
+    {
+      "name": "illegal/noninteger/nonfinite labels rejected",
+      "passed": true,
+      "detail": "-1, 4, 1.5, NaN"
+    },
+    {
+      "name": "malformed region tensors rejected",
+      "passed": true,
+      "detail": "wrong channel count and nonbinary values"
+    },
+    {
+      "name": "reconstruction cannot emit child region outside parent",
+      "passed": true,
+      "detail": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "name": "invalid probabilities rejected",
+      "passed": true,
+      "detail": "wrong channels, out-of-range, and NaN"
+    },
+    {
+      "name": "invalid thresholds rejected",
+      "passed": true,
+      "detail": "wrong count, out-of-range, and NaN"
+    },
+    {
+      "name": "cumulative-max projection exact",
+      "passed": true,
+      "detail": [
+        [
+          0.8
+        ],
+        [
+          0.8
+        ],
+        [
+          0.6
+        ]
+      ]
+    },
+    {
+      "name": "projection hierarchy",
+      "passed": true,
+      "detail": "WT >= TC >= ET"
+    },
+    {
+      "name": "projection idempotence",
+      "passed": true,
+      "detail": "P(P(q)) == P(q)"
+    },
+    {
+      "name": "unequal-threshold counterexample reproduced",
+      "passed": true,
+      "detail": [
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "name": "explicit intersection repairs counterexample",
+      "passed": true,
+      "detail": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "name": "randomized nested-mask property",
+      "passed": true,
+      "detail": "1000 trials"
+    },
+    {
+      "name": "raising ET threshold cannot add ET voxels",
+      "passed": true,
+      "detail": "1000 trials"
+    },
+    {
+      "name": "surrogate loss finite at numerical edge cases",
+      "passed": true,
+      "detail": {
+        "empty/extreme-positive": 1000.9999998437501,
+        "full/extreme-negative": 1000.9999998437501,
+        "empty/neutral": 1.693146868060043
+      }
+    },
+    {
+      "name": "surrogate loss direction sanity",
+      "passed": true,
+      "detail": {
+        "correct": 0.0005031095446673848,
+        "inverse": 8.999664774863113
+      }
+    },
+    {
+      "name": "hierarchy penalty direction",
+      "passed": true,
+      "detail": {
+        "nested": 0.0,
+        "violating": 0.7000000000000001
+      }
+    },
+    {
+      "name": "reference patch stage arithmetic",
+      "passed": true,
+      "detail": [
+        [
+          160,
+          160,
+          128
+        ],
+        [
+          80,
+          80,
+          64
+        ],
+        [
+          40,
+          40,
+          32
+        ],
+        [
+          20,
+          20,
+          16
+        ],
+        [
+          10,
+          10,
+          8
+        ],
+        [
+          5,
+          5,
+          4
+        ]
+      ]
+    },
+    {
+      "name": "invalid patch/stride rejected",
+      "passed": true,
+      "detail": "nondivisible, wrong-rank, and zero stride"
+    },
+    {
+      "name": "exact encoder feature lower bound",
+      "passed": true,
+      "detail": 139552000
+    },
+    {
+      "name": "pinned ResEnc contract sentinel",
+      "passed": true,
+      "detail": "24e8e6b1f1c0ff32f1d81ccc3c79db26b2cc3fde57be48b19804efdc5346ddfd"
+    },
+    {
+      "name": "GoAT reconstruction class order",
+      "passed": true,
+      "detail": [
+        2,
+        1,
+        3
+      ]
+    },
+    {
+      "name": "award and diagnostic metrics are not conflated",
+      "passed": true,
+      "detail": {
+        "award": [
+          "DSC",
+          "HD95"
+        ],
+        "diagnostic": [
+          "NSD",
+          "SENSITIVITY",
+          "SPECIFICITY",
+          "PRECISION"
+        ]
+      }
+    },
+    {
+      "name": "Task 3 output-name and flat-directory contract",
+      "passed": true,
+      "detail": {
+        "valid": [
+          "BraTS-GoAT-02610.nii.gz",
+          "02610.nii.gz",
+          "prediction_02610.nii.gz"
+        ],
+        "invalid": [
+          "BraTS-GoAT-02610-000.nii.gz",
+          "0261.nii.gz",
+          "026100.nii.gz",
+          "nested/02610.nii.gz",
+          "02610.nii"
+        ]
+      }
+    }
+  ],
+  "official_award_metrics": [
+    "DSC",
+    "HD95"
+  ],
+  "diagnostic_metrics": [
+    "NSD",
+    "SENSITIVITY",
+    "SPECIFICITY",
+    "PRECISION"
+  ],
+  "resenc_contract_sha256": "24e8e6b1f1c0ff32f1d81ccc3c79db26b2cc3fde57be48b19804efdc5346ddfd",
+  "reference_feature_elements_encoder_only": 139552000,
+  "reference_feature_memory_mib_encoder_only": {
+    "fp16": 266.17431640625,
+    "fp32": 532.3486328125
+  },
+  "limitations": [
+    "This suite does not execute PyTorch convolutions or nnU-Net.",
+    "The NumPy loss is a numerical surrogate, not nnU-Net's native loss.",
+    "It does not measure full-case sliding-window A10G memory or runtime.",
+    "It cannot estimate GoAT accuracy without protected data and training."
+  ]
+}
